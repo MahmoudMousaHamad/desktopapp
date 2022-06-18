@@ -16,7 +16,9 @@ build:
 
   artifacts:
     expire_in: 30 days
+    name: '$CI_COMMIT_REF_NAME'
     paths:
+      - release/build/*.AppImage
       - release/build/*-mac.zip
       - release/build/*.exe
   only:
