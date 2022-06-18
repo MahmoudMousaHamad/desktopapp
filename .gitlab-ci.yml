@@ -22,7 +22,7 @@ build:
   only:
     - master
 
-pages:
+deploy:
   stage: deploy
   script:
     - mkdir .public
