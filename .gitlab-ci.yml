@@ -3,6 +3,7 @@ variables:
 
 stages:
   - build
+  - deploy
 
 build:
   image: electronuserland/builder:wine
@@ -12,6 +13,18 @@ build:
     - npm run package -- --linux
     - npm run package -- --windows
     # - npm run package -- --mac
+
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - release/build/*-mac.zip
+      - release/build/*.exe
+  only:
+    - main
+
+pages:
+  stage: deploy
+  script:
     - mkdir .public
     - cp -r release/build/* .public
     - mv .public public
@@ -22,10 +35,5 @@ build:
       - public/*-mac.zip
       - public/*.exe
       - public/*.AppImage
-  artifacts:
-    expire_in: 30 days
-    paths:
-      - release/build/*-mac.zip
-      - release/build/*.exe
   only:
-    - master
+    - main
