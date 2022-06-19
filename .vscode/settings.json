@@ -1,4 +1,8 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  
   "files.associations": {
     ".eslintrc": "jsonc",
     ".prettierrc": "jsonc",
@@ -26,5 +30,6 @@
     "test/**/__snapshots__": true,
     "package-lock.json": true,
     "*.{css,sass,scss}.d.ts": true
-  }
+  },
+
 }

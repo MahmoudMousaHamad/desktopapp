@@ -286,7 +286,7 @@ class Scraper {
   openSession() {
     // Open chrome on specified port
     exec(
-      'google-chrome --remote-debugging-port=9222 --user-data-dir="/home/mahmoud/web-scraper/localhost"',
+      'google-chrome --remote-debugging-port=9222 --user-data-dir="/home/mahmoud/userchromedata"',
       (error, stdout, stderr) => {
         console.log(`stdout: ${stdout}`);
         console.log(`stderr: ${stderr}`);

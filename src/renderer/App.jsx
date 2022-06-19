@@ -1,50 +1,69 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { Router, Route, Link, Routes, HashRouter } from "react-router-dom";
+import socketIOClient from "socket.io-client";
 
-import './App.css';
-import './Form.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function Hello() {
-  const [question, setQuestion] = useState('<p>No question yet</p>');
-  const [last, setLast] = useState(false);
+import "./App.css";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Profile from "./components/Profile";
+import Home from "./components/Home";
+import { logout } from "./actions/auth";
+import { setMessage, clearMessage } from "./actions/message";
+import config from "../config";
 
-  useEffect(() => {
-    window.electron.ipcRenderer.on('question', (event) => {
-      console.log('Last: ', event.last);
-      setLast(event.last);
-      setQuestion(event.question);
-    });
+const App = () => {
+  const { user: currentUser } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('question');
-    };
-  }, [question]);
-
-  function handleSubmit() {
-    window.electron.ipcRenderer.send('answer', {
-      answer: 'HELLO',
-      last,
-    });
-  }
+  const logOut = () => {
+    dispatch(logout());
+  };
 
   return (
-    <div className="App">
-      <div className="form-style-1">
-        <div dangerouslySetInnerHTML={{ __html: question }} />
-        <button type="button" onClick={handleSubmit}>
-          Submit
-        </button>
-        {last && <p>This is the last question</p>}
-      </div>
-    </div>
+      <HashRouter>
+          <div>
+            <nav className="navbar navbar-expand navbar-dark bg-dark">
+              <div className="navbar-nav  mr-auto">
+                <li className="nav-item">
+                  <Link to={"/"} className="nav-link">Home</Link>
+                </li>
+              </div>
+              {currentUser ? (
+                <div className="navbar-nav ml-auto">
+                  <li className="nav-item">
+                    <Link to={"/profile"} className="nav-link">
+                      {currentUser.email}
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <a href={"/login"} className="nav-link" onClick={logOut}>Log out</a>
+                  </li>
+                </div>
+              ) : (
+                <div className="navbar-nav ml-auto">
+                  <li className="nav-item">
+                    <Link to={"/login"} className="nav-link">Log in</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link to={"/register"} className="nav-link">Sign Up</Link>
+                  </li>
+                </div>
+              )}
+            </nav>
+            <div className="container mt-3">
+              <Routes>
+                <Route path="/" element={<Home/>} />
+                <Route path="/login" element={<Login/>} />
+                <Route path="/register" element={<Register/>} />
+                <Route path="/profile" element={<Profile/>} />
+              </Routes>
+            </div>
+          </div>
+      </HashRouter>
   );
-}
-export default function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
-  );
-}
+};
+
+export default App;

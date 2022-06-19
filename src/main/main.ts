@@ -12,9 +12,13 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import socketIOClient from "socket.io-client";
+
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { Scraper } from './scrapper';
+import config from '../config';
+
 
 export default class AppUpdater {
   constructor() {
@@ -138,4 +142,17 @@ app
   .catch(console.log);
 
 let scraper = new Scraper();
-scraper.start();
+
+    
+ipcMain.on('start-scraper', (e, user) => {
+  // Start socket connection
+  const socket = socketIOClient(config.SERVER_ENDPOINT);
+  
+  socket.on('handshake', () => console.log('Socket connection established.'));
+
+  socket.emit('user', user);
+  
+  scraper.start();
+})
+
+
