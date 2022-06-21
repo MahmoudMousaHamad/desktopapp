@@ -1,18 +1,18 @@
-const { NODE_ENV } = process.env;
+const { NODE_ENV } = "development";
 
 let serverEndpoint;
 
 switch (NODE_ENV) {
-  case 'production':
-    serverEndpoint = 'http://167.172.133.156/';
+  case "production":
+    serverEndpoint = "http://167.172.133.156/";
     break;
 
-  case 'staging':
-    serverEndpoint = 'http://167.172.133.156/';
+  case "staging":
+    serverEndpoint = "http://167.172.133.156/";
     break;
 
   default:
-    serverEndpoint = 'http://localhost:3000/';
+    serverEndpoint = "http://localhost:3000/";
     break;
 }
 
