@@ -1,50 +1,68 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+/* eslint-disable react/prop-types */
+function getInputFromType(type, value = null) {
+  return <input type={type} value={value} />;
+}
 
-import './App.css';
-import './Form.css';
+const questionTypeInput = {
+  text: {
+    element: <input type="text" />,
+  },
+  textarea: {
+    element: <textarea />,
+  },
+  number: {
+    element: getInputFromType("number"),
+  },
+  radio: {
+    element: (options) =>
+      options.map((o) => (
+        <>
+          {getInputFromType("radio", o)}
+          <label htmlFor="question">{o}</label>
+        </>
+      )),
+  },
+  select: {
+    element: (options) => {
+      return (
+        <select>
+          {options.map((o) => (
+            <option label={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+      );
+    },
+  },
+  checkbox: {
+    element: (options) =>
+      options.map((o) => (
+        <>
+          <input type="checkbox" value={o} />
+          <label htmlFor="question">{o}</label>
+        </>
+      )),
+  },
+};
 
-function Hello() {
-  const [question, setQuestion] = useState('<p>No question yet</p>');
-  const [last, setLast] = useState(false);
-
-  useEffect(() => {
-    window.electron.ipcRenderer.on('question', (event) => {
-      console.log('Last: ', event.last);
-      setLast(event.last);
-      setQuestion(event.question);
-    });
-
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('question');
-    };
-  }, [question]);
-
-  function handleSubmit() {
-    window.electron.ipcRenderer.send('answer', {
-      answer: 'HELLO',
-      last,
-    });
+function constructInput(type, options) {
+  if (options === "None") {
+    return questionTypeInput[type].element;
   }
+  return questionTypeInput[type].element(options);
+}
+
+export default ({ question }) => {
+  const { text, type, options } = question;
+
+  const questionText = <label htmlFor="question">{text}</label>;
+  const input = constructInput(type, options);
 
   return (
-    <div className="App">
-      <div className="form-style-1">
-        <div dangerouslySetInnerHTML={{ __html: question }} />
-        <button type="button" onClick={handleSubmit}>
-          Submit
-        </button>
-        {last && <p>This is the last question</p>}
-      </div>
-    </div>
+    <>
+      {questionText}
+      {input}
+    </>
   );
-}
-export default function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
-  );
-}
+};

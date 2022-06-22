@@ -13,6 +13,7 @@ import Home from "./components/Home";
 import { logout } from "./actions/auth";
 import { setMessage, clearMessage } from "./actions/message";
 import config from "../config";
+import QA from "./QA";
 
 const App = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -38,6 +39,11 @@ const App = () => {
               <li className="nav-item">
                 <Link to="/profile" className="nav-link">
                   {currentUser.email}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/qa" className="nav-link">
+                  QA
                 </Link>
               </li>
               <li className="nav-item">
@@ -67,6 +73,8 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
+
+            <Route path="/qa" element={<QA />} />
           </Routes>
         </div>
       </div>

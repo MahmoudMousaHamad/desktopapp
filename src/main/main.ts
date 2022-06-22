@@ -14,6 +14,7 @@ import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import socketIOClient from "socket.io-client";
 
+import { exec } from "child_process";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
 import { Scraper } from "./scrapper";
@@ -126,6 +127,8 @@ app.on("window-all-closed", () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== "darwin") {
+    // Kill chrome driver process
+    exec("pkill -9 -f chromedriver");
     app.quit();
   }
 });
@@ -156,5 +159,31 @@ ipcMain.on("start-scraper", (e, user) => {
 });
 
 ipcMain.on("question", () => {
+  console.log("Sending question to server...");
   socket.emit("question", "My question?");
 });
+
+/**
+ * Company website application workflows
+ *
+ * A)
+ *  Find apply button (Press)
+ *  Terms and conditions (Agree)
+ *  Resume (Upload)
+ *  Basic information (Fill)
+ *  Work experience (Fill)
+ *    Add more as necessary
+ *  Education (Fill)
+ *    Add more as necessary
+ *  Additional attachments (Attach)
+ *    Cover letter
+ *  Application Questions (Fill)
+ *    Questions are divided into divs
+ *  Voluntary Disclosures (Fill)
+ *  Disability self-identity (Fill)
+ *  Review (Submit)
+ *  Submission Verification (Log)
+ *
+ * B) Greenhouse
+ *
+ */
