@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-function getInputFromType(type, value = null) {
-  return <input type={type} value={value} />;
+function getInputFromType(type) {
+  return <input type={type} />;
 }
 
 const questionTypeInput = {
@@ -16,10 +16,9 @@ const questionTypeInput = {
   radio: {
     element: (options) =>
       options.map((o) => (
-        <>
-          {getInputFromType("radio", o)}
-          <label htmlFor="question">{o}</label>
-        </>
+        <div>
+          <input type="radio" value={o} name="current_question" /> {o}
+        </div>
       )),
   },
   select: {
@@ -38,10 +37,9 @@ const questionTypeInput = {
   checkbox: {
     element: (options) =>
       options.map((o) => (
-        <>
-          <input type="checkbox" value={o} />
-          <label htmlFor="question">{o}</label>
-        </>
+        <div>
+          <input type="checkbox" value={o} name="current_question" /> {o}
+        </div>
       )),
   },
 };
@@ -60,9 +58,9 @@ export default ({ question }) => {
   const input = constructInput(type, options);
 
   return (
-    <>
+    <div>
       {questionText}
       {input}
-    </>
+    </div>
   );
 };

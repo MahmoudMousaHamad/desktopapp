@@ -191,8 +191,6 @@ class Scraper {
       questions.push(question);
     }
 
-    console.log(questions);
-
     const questionsHTMLIterator = questions.values();
     let next = questionsHTMLIterator.next();
 

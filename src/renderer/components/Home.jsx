@@ -1,32 +1,26 @@
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import socketIOClient from "socket.io-client";
+import { setSocket } from "../actions/socket";
+import config from "../../config";
 
 export default () => {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  /**
-   * Start scraper and send user to main process
-   */
   const start = () => {
+    const socket = socketIOClient(config.SERVER_ENDPOINT);
+    socket.emit("user", user);
+    dispatch(setSocket(socket));
     window.electron.ipcRenderer.send("start-scraper", user);
   };
 
-  const sendQuestion = () => {
-    window.electron.ipcRenderer.send("question", "My question");
-  };
-
-  console.log(user);
   return (
     <>
-      <h1>Welcome home!</h1>
       {user && (
         <button type="button" onClick={start}>
-          Start Scraper
+          Start Applying
         </button>
       )}
-      <button type="button" onClick={sendQuestion}>
-        Send Question
-      </button>
     </>
   );
 };

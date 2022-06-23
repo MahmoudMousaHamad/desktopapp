@@ -5,3 +5,9 @@ export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const LOGOUT = 'LOGOUT';
 export const SET_MESSAGE = 'SET_MESSAGE';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
+
+export const SET_QUESTION = 'SET_QUESTION';
+
+export const SOCKET_SET_SOCKET = 'SOCKET_SET_SOCKET';
+export const SOCKET_SEND_USER = 'SOCKET_SEND_USER';
+export const SOCKET_SEND_QUESTION = 'SOCKET_SEND_QUESTION';
