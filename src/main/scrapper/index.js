@@ -220,11 +220,6 @@ class Scraper {
       }
     });
 
-    win.webContents.send("question", {
-      question: next.value,
-      last: next.done,
-    });
-
     await new Promise((resolve) => {
       this.interval = setInterval(() => {
         if (this.lastQuestionAnswered) {

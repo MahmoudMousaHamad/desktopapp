@@ -148,20 +148,20 @@ app
 const scraper = new Scraper();
 
 // Start socket connection
-const socket = socketIOClient(config.SERVER_ENDPOINT);
+// const socket = socketIOClient(config.SERVER_ENDPOINT);
 
 ipcMain.on("start-scraper", (e, user) => {
-  socket.on("handshake", () => console.log("Socket connection established."));
+  // socket.on("handshake", () => console.log("Socket connection established."));
 
-  socket.emit("user", user);
+  // socket.emit("user", user);
 
   scraper.start();
 });
 
-ipcMain.on("question", () => {
-  console.log("Sending question to server...");
-  socket.emit("question", "My question?");
-});
+// ipcMain.on("question", () => {
+//   console.log("Sending question to server...");
+//   socket.emit("question", "My question?");
+// });
 
 /**
  * Company website application workflows

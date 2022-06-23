@@ -1,25 +1,23 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Link, Routes, HashRouter } from "react-router-dom";
-import socketIOClient from "socket.io-client";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import "./App.css";
-import config from "config";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Profile from "./components/Profile";
 import Home from "./components/Home";
+import QA from "./QA";
+
 import { logout } from "./actions/auth";
 import { setQuestion } from "./actions/qa";
-import QA from "./QA";
-import { setSocket } from "./actions/socket";
+import { sendData } from "./actions/socket";
 
 const App = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const { question } = useSelector((state) => state.qa);
-  const { socket } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
 
   const logOut = () => {
@@ -27,21 +25,20 @@ const App = () => {
   };
 
   useEffect(() => {
-    window.electron.ipcRenderer.on("question", (data) => {
-      console.log("Renderer recieved a question from main.");
-      dispatch(setQuestion(data.question));
+    console.log("Sending user to server.");
+    dispatch(sendData("user", currentUser));
+  }, [dispatch, currentUser]);
 
-      if (socket) {
-        console.log("Sending question to server via socket connection.");
-        socket.emit("question", data.question);
-      }
+  useEffect(() => {
+    window.electron.ipcRenderer.on("question", (data) => {
+      dispatch(setQuestion(data.question));
+      dispatch(sendData("question", data.question));
     });
 
     return () => {
       window.electron.ipcRenderer.removeAllListeners("question");
-      socket.close();
     };
-  }, [question, dispatch]);
+  }, [dispatch, question]);
 
   return (
     <HashRouter>

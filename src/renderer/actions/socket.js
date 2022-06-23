@@ -1,6 +1,13 @@
-import { SOCKET_SET_SOCKET } from "./types";
+import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./types";
 
-export const setSocket = (socket) => ({
-  type: SOCKET_SET_SOCKET,
-  payload: socket,
+export const gotData = (data, name) => ({
+  type: SOCKET_GOT_DATA,
+  [name]: data,
+  name,
+});
+
+export const sendData = (channel, data) => ({
+  type: SOCKET_SEND_DATA,
+  payload: data,
+  channel,
 });

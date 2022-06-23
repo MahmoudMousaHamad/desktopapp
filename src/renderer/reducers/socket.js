@@ -1,15 +1,11 @@
-import {
-  SOCKET_SET_SOCKET,
-  SOCKET_SEND_USER,
-  SOCKET_SEND_QUESTION,
-} from "../actions/types";
+import { SOCKET_GOT_DATA } from "../actions/types";
 
 const initialState = {};
 export default (state = initialState, action) => {
-  const { type, payload } = action;
+  const { type, name } = action;
   switch (type) {
-    case SOCKET_SET_SOCKET:
-      return { socket: payload };
+    case SOCKET_GOT_DATA:
+      return { [name]: action[name], ...state };
     default:
       return state;
   }

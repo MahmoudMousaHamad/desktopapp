@@ -1,13 +1,12 @@
-export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
-export const REGISTER_FAIL = 'REGISTER_FAIL';
-export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-export const LOGIN_FAIL = 'LOGIN_FAIL';
-export const LOGOUT = 'LOGOUT';
-export const SET_MESSAGE = 'SET_MESSAGE';
-export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
+export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
+export const REGISTER_FAIL = "REGISTER_FAIL";
+export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
+export const LOGIN_FAIL = "LOGIN_FAIL";
+export const LOGOUT = "LOGOUT";
+export const SET_MESSAGE = "SET_MESSAGE";
+export const CLEAR_MESSAGE = "CLEAR_MESSAGE";
 
-export const SET_QUESTION = 'SET_QUESTION';
+export const SET_QUESTION = "SET_QUESTION";
 
-export const SOCKET_SET_SOCKET = 'SOCKET_SET_SOCKET';
-export const SOCKET_SEND_USER = 'SOCKET_SEND_USER';
-export const SOCKET_SEND_QUESTION = 'SOCKET_SEND_QUESTION';
+export const SOCKET_GOT_DATA = "SOCKET_GOT_DATA";
+export const SOCKET_SEND_DATA = "SOCKET_SEND_DATA";
