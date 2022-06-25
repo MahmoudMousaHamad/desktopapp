@@ -39,6 +39,9 @@ const StartSocket = (store) => {
 
   socket.on("handshake", () => console.log("Socket connection established."));
 
+  console.log("Sending user to server.");
+  store.dispatch(Actions.sendData("user", store.getState().auth.user));
+
   ["answer"].forEach((channel) => {
     socket.on(channel, (data) => {
       store.dispatch(Actions.gotData(data, channel));

@@ -25,11 +25,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log("Sending user to server.");
-    dispatch(sendData("user", currentUser));
-  }, [dispatch, currentUser]);
-
-  useEffect(() => {
     window.electron.ipcRenderer.on("question", (data) => {
       dispatch(setQuestion(data.question));
       dispatch(sendData("question", data.question));
