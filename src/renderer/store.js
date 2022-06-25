@@ -22,7 +22,11 @@ const SocketMiddleware = (store) => (next) => (action) => {
           "Payload:",
           action.payload
         );
-        socket.emit(action.channel, action.payload);
+        if (action.channel && action.payload) {
+          socket.emit(action.channel, action.payload);
+        } else {
+          console.error("Action channel and/or payload are missing:", action);
+        }
         break;
       default:
         break;
@@ -37,9 +41,7 @@ const SocketMiddleware = (store) => (next) => (action) => {
 const StartSocket = (store) => {
   socket = socketIOClient(config.SERVER_ENDPOINT);
 
-  socket.on("handshake", () => console.log("Socket connection established."));
-
-  console.log("Sending user to server.");
+  socket.emit("source", "desktop");
   store.dispatch(Actions.sendData("user", store.getState().auth.user));
 
   ["answer"].forEach((channel) => {
