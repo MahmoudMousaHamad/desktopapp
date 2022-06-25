@@ -7,6 +7,7 @@ import * as Actions from "./actions/socket";
 import config from "../config";
 import reducer from "./reducers";
 import { SOCKET_SEND_DATA } from "./actions/types";
+import Socket from "./Socket";
 
 let socket;
 
@@ -57,6 +58,6 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(reducer, applyMiddleware(SocketMiddleware, thunk));
 
 // Set up socket
-StartSocket(store);
+socket = Socket.connect(config.SERVER_ENDPOINT, store);
 
 export default store;
