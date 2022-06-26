@@ -12,23 +12,63 @@ class Question {
   typesSelectors = {
     text: {
       selectors: ["input[type=text]"],
+      answer: async (element, answer) => {
+        await element.sendKeys(answer);
+      },
     },
     textarea: {
       selectors: ["textarea"],
+      answer: async (element, answer) => {
+        await element.sendKeys(answer);
+      },
     },
     number: {
       selectors: ["input[type=number]"],
+      answer: async (element, answer) => {
+        await element.sendKeys(answer);
+      },
     },
     radio: {
       selectors: ["input[type=radio]"],
+      answer: async (elements, answer) => {
+        await elements.forEach(async (element) => {
+          const elementText = await element.getText();
+          if (elementText === answer) {
+            element.click();
+          }
+        });
+      },
     },
     select: {
       selectors: ["select"],
+      answer: async (element, answer) => {
+        await element.click();
+        const options = await element.findElements(By.css("option"));
+        for (const option of options) {
+          const optionText = await option.getText();
+          if (optionText === answer) {
+            await option.click();
+            return true;
+          }
+        }
+        return false;
+      },
     },
     checkbox: {
       selectors: ["input[type=checkbox]"],
+      answer: async (elements, answer) => {
+        await elements.forEach(async (element, index) => {
+          if (answer.includes(index)) {
+            await element.click();
+          }
+        });
+      },
     },
   };
+
+  async answer(answer) {
+    await this.typesSelectors[this.type].answer(this.inputElement, answer);
+  }
 
   async getQuestionType() {
     for (const type in this.typesSelectors) {
@@ -38,6 +78,7 @@ class Question {
       );
       if (possibleInputs.length >= 1) {
         this.type = type;
+        this.inputElement = possibleInputs;
         this.inputsLength = possibleInputs.length;
         return type;
       }
@@ -107,7 +148,6 @@ class Question {
       console.log("ERROR: Couldn't get question options", this);
       return null;
     }
-
     return options;
   }
 }

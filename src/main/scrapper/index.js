@@ -168,12 +168,6 @@ class Scraper {
   }
 
   async answerQuestions() {
-    // Get all questions
-    // Abstract and decompose question into parts
-    // Send question data to mobile phone and renderer
-    // Wait for answer
-    // Fill in answer on the site
-    // Repeat
     ipcMain.removeAllListeners("question");
     ipcMain.removeAllListeners("answer");
 
@@ -185,8 +179,7 @@ class Scraper {
     const questions = [];
 
     for (const qe of questionsElements) {
-      const question = await new Question(qe).abstract();
-      console.log(question);
+      const question = new Question(qe);
       if (!question) continue;
       questions.push(question);
     }
@@ -197,14 +190,13 @@ class Scraper {
     const win = window.getAllWindows()[0];
 
     win.webContents.send("question", {
-      question: next.value,
-      last: next.done,
+      question: await next.value.abstract(),
     });
 
-    ipcMain.on("answer", async (event, { answer, last }) => {
+    ipcMain.on("answer", async (event, { answer, question }) => {
       // Process answer
-      console.log("ANSWER: ", answer);
-      console.log("Last: ", last);
+      console.log("Answer:", answer);
+      await next.value.answer(answer);
 
       if (next.done) {
         this.lastQuestionAnswered = true;
@@ -214,8 +206,7 @@ class Scraper {
         // Send next question
         next = questionsHTMLIterator.next();
         win.webContents.send("question", {
-          question: next.value,
-          last: next.done,
+          question: await next.value.abstract(),
         });
       }
     });

@@ -1,61 +1,102 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/prop-types */
-function getInputFromType(type) {
-  return <input type={type} />;
-}
 
 const questionTypeInput = {
   text: {
-    element: <input type="text" />,
+    element: (handleChange, value = "") => (
+      <input
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="Your answer..."
+        type="text"
+        value={value}
+      />
+    ),
   },
   textarea: {
-    element: <textarea />,
+    element: (handleChange, value = "") => (
+      <textarea
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="Your answer..."
+        value={value}
+      />
+    ),
   },
   number: {
-    element: getInputFromType("number"),
+    element: (handleChange, value = "") => (
+      <input
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="Your answer..."
+        type="number"
+        value={value}
+      />
+    ),
   },
   radio: {
-    element: (options) =>
-      options.map((o) => (
-        <div>
-          <input type="radio" value={o} name="current_question" /> {o}
-        </div>
-      )),
+    element: (options, handleChange, value = "") => (
+      <div>
+        {options.map((o, index) => (
+          <>
+            <input
+              onChange={(e) => handleChange(e.target.value)}
+              checked={value === index}
+              value={index}
+              name="current_question"
+              type="radio"
+            />
+            {o}
+          </>
+        ))}
+      </div>
+    ),
   },
   select: {
-    element: (options) => {
+    element: (options, handleChange, value) => {
       return (
-        <select>
-          {options.map((o) => (
-            <option label={o} value={o}>
-              {o}
-            </option>
+        <select onChange={(e) => handleChange(e.target.value)} value={value}>
+          {options.map((o, index) => (
+            <option value={index}>{o}</option>
           ))}
         </select>
       );
     },
   },
   checkbox: {
-    element: (options) =>
-      options.map((o) => (
-        <div>
-          <input type="checkbox" value={o} name="current_question" /> {o}
-        </div>
-      )),
+    element: (options, handleChange, checked = {}) => (
+      <div>
+        {options.map((o, index) => (
+          <>
+            <input
+              type="checkbox"
+              key={index}
+              checked={
+                typeof checked === "object" && checked !== null
+                  ? checked[index.toString()]
+                  : false
+              }
+              onChange={(v) =>
+                handleChange({ ...checked, [index.toString()]: v })
+              }
+            />
+            {o}
+          </>
+        ))}
+      </div>
+    ),
   },
 };
 
-function constructInput(type, options) {
+function constructInput(type, options, handleChange, answer) {
   if (options === "None") {
-    return questionTypeInput[type].element;
+    return questionTypeInput[type].element(handleChange, answer);
   }
-  return questionTypeInput[type].element(options);
+  return questionTypeInput[type].element(options, handleChange, answer);
 }
 
-export default ({ question }) => {
+export default ({ question, handleChange, answer }) => {
   const { text, type, options } = question;
 
   const questionText = <label htmlFor="question">{text}</label>;
-  const input = constructInput(type, options);
+  const input = constructInput(type, options, handleChange, answer);
 
   return (
     <div>

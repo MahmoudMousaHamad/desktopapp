@@ -1,4 +1,4 @@
-import { MemoryRouter as Router, Routes, Route } from "react-router-dom";
+/* eslint-disable react/jsx-no-bind */
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -10,28 +10,32 @@ export default function QA() {
   const { question } = useSelector((state) => state.qa);
   const [answer, setAnswer] = useState();
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    console.log("Sending answer to main", answer);
+  function handleSubmit() {
+    console.log("Sending answer to main...", answer);
     window.electron.ipcRenderer.send("answer", {
       answer,
+      question,
     });
   }
 
-  function handleChange(e) {
-    setAnswer(e.target.value);
+  function handleChange(value) {
+    setAnswer(value);
   }
 
   return (
     <div className="App">
-      <form
-        className="form-style-1"
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-      >
-        {question ? <Question question={question} /> : <p>No question yet</p>}
-        <button type="submit">Submit</button>
-      </form>
+      {question ? (
+        <Question
+          question={question}
+          handleChange={handleChange}
+          answer={answer}
+        />
+      ) : (
+        <p>No question yet</p>
+      )}
+      <button type="button" onClick={handleSubmit}>
+        Submit
+      </button>
     </div>
   );
 }
