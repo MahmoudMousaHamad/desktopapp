@@ -16,7 +16,7 @@ export default {
     this.socket = connect(SERVER_ENDPOINT, {
       reconnection: true,
       reconnectionDelay: 5000,
-      reconnectionAttempts: 10,
+      reconnectionAttempts: Infinity,
     });
 
     this.socket.on("connect", async () => {
@@ -31,7 +31,7 @@ export default {
 
       // this.socket.on('authenticated', function() {});
 
-      ["question"].forEach((channel) => {
+      ["answer"].forEach((channel) => {
         this.socket.on(channel, (data) => {
           store.dispatch(Actions.gotData(data, channel));
         });
