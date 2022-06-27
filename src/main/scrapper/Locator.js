@@ -1,66 +1,86 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-labels */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-require("chromedriver");
-const chrome = require("selenium-webdriver/chrome");
-const { exec } = require("child_process");
-const { Builder } = require("selenium-webdriver");
+const { By, until } = require("selenium-webdriver");
+const window = require("electron").BrowserWindow;
+const { ipcMain } = require("electron");
 
-const { Locator, TITLE } = require("./Locator");
+const { locations } = require("./locations");
+const { Question } = require("./Question");
+const QAManager = require("./QAManager");
 
-class Scraper {
-  constructor() {
-    this.driver = undefined;
+const TITLE = "TITLE";
+const SOURCE = "SOURCE";
+
+class Locator {
+  constructor(driver) {
+    this.driver = driver;
   }
 
-  async start() {
-    console.log("Starting bot");
+  locationsAndActions = {
+    jobs: {
+      strings: ["Job Search", "Jobs, Employment", "Flexible"],
+      type: TITLE,
+      action: this.goToNextAvailableJob.bind(this),
+    },
+    resume: {
+      strings: ["Add a resume"],
+      type: SOURCE,
+      action: this.resumeSection.bind(this),
+    },
+    questions: {
+      strings: ["Questions from"],
+      type: SOURCE,
+      action: this.answerQuestions.bind(this),
+    },
+    experience: {
+      strings: ["Select a past job that shows relevant experience"],
+      type: SOURCE,
+      action: this.chooseExperience.bind(this),
+    },
+    letter: {
+      strings: [
+        "Want to include any supporting documents?",
+        "requests a cover letter for this application",
+      ],
+      type: SOURCE,
+      action: this.chooseLetter.bind(this),
+    },
+    missingQualifications: {
+      strings: [
+        "is looking for these qualifications",
+        "Do you have these qualifications from the job description?",
+      ],
+      type: SOURCE,
+      action: this.continueToApplication.bind(this),
+    },
+    submit: {
+      strings: ["Review the contents of this job application"],
+      type: TITLE,
+      action: this.continue.bind(this),
+    },
+    jobSearch: {
+      strings: ["Your application has been submitted!"],
+      type: SOURCE,
+      action: this.goToJobsPage.bind(this),
+    },
+  };
 
-    this.openSession();
-    await this.attachToSession();
-
-    this.locator = new Locator(this.driver);
-    await this.locator.goToJobsPage();
-    await this.run();
+  async getTitle() {
+    const title = await this.driver.getTitle();
+    return title;
   }
 
-  async run() {
-    while (true) {
-      for (const key in this.locator.locationsAndActions) {
-        if (key in this.locator.locationsAndActions) {
-          const value = this.locator.locationsAndActions[key];
-          let string = "";
-          try {
-            string =
-              value.type === TITLE
-                ? await this.locator.getTitle()
-                : await this.locator.getPageSource();
-          } catch (e) {
-            console.log(e);
-          }
-
-          if (value.strings.some((s) => string.includes(s))) {
-            try {
-              console.log("Running action for", key);
-              await value.action();
-            } catch (e) {
-              await new Promise((resolve) => {
-                setTimeout(async () => {
-                  await value.action();
-                  resolve();
-                }, 5000);
-              });
-            }
-          }
-        }
-      }
-    }
+  async getPageSource() {
+    const source = await this.driver.getPageSource();
+    return source;
   }
 
-  /*
   async resumeSection() {
     await this.scroll();
     await this.driver.sleep(5000);
@@ -114,6 +134,10 @@ class Scraper {
   }
 
   async answerQuestions() {
+    const qaManager = new QAManager(this.driver, this.continue.bind(this));
+    await qaManager.startWorkflow();
+
+    /*
     ipcMain.removeAllListeners("question");
     ipcMain.removeAllListeners("answer");
 
@@ -181,6 +205,7 @@ class Scraper {
       win.webContents.send("questions-ended");
       await this.continue();
     }
+    */
   }
 
   async chooseExperience() {
@@ -242,33 +267,10 @@ class Scraper {
   async continue() {
     await this.driver.findElement(By.className("ia-continueButton")).click();
   }
-*/
-
-  // eslint-disable-next-line class-methods-use-this
-  openSession() {
-    // Open chrome on specified port
-    exec(
-      'google-chrome --remote-debugging-port=9222 --user-data-dir="/home/mahmoud/userchromedata"',
-      (error, stdout, stderr) => {
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
-        if (error !== null) {
-          console.log(`exec error: ${error}`);
-        }
-      }
-    );
-  }
-
-  async attachToSession() {
-    const options = new chrome.Options();
-    // eslint-disable-next-line no-underscore-dangle
-    options.options_.debuggerAddress = "localhost:9222";
-
-    this.driver = await new Builder()
-      .forBrowser("chrome")
-      .setChromeOptions(options)
-      .build();
-  }
 }
 
-module.exports.Scraper = Scraper;
+module.exports = {
+  Locator,
+  TITLE,
+  SOURCE,
+};
