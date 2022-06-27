@@ -150,7 +150,6 @@ class Question {
       }
     }
 
-    // throw Error("Unable to find type for question.");
     return null;
   }
 
@@ -198,22 +197,6 @@ class Question {
         const text = await element.getText();
         return text;
       });
-
-      // if (this.inputsLength > 1) {
-      //   options = promise.map(optionsElements, async (e) => {
-      //     const text = await (await e.findElement(By.xpath("./.."))).getText();
-      //     return text;
-      //   });
-      // } else if (this.inputsLength === 1) {
-      //   if (this.type === "select") {
-      //     options = promise.map(optionsElements, async (e) => {
-      //       const text = await e.getAttribute("label");
-      //       return text;
-      //     });
-      //   } else {
-      //     options = "None";
-      //   }
-      // }
     } catch (e) {
       console.log("ERROR: Couldn't get question options", this);
       return null;

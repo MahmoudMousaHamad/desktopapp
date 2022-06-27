@@ -7,11 +7,8 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
-const window = require("electron").BrowserWindow;
-const { ipcMain } = require("electron");
 
 const { locations } = require("./locations");
-const { Question } = require("./Question");
 const QAManager = require("./QAManager");
 
 const TITLE = "TITLE";
@@ -136,76 +133,6 @@ class Locator {
   async answerQuestions() {
     const qaManager = new QAManager(this.driver, this.continue.bind(this));
     await qaManager.startWorkflow();
-
-    /*
-    ipcMain.removeAllListeners("question");
-    ipcMain.removeAllListeners("answer");
-
-    // Get all questions
-    const questionsElements = await this.driver.findElements(
-      By.css(".ia-Questions-item")
-    );
-
-    const questions = [];
-
-    for (const qe of questionsElements) {
-      const question = new Question(qe);
-      if (!question) continue;
-      questions.push(question);
-    }
-
-    console.log("Questions array length: ", questions.length);
-
-    const questionsHTMLIterator = questions.values();
-    let next = questionsHTMLIterator.next();
-
-    const win = window.getAllWindows()[0];
-
-    win.webContents.send("question", {
-      question: await next.value.abstract(),
-    });
-
-    ipcMain.on("answer", async (event, { answer, question }) => {
-      // Process answer
-      console.log("Answer:", answer);
-      await next.value.answer(answer);
-
-      if (next.done) {
-        console.log("Done answering questions.");
-        this.lastQuestionAnswered = true;
-        await this.continue();
-        return;
-      }
-
-      if (!next.done) {
-        // Send next question
-        next = questionsHTMLIterator.next();
-        if (next.value) {
-          win.webContents.send("question", {
-            question: await next.value.abstract(),
-          });
-        } else {
-          this.lastQuestionAnswered = true;
-        }
-      }
-    });
-
-    await new Promise((resolve) => {
-      this.interval = setInterval(() => {
-        if (this.lastQuestionAnswered) {
-          console.log("Last question was answered!");
-          // this.lastQuestionAnswered = null;
-          clearInterval(this.interval);
-          resolve();
-        }
-      }, 1000);
-    });
-
-    if (this.lastQuestionAnswered) {
-      win.webContents.send("questions-ended");
-      await this.continue();
-    }
-    */
   }
 
   async chooseExperience() {
