@@ -71,15 +71,15 @@ class Scraper {
         type: "SOURCE",
         action: this.continueToApplication.bind(this),
       },
-      jobSearch: {
-        strings: ["submitted"],
-        type: "TITLE",
-        action: this.goToJobsPage.bind(this),
-      },
       submit: {
         strings: ["Review the contents of this job application"],
         type: "TITLE",
         action: this.continue.bind(this),
+      },
+      jobSearch: {
+        strings: ["Your application has been submitted!"],
+        type: "SOURCE",
+        action: this.goToJobsPage.bind(this),
       },
     };
 
@@ -184,6 +184,8 @@ class Scraper {
       questions.push(question);
     }
 
+    console.log("Questions array length: ", questions.length);
+
     const questionsHTMLIterator = questions.values();
     let next = questionsHTMLIterator.next();
 
@@ -199,15 +201,22 @@ class Scraper {
       await next.value.answer(answer);
 
       if (next.done) {
+        console.log("Done answering questions.");
         this.lastQuestionAnswered = true;
+        await this.continue();
+        return;
       }
 
       if (!next.done) {
         // Send next question
         next = questionsHTMLIterator.next();
-        win.webContents.send("question", {
-          question: await next.value.abstract(),
-        });
+        if (next.value) {
+          win.webContents.send("question", {
+            question: await next.value.abstract(),
+          });
+        } else {
+          this.lastQuestionAnswered = true;
+        }
       }
     });
 
@@ -215,12 +224,17 @@ class Scraper {
       this.interval = setInterval(() => {
         if (this.lastQuestionAnswered) {
           console.log("Last question was answered!");
-          this.lastQuestionAnswered = null;
+          // this.lastQuestionAnswered = null;
           clearInterval(this.interval);
           resolve();
         }
       }, 1000);
     });
+
+    if (this.lastQuestionAnswered) {
+      win.webContents.send("questions-ended");
+      await this.continue();
+    }
   }
 
   async chooseExperience() {

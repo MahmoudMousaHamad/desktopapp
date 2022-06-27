@@ -32,19 +32,19 @@ const questionTypeInput = {
     ),
   },
   radio: {
-    element: (options, handleChange, value = "") => (
+    element: (options, handleChange, value) => (
       <div>
         {options.map((o, index) => (
-          <>
+          <div>
             <input
+              key={index}
               onChange={(e) => handleChange(e.target.value)}
-              checked={value === index}
               value={index}
               name="current_question"
               type="radio"
             />
-            {o}
-          </>
+            <span> {o}</span>
+          </div>
         ))}
       </div>
     ),
@@ -54,7 +54,9 @@ const questionTypeInput = {
       return (
         <select onChange={(e) => handleChange(e.target.value)} value={value}>
           {options.map((o, index) => (
-            <option value={index}>{o}</option>
+            <option key={index} value={index}>
+              {o}
+            </option>
           ))}
         </select>
       );

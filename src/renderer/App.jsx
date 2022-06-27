@@ -12,7 +12,7 @@ import Home from "./components/Home";
 import QA from "./QA";
 
 import { logout } from "./actions/auth";
-import { setQuestion } from "./actions/qa";
+import { endQuestions, setQuestion } from "./actions/qa";
 import { sendData } from "./actions/socket";
 
 const App = () => {
@@ -28,6 +28,10 @@ const App = () => {
     window.electron.ipcRenderer.on("question", (data) => {
       dispatch(setQuestion(data.question));
       dispatch(sendData("question", data.question));
+    });
+
+    window.electron.ipcRenderer.on("questions-ended", () => {
+      dispatch(endQuestions());
     });
 
     return () => {

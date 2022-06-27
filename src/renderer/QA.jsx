@@ -16,6 +16,7 @@ export default function QA() {
       answer,
       question,
     });
+    setAnswer();
   }
 
   function handleChange(value) {
@@ -25,17 +26,19 @@ export default function QA() {
   return (
     <div className="App">
       {question ? (
-        <Question
-          question={question}
-          handleChange={handleChange}
-          answer={answer}
-        />
+        <>
+          <Question
+            question={question}
+            handleChange={handleChange}
+            answer={answer}
+          />
+          <button type="button" onClick={handleSubmit}>
+            Submit
+          </button>
+        </>
       ) : (
         <p>No question yet</p>
       )}
-      <button type="button" onClick={handleSubmit}>
-        Submit
-      </button>
     </div>
   );
 }

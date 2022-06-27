@@ -1,53 +1,89 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 require("chromedriver");
-const { By, promise } = require("selenium-webdriver");
+const { By, Key, promise } = require("selenium-webdriver");
 
 class Question {
   constructor(element) {
     this.element = element;
   }
 
+  async clearInput(element) {
+    await (await element.getDriver()).executeScript((e) => e.select(), element);
+    await element.sendKeys(Key.BACK_SPACE);
+  }
+
   typesSelectors = {
     text: {
-      selectors: ["input[type=text]"],
-      answer: async (element, answer) => {
+      selectors: {
+        text: ["label"],
+        input: ["input[type=text]"],
+      },
+      answer: async (_element, answer) => {
+        const element = await this.element.findElement(
+          By.css("input[type=text]")
+        );
+        await element.clear();
         await element.sendKeys(answer);
       },
     },
     textarea: {
-      selectors: ["textarea"],
-      answer: async (element, answer) => {
+      selectors: {
+        text: ["label"],
+        input: ["textarea"],
+      },
+      answer: async (_element, answer) => {
+        const element = await this.element.findElement(By.css("textarea"));
+        await this.clearInput(element);
         await element.sendKeys(answer);
       },
     },
     number: {
-      selectors: ["input[type=number]"],
-      answer: async (element, answer) => {
+      selectors: {
+        text: ["label"],
+        input: ["input[type=number]"],
+      },
+      answer: async (_element, answer) => {
+        const element = await this.element.findElement(
+          By.css("input[type=number]")
+        );
+        await this.clearInput(element);
         await element.sendKeys(answer);
       },
     },
     radio: {
-      selectors: ["input[type=radio]"],
-      answer: async (elements, answer) => {
-        await elements.forEach(async (element) => {
-          const elementText = await element.getText();
-          if (elementText === answer) {
+      selectors: {
+        text: ["legend"],
+        input: ["input[type=radio]"],
+        options: ["label"],
+      },
+      answer: async (_elements, answer) => {
+        const elements = await this.element.findElements(By.css("label"));
+        await elements.forEach(async (element, index) => {
+          console.log("Answer, index: ", answer, index);
+          if (index === parseInt(answer, 10)) {
+            console.log("Found answer");
             element.click();
           }
         });
       },
     },
     select: {
-      selectors: ["select"],
-      answer: async (element, answer) => {
+      selectors: {
+        text: ["label"],
+        input: ["select"],
+        options: ["option"],
+      },
+      answer: async (_element, answer) => {
+        const element = this.element.findElement(By.css("select"));
         await element.click();
         const options = await element.findElements(By.css("option"));
-        for (const option of options) {
-          const optionText = await option.getText();
-          if (optionText === answer) {
-            await option.click();
+        for (let i = 0; i < options.length; i++) {
+          if (i === parseInt(answer, 10)) {
+            await options[i].click();
             return true;
           }
         }
@@ -55,10 +91,15 @@ class Question {
       },
     },
     checkbox: {
-      selectors: ["input[type=checkbox]"],
-      answer: async (elements, answer) => {
+      selectors: {
+        text: ["legend"],
+        input: ["input[type=checkbox]"],
+        options: ["label"],
+      },
+      answer: async (_elements, answer) => {
+        const elements = await this.element.findElements(By.css("label"));
         await elements.forEach(async (element, index) => {
-          if (answer.includes(index)) {
+          if (answer.includes(index.toString())) {
             await element.click();
           }
         });
@@ -66,35 +107,14 @@ class Question {
     },
   };
 
-  async answer(answer) {
-    await this.typesSelectors[this.type].answer(this.inputElement, answer);
-  }
-
-  async getQuestionType() {
-    for (const type in this.typesSelectors) {
-      const { selectors } = this.typesSelectors[type];
-      const possibleInputs = await this.element.findElements(
-        By.css(selectors.join(","))
-      );
-      if (possibleInputs.length >= 1) {
-        this.type = type;
-        this.inputElement = possibleInputs;
-        this.inputsLength = possibleInputs.length;
-        return type;
-      }
-    }
-
-    return null;
-  }
-
   /**
    * Convert the question to an object
    */
   async abstract() {
     // Get question text
     // Get question type
-    const text = await this.getQuestionText();
     const type = await this.getQuestionType();
+    const text = await this.getQuestionText();
     const options = await this.getQuestionOptions();
 
     if (!(options && type && text)) {
@@ -108,46 +128,97 @@ class Question {
     };
   }
 
+  async answer(answer) {
+    await this.typesSelectors[this.type].answer(this.inputElement, answer);
+  }
+
+  async getQuestionType() {
+    for (const type in this.typesSelectors) {
+      const {
+        selectors: { input: inputSelectors },
+      } = this.typesSelectors[type];
+
+      const inputs = await this.element.findElements(
+        By.css(inputSelectors.join(","))
+      );
+
+      if (inputs.length >= 1) {
+        this.type = type;
+        this.inputElement = inputs;
+        this.inputsLength = inputs.length;
+        return type;
+      }
+    }
+
+    // throw Error("Unable to find type for question.");
+    return null;
+  }
+
   /**
    * Get all the label elements in the question and return the first label,
    * which probably contains that question text.
    * @returns question text string
    */
   async getQuestionText() {
-    const labels = await this.element.findElements(By.css("label"));
+    if (!this.type) {
+      return null;
+    }
+    const {
+      selectors: { text: textSelectors },
+    } = this.typesSelectors[this.type];
 
-    const questionText = await labels[0].getText();
-
+    const textElement = await this.element.findElement(
+      By.css(textSelectors.join(","))
+    );
+    const questionText = await textElement.getText();
     this.questionText = questionText;
     return questionText;
   }
 
   async getQuestionOptions() {
+    if (!this.type) {
+      return null;
+    }
+
     let options = [];
     try {
-      const { selectors } = this.typesSelectors[this.type];
-      const optionsElements = await this.element.findElements(
-        By.css(selectors.join(","))
-      );
-      if (this.inputsLength > 1) {
-        options = promise.map(optionsElements, async (e) => {
-          const text = await (await e.findElement(By.xpath("./.."))).getText();
-          return text;
-        });
-      } else if (this.inputsLength === 1) {
-        if (this.type === "select") {
-          options = promise.map(optionsElements, async (e) => {
-            const text = await e.getAttribute("label");
-            return text;
-          });
-        } else {
-          options = "None";
-        }
+      const {
+        selectors: { options: optionsSelectors },
+      } = this.typesSelectors[this.type];
+
+      if (!optionsSelectors) {
+        return "None";
       }
+
+      const optionsElements = await this.element.findElements(
+        By.css(optionsSelectors.join(","))
+      );
+
+      options = promise.map(optionsElements, async (element) => {
+        const text = await element.getText();
+        return text;
+      });
+
+      // if (this.inputsLength > 1) {
+      //   options = promise.map(optionsElements, async (e) => {
+      //     const text = await (await e.findElement(By.xpath("./.."))).getText();
+      //     return text;
+      //   });
+      // } else if (this.inputsLength === 1) {
+      //   if (this.type === "select") {
+      //     options = promise.map(optionsElements, async (e) => {
+      //       const text = await e.getAttribute("label");
+      //       return text;
+      //     });
+      //   } else {
+      //     options = "None";
+      //   }
+      // }
     } catch (e) {
       console.log("ERROR: Couldn't get question options", this);
       return null;
     }
+
     return options;
   }
 }
