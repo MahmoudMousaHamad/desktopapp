@@ -12,7 +12,6 @@ import path from "path";
 import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
-import socketIOClient from "socket.io-client";
 
 import { exec } from "child_process";
 import MenuBuilder from "./menu";

@@ -31,6 +31,16 @@ const questionTypeInput = {
       />
     ),
   },
+  date: {
+    element: (handleChange, value = "") => (
+      <input
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="yyyy-MM-dd"
+        type="date"
+        value={value}
+      />
+    ),
+  },
   radio: {
     element: (options, handleChange, value) => (
       <div>

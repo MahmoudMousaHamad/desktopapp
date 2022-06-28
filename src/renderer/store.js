@@ -6,7 +6,7 @@ import socketIOClient from "socket.io-client";
 import * as Actions from "./actions/socket";
 import config from "../config";
 import reducer from "./reducers";
-import { SOCKET_SEND_DATA } from "./actions/types";
+import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./actions/types";
 import Socket from "./Socket";
 
 let socket;
@@ -29,6 +29,11 @@ const SocketMiddleware = (store) => (next) => (action) => {
           console.error("Action channel and/or payload are missing:", action);
         }
         break;
+      case SOCKET_GOT_DATA:
+        window.electron.ipcRenderer.send(action.name, {
+          [action.name]: action[action.name],
+        });
+        break;
       default:
         break;
     }
@@ -37,19 +42,6 @@ const SocketMiddleware = (store) => (next) => (action) => {
   }
 
   return next(action);
-};
-
-const StartSocket = (store) => {
-  socket = socketIOClient(config.SERVER_ENDPOINT);
-
-  socket.emit("source", "desktop");
-  store.dispatch(Actions.sendData("user", store.getState().auth.user));
-
-  ["answer"].forEach((channel) => {
-    socket.on(channel, (data) => {
-      store.dispatch(Actions.gotData(data, channel));
-    });
-  });
 };
 
 const middleware = [thunk, SocketMiddleware];

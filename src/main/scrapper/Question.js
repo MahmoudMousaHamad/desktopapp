@@ -12,8 +12,11 @@ class Question {
   }
 
   async clearInput(element) {
+    const inputValueLength = (await element.getAttribute("value")).length;
     await (await element.getDriver()).executeScript((e) => e.select(), element);
-    await element.sendKeys(Key.BACK_SPACE);
+    for (let i = 0; i < inputValueLength; i++) {
+      await element.sendKeys(Key.BACK_SPACE);
+    }
   }
 
   typesSelectors = {
@@ -26,7 +29,7 @@ class Question {
         const element = await this.element.findElement(
           By.css("input[type=text]")
         );
-        await element.clear();
+        await this.clearInput(element);
         await element.sendKeys(answer);
       },
     },
@@ -52,6 +55,22 @@ class Question {
         );
         await this.clearInput(element);
         await element.sendKeys(answer);
+      },
+    },
+    date: {
+      selectors: {
+        text: ["label"],
+        input: ["input[type=date]"],
+      },
+      answer: async (_element, answer) => {
+        const element = await this.element.findElement(
+          By.css("input[type=date]")
+        );
+        await this.clearInput(element);
+        const [year, month, day] = answer.split("-");
+        [month, day, year].forEach(async (part) => {
+          await element.sendKeys(part);
+        });
       },
     },
     radio: {
@@ -84,6 +103,7 @@ class Question {
         for (let i = 0; i < options.length; i++) {
           if (i === parseInt(answer, 10)) {
             await options[i].click();
+            await element.sendKeys(Key.ESCAPE);
             return true;
           }
         }
@@ -111,8 +131,6 @@ class Question {
    * Convert the question to an object
    */
   async abstract() {
-    // Get question text
-    // Get question type
     const type = await this.getQuestionType();
     const text = await this.getQuestionText();
     const options = await this.getQuestionOptions();

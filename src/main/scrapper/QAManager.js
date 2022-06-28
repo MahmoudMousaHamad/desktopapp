@@ -15,7 +15,7 @@ class QAManager {
   }
 
   async startWorkflow() {
-    this.removeAllListeners();
+    // this.removeAllListeners();
     await this.gatherQuestions();
     await this.setupIPCListeners();
     await this.sendNextQuestion();
@@ -72,6 +72,7 @@ class QAManager {
     ipcMain.on(this.listeners.answer, async (event, { answer }) => {
       await this.currentQuestion.answer(answer);
       if (!this.done) {
+        await this.driver.sleep(1000);
         await this.sendNextQuestion();
       } else {
         this.lastQuestionAnswered = true;
