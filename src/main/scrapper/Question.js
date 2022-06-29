@@ -5,6 +5,8 @@
 /* eslint-disable no-await-in-loop */
 require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
+const { Scraper } = require(".");
+const Classifier = require("./Classifier");
 
 class Question {
   constructor(element) {
@@ -150,6 +152,23 @@ class Question {
     await this.typesSelectors[this.type].answer(this.inputElement, answer);
   }
 
+  async attemptToAnswer() {
+    const { text, type, options } = await this.abstract();
+
+    const questionTokens = Classifier.TokenizeQuestion(text);
+
+    const classifications =
+      Scraper.Classifier.getClassifications(questionTokens);
+
+    if (classifications.length === 0) {
+      return null;
+    }
+
+    const { label, value } = classifications[0];
+
+    return value > Classifier.CONDIFENCE_THRESHHOLD ? label : null;
+  }
+
   async getQuestionType() {
     for (const type in this.typesSelectors) {
       const {
@@ -172,8 +191,6 @@ class Question {
   }
 
   /**
-   * Get all the label elements in the question and return the first label,
-   * which probably contains that question text.
    * @returns question text string
    */
   async getQuestionText() {

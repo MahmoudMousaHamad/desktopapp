@@ -7,6 +7,8 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
+const { Scraper } = require(".");
+const Classifier = require("./Classifier");
 
 const { locations } = require("./locations");
 const QAManager = require("./QAManager");
@@ -59,7 +61,7 @@ class Locator {
     submit: {
       strings: ["Review the contents of this job application"],
       type: TITLE,
-      action: this.continue.bind(this),
+      action: this.submitApplication.bind(this),
     },
     jobSearch: {
       strings: ["Your application has been submitted!"],
@@ -131,8 +133,18 @@ class Locator {
   }
 
   async answerQuestions() {
-    const qaManager = new QAManager(this.driver, this.continue.bind(this));
+    const qaManager = new QAManager(
+      this.driver,
+      this.handleDoneAnsweringQuestions.bind(this)
+    );
+
     await qaManager.startWorkflow();
+  }
+
+  async handleDoneAnsweringQuestions() {
+    await this.continue();
+    // Retrain classifier after we finish answering the questions
+    Scraper.Classifier.retrain();
   }
 
   async chooseExperience() {
@@ -163,10 +175,7 @@ class Locator {
   }
 
   async submitApplication() {
-    await (
-      await this.driver.findElement(By.id("returnToSearchButton"))
-    ).click();
-    await this.driver.sleep(5000);
+    await this.continue();
   }
 
   async waitFor(locator, timeout = 10) {

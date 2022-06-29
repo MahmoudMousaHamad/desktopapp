@@ -11,11 +11,14 @@ const { exec } = require("child_process");
 const { Builder } = require("selenium-webdriver");
 
 const { Locator, TITLE } = require("./Locator");
+const Classifier = require("./Classifier");
 
 class Scraper {
   constructor() {
     this.driver = undefined;
   }
+
+  static Classifier = new Classifier();
 
   async start() {
     console.log("Starting bot");
@@ -26,6 +29,20 @@ class Scraper {
     this.locator = new Locator(this.driver);
     await this.locator.goToJobsPage();
     await this.run();
+  }
+
+  async stop() {
+    console.log("Stopping bot");
+
+    await this.driver.close();
+
+    Scraper.Classifier.save(Classifier.CLASSIFIER_PATH, (err) => {
+      if (err) {
+        throw Error(err);
+      } else {
+        console.log("Classifier saved successfully.");
+      }
+    });
   }
 
   async run() {
