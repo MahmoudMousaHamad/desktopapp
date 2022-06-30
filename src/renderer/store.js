@@ -6,16 +6,21 @@ import socketIOClient from "socket.io-client";
 import * as Actions from "./actions/socket";
 import config from "../config";
 import reducer from "./reducers";
-import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./actions/types";
+import {
+  LOGIN_SUCCESS,
+  LOGOUT,
+  SOCKET_GOT_DATA,
+  SOCKET_SEND_DATA,
+} from "./actions/types";
 import Socket from "./Socket";
 
 let socket;
 
 const SocketMiddleware = (store) => (next) => (action) => {
   console.log(action);
-  if (socket) {
-    switch (action.type) {
-      case SOCKET_SEND_DATA:
+  switch (action.type) {
+    case SOCKET_SEND_DATA:
+      if (socket) {
         console.log(
           "Sending data over socket channel.",
           "Channel:",
@@ -28,17 +33,26 @@ const SocketMiddleware = (store) => (next) => (action) => {
         } else {
           console.error("Action channel and/or payload are missing:", action);
         }
-        break;
-      case SOCKET_GOT_DATA:
-        window.electron.ipcRenderer.send(action.name, {
-          [action.name]: action[action.name],
-        });
-        break;
-      default:
-        break;
-    }
-  } else {
-    console.log("Socket is null");
+      } else {
+        console.log("Socket is null");
+      }
+      break;
+    case SOCKET_GOT_DATA:
+      window.electron.ipcRenderer.send(action.name, {
+        [action.name]: action[action.name],
+      });
+      break;
+    case LOGIN_SUCCESS:
+      console.log("Setting up socket.");
+      socket = Socket.connect(config.SERVER_ENDPOINT, store);
+      break;
+    case LOGOUT:
+      if (socket) {
+        socket.disconnect();
+      }
+      break;
+    default:
+      break;
   }
 
   return next(action);
@@ -49,7 +63,9 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(reducer, applyMiddleware(SocketMiddleware, thunk));
 
-// Set up socket
-socket = Socket.connect(config.SERVER_ENDPOINT, store);
+if (store.getState().auth.isLoggedIn) {
+  // Set up socket
+  socket = Socket.connect(config.SERVER_ENDPOINT, store);
+}
 
 export default store;

@@ -34,8 +34,10 @@ class Scraper {
   async stop() {
     console.log("Stopping bot");
     this.running = false;
-    await this.driver.close();
-    SingletonClassifier.save();
+    setTimeout(async () => {
+      await this.driver.quit();
+      SingletonClassifier.save();
+    }, 500);
   }
 
   async run() {

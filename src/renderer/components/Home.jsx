@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
+import Sheet from "@mui/joy/Sheet";
 
 import { sendData } from "../actions/socket";
 
 export default () => {
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const start = () => {
     window.electron.ipcRenderer.send("start-scraper");
@@ -14,18 +15,18 @@ export default () => {
     window.electron.ipcRenderer.send("stop-scraper");
   };
 
-  const sendQuestion = () => {
-    dispatch(
-      sendData("question", {
-        text: "Test Question",
-        type: "text",
-        options: "None",
-      })
-    );
-  };
+  // const sendQuestion = () => {
+  //   dispatch(
+  //     sendData("question", {
+  //       text: "Test Question",
+  //       type: "text",
+  //       options: "None",
+  //     })
+  //   );
+  // };
 
   return (
-    <>
+    <Sheet>
       {user && (
         <>
           <button type="button" onClick={start}>
@@ -39,6 +40,6 @@ export default () => {
           </button> */}
         </>
       )}
-    </>
+    </Sheet>
   );
 };

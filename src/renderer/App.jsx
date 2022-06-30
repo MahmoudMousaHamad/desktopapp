@@ -1,10 +1,13 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Link, Routes, HashRouter } from "react-router-dom";
-
-import "bootstrap/dist/css/bootstrap.min.css";
+import { CssVarsProvider } from "@mui/joy/styles";
+import Button from "@mui/joy/Button";
+import Card from "@mui/joy/Card";
 
 import "./App.css";
+import { CssBaseline } from "@mui/material";
+import { Sheet } from "@mui/joy";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Profile from "./components/Profile";
@@ -16,7 +19,7 @@ import { endQuestions, setQuestion } from "./actions/qa";
 import { sendData } from "./actions/socket";
 
 const App = () => {
-  const { user: currentUser } = useSelector((state) => state.auth);
+  const { isLoggedIn } = useSelector((state) => state.auth);
   const { question } = useSelector((state) => state.qa);
   const dispatch = useDispatch();
 
@@ -40,61 +43,64 @@ const App = () => {
   }, [dispatch, question]);
 
   return (
-    <HashRouter>
-      <div>
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
-          <div className="navbar-nav  mr-auto">
-            <li className="nav-item">
-              <Link to="/" className="nav-link">
-                Home
-              </Link>
-            </li>
-          </div>
-          {currentUser ? (
-            <div className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to="/profile" className="nav-link">
-                  {currentUser.email}
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/qa" className="nav-link">
-                  QA
-                </Link>
-              </li>
-              <li className="nav-item">
-                <a href="/login" className="nav-link" onClick={logOut}>
+    <CssVarsProvider>
+      <CssBaseline />
+      <HashRouter>
+        <Sheet
+          sx={{
+            marginBottom: 2,
+            display: "flex",
+            justifyContent: "space-evenly",
+            width: 500,
+          }}
+        >
+          {isLoggedIn ? (
+            <>
+              <Button variant="solid">
+                <Link to="/">Dashboard</Link>
+              </Button>
+              <Button variant="solid">
+                <Link to="/profile">Profile</Link>
+              </Button>
+              <Button variant="solid">
+                <Link to="/qa">Question</Link>
+              </Button>
+              <Button variant="solid">
+                <a href="/login" onClick={logOut}>
                   Log out
                 </a>
-              </li>
-            </div>
+              </Button>
+            </>
           ) : (
-            <div className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to="/login" className="nav-link">
-                  Log in
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/register" className="nav-link">
+            <>
+              <Button variant="solid">
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button variant="outlined">
+                <Link to="/register" style={{ color: "green" }}>
                   Sign Up
                 </Link>
-              </li>
-            </div>
+              </Button>
+            </>
           )}
-        </nav>
-        <div className="container mt-3">
+        </Sheet>
+        <Sheet
+          sx={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            padding: 5,
+          }}
+        >
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
-
             <Route path="/qa" element={<QA />} />
           </Routes>
-        </div>
-      </div>
-    </HashRouter>
+        </Sheet>
+      </HashRouter>
+    </CssVarsProvider>
   );
 };
 

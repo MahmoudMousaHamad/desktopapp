@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-bind */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import "./App.css";
@@ -9,14 +9,24 @@ import Question from "./Question";
 export default function QA() {
   const { question } = useSelector((state) => state.qa);
   const [answer, setAnswer] = useState();
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    setAnswer();
+    setError();
+  }, [question]);
 
   function handleSubmit() {
-    console.log("Sending answer to main...", answer);
-    window.electron.ipcRenderer.send("answer", {
-      answer,
-      question,
-    });
-    setAnswer(undefined);
+    if (answer) {
+      console.log("Sending answer to main...", answer);
+      window.electron.ipcRenderer.send("answer", {
+        answer,
+        question,
+      });
+      setAnswer(undefined);
+    } else {
+      setError("Please answer the question.");
+    }
   }
 
   function handleChange(value) {
@@ -34,12 +44,13 @@ export default function QA() {
             handleChange={handleChange}
             answer={answer}
           />
+          {error && <p>{error}</p>}
           <button type="button" onClick={handleSubmit}>
             Submit
           </button>
         </>
       ) : (
-        <p>No question yet</p>
+        <p>No questions yet</p>
       )}
     </div>
   );

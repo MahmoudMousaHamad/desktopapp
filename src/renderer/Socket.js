@@ -22,6 +22,8 @@ export default {
     this.socket.on("connect", async () => {
       this.isConnected = true;
 
+      console.log("User: ", store.getState().auth);
+
       store.dispatch(
         Actions.sendData("authentication", {
           user: store.getState().auth.user,
