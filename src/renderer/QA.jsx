@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import "./App.css";
 import "./Form.css";
@@ -16,12 +16,14 @@ export default function QA() {
       answer,
       question,
     });
-    setAnswer();
+    setAnswer(undefined);
   }
 
   function handleChange(value) {
     setAnswer(value);
   }
+
+  console.log("Answer: ", answer);
 
   return (
     <div className="App">

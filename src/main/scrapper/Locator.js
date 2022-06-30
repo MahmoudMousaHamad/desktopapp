@@ -7,7 +7,7 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
-const { Scraper } = require(".");
+const Scraper = require("./index");
 const Classifier = require("./Classifier");
 
 const { locations } = require("./locations");
@@ -144,7 +144,7 @@ class Locator {
   async handleDoneAnsweringQuestions() {
     await this.continue();
     // Retrain classifier after we finish answering the questions
-    Scraper.Classifier.retrain();
+    Classifier.SingletonClassifier.retrain();
   }
 
   async chooseExperience() {

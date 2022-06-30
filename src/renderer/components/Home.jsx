@@ -7,8 +7,13 @@ export default () => {
   const dispatch = useDispatch();
 
   const start = () => {
-    window.electron.ipcRenderer.send("start-scraper", user);
+    window.electron.ipcRenderer.send("start-scraper");
   };
+
+  const stop = () => {
+    window.electron.ipcRenderer.send("stop-scraper");
+  };
+
   const sendQuestion = () => {
     dispatch(
       sendData("question", {
@@ -24,11 +29,14 @@ export default () => {
       {user && (
         <>
           <button type="button" onClick={start}>
-            Start Applying
+            Start
           </button>
-          <button type="button" onClick={sendQuestion}>
+          <button type="button" onClick={stop}>
+            Stop
+          </button>
+          {/* <button type="button" onClick={sendQuestion}>
             Send Question
-          </button>
+          </button> */}
         </>
       )}
     </>

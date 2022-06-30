@@ -1,8 +1,14 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-undef */
 const { By } = require("selenium-webdriver");
 const { ipcMain } = require("electron");
 const window = require("electron").BrowserWindow;
 
 const { Question } = require("./Question");
+const Scraper = require("./index");
+const { SingletonClassifier } = require("./Classifier");
 
 class QAManager {
   constructor(driver, handleDone) {
@@ -16,11 +22,17 @@ class QAManager {
 
   async startWorkflow() {
     // this.removeAllListeners();
-    await this.gatherQuestions();
-    await this.setupIPCListeners();
-    await this.sendNextQuestion();
+    this.setupIPCListeners();
 
-    await this.waitUntilDone();
+    await this.gatherQuestions();
+    await this.attemptToAnswerQuestions();
+
+    if (this.clientQuestions.length > 0) {
+      await this.sendNextQuestion();
+      await this.waitUntilDone();
+    } else {
+      await this.handleDone();
+    }
   }
 
   removeAllListeners() {
@@ -40,26 +52,39 @@ class QAManager {
     });
   }
 
+  async attemptToAnswerQuestions() {
+    this.clientQuestions = [];
+
+    for (const question of this.questions) {
+      const questionPrepared = await question.prepare();
+      if (!questionPrepared) continue;
+      const answered = await question.attemptToAnswer();
+      if (answered) {
+        console.log("Clasifier answered question.");
+      } else {
+        this.clientQuestions.push(question);
+      }
+    }
+  }
+
   async sendNextQuestion() {
-    if (this.done) {
+    if (this.qnaOver()) {
       throw Error("No more questions to send");
     }
 
-    this.getNextQuestion();
+    await this.getNextQuestion();
 
-    const questionAnswered = this.currentQuestion.attemptToAnswer();
-
-    if (questionAnswered && !this.done) {
-      this.getNextQuestion();
-    } else if (this.done) {
-      await this.clean();
-      return;
-    }
+    console.log("Sending question to client", this.currentQuestion.abstract());
 
     this.win.webContents.send(this.channels.question, {
-      question: await this.currentQuestion.abstract(),
-      done: this.done,
+      question: this.currentQuestion.abstract(),
+      lastQuestion: this.qnaOver(),
     });
+
+    if (this.qnaOver()) {
+      console.log("Done: cleaning");
+      await this.clean();
+    }
   }
 
   async gatherQuestions() {
@@ -67,33 +92,68 @@ class QAManager {
       By.css(".ia-Questions-item")
     );
 
-    questionsElements.forEach((qe) => {
-      this.questions.push(new Question(qe));
-    });
-
+    for (const qe of questionsElements) {
+      const elementText = await qe.getText();
+      if (!elementText.includes("(optional)")) {
+        this.questions.push(new Question(qe));
+      }
+    }
     this.currentIndex = 0;
   }
 
   setupIPCListeners() {
-    ipcMain.on(this.listeners.answer, async (event, { answer }) => {
+    ipcMain.on(this.listeners.answer, async (event, { answer, question }) => {
+      console.log("Answer as recieved from client: ", answer);
+      let classifierAnswer = answer;
+      if (question.options !== "None") {
+        if (question.type === "checkbox") {
+          classifierAnswer = question.options.filter((option, index) =>
+            answer.includes(index.toString())
+          );
+        } else {
+          classifierAnswer = question.options[parseInt(answer, 10)];
+        }
+      }
+
+      console.log("Answer as input to classifier: ", classifierAnswer);
+
+      SingletonClassifier.addDocument(
+        this.currentQuestion.questionTokens,
+        classifierAnswer
+      );
+
       await this.currentQuestion.answer(answer);
-      if (!this.done) {
+
+      this.lastQuestionAnswered =
+        this.currentIndex >= this.clientQuestions.length;
+
+      if (this.qnaOver()) {
+        this.lastQuestionAnswered = true;
+        await this.clean();
+      } else {
         await this.driver.sleep(1000);
         await this.sendNextQuestion();
-      } else {
-        await this.clean();
       }
     });
   }
 
-  getNextQuestion() {
-    this.currentQuestion = this.questions.at(this.currentIndex);
-    this.done = this.currentIndex >= this.questions.length - 1;
+  async getNextQuestion() {
+    this.currentQuestion = this.clientQuestions.at(this.currentIndex);
     this.currentIndex += 1;
+
+    if (!(await this.currentQuestion.prepare()) && !this.qnaOver()) {
+      await this.getNextQuestion();
+    }
+  }
+
+  qnaOver() {
+    return (
+      this.currentIndex >= this.clientQuestions.length &&
+      this.lastQuestionAnswered
+    );
   }
 
   async clean() {
-    this.lastQuestionAnswered = true;
     await this.handleDone();
   }
 }

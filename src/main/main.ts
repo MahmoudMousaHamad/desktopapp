@@ -16,7 +16,7 @@ import log from "electron-log";
 import { exec } from "child_process";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
-import { Scraper } from "./scrapper";
+import Scraper from "./scrapper";
 import config from "../config";
 
 export default class AppUpdater {
@@ -144,23 +144,16 @@ app
   })
   .catch(console.log);
 
-const scraper = new Scraper();
+const scraper = new Scraper.Scraper();
 
-// Start socket connection
-// const socket = socketIOClient(config.SERVER_ENDPOINT);
-
-ipcMain.on("start-scraper", (e, user) => {
-  // socket.on("handshake", () => console.log("Socket connection established."));
-
-  // socket.emit("user", user);
-
-  scraper.start();
+ipcMain.on("start-scraper", async () => {
+  await scraper.start();
 });
 
-// ipcMain.on("question", () => {
-//   console.log("Sending question to server...");
-//   socket.emit("question", "My question?");
-// });
+ipcMain.on("stop-scraper", async () => {
+  await scraper.stop();
+  exec("pkill -9 -f chromedriver");
+});
 
 /**
  * Company website application workflows

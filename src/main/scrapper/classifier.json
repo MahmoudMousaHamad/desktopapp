@@ -1,0 +1,1 @@
+{"classifier":{"classFeatures":{},"classTotals":{},"totalExamples":1,"smoothing":1},"docs":[{"label":"Mr.","text":["Prefix"]},{"label":"Mahmoud","text":["First","Name"]}],"features":{"Prefix":1,"First":1,"Name":1},"stemmer":{},"lastAdded":0,"events":{"_events":{},"_eventsCount":0}}

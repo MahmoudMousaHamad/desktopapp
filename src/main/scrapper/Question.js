@@ -5,8 +5,37 @@
 /* eslint-disable no-await-in-loop */
 require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
-const { Scraper } = require(".");
+const natural = require("natural");
+
+const Scraper = require("./index");
 const Classifier = require("./Classifier");
+
+function filterInt(value) {
+  if (/^[-+]?(\d+|Infinity)$/.test(value)) {
+    return Number(value);
+  }
+  return NaN;
+}
+
+async function selectElement(elements, answer) {
+  let maxJaroWinklerDistance = 0;
+  let elementWithMax = null;
+  for (const element of elements) {
+    const elementText = await element.getText();
+    console.log("Option Text: ", elementText);
+    const distance = natural.JaroWinklerDistance(elementText, answer);
+    if (distance > maxJaroWinklerDistance) {
+      maxJaroWinklerDistance = distance;
+      elementWithMax = element;
+    }
+  }
+
+  if (elementWithMax) {
+    await elementWithMax.click();
+  } else {
+    throw Error("Could not find answer among options", answer);
+  }
+}
 
 class Question {
   constructor(element) {
@@ -83,13 +112,16 @@ class Question {
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
-        await elements.forEach(async (element, index) => {
-          console.log("Answer, index: ", answer, index);
-          if (index === parseInt(answer, 10)) {
-            console.log("Found answer");
-            element.click();
-          }
-        });
+        if (Number.isNaN(filterInt(answer))) {
+          console.log("Attempting to use classifier's answer");
+          await selectElement(elements, answer);
+        } else {
+          await elements.forEach(async (element, index) => {
+            if (index === parseInt(answer, 10)) {
+              await element.click();
+            }
+          });
+        }
       },
     },
     select: {
@@ -102,6 +134,11 @@ class Question {
         const element = this.element.findElement(By.css("select"));
         await element.click();
         const options = await element.findElements(By.css("option"));
+        if (Number.isNaN(filterInt(answer))) {
+          console.log("Attempting to use classifier's answer");
+          await selectElement(options, answer);
+          return true;
+        }
         for (let i = 0; i < options.length; i++) {
           if (i === parseInt(answer, 10)) {
             await options[i].click();
@@ -120,6 +157,9 @@ class Question {
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
+        if (Number.isNaN(filterInt(answer))) {
+          await selectElement(elements, answer);
+        }
         await elements.forEach(async (element, index) => {
           if (answer.includes(index.toString())) {
             await element.click();
@@ -129,22 +169,33 @@ class Question {
     },
   };
 
+  async prepare() {
+    this.type = await this.getQuestionType();
+    this.text = await this.getQuestionText();
+    this.options = await this.getQuestionOptions();
+    if (!(this.type && this.text && this.options)) {
+      console.log(
+        "Question type, text, and/or options is/are not defined.",
+        this.type,
+        this.text,
+        this.options
+      );
+      return false;
+    }
+
+    this.questionTokens = Classifier.TokenizeQuestion(this.text);
+
+    return true;
+  }
+
   /**
    * Convert the question to an object
    */
-  async abstract() {
-    const type = await this.getQuestionType();
-    const text = await this.getQuestionText();
-    const options = await this.getQuestionOptions();
-
-    if (!(options && type && text)) {
-      return null;
-    }
-
+  abstract() {
     return {
-      text,
-      type,
-      options,
+      text: this.text,
+      type: this.type,
+      options: this.options,
     };
   }
 
@@ -153,12 +204,11 @@ class Question {
   }
 
   async attemptToAnswer() {
-    const { text, type, options } = await this.abstract();
+    console.log("Attempting to answer question: ", this.text);
 
-    const questionTokens = Classifier.TokenizeQuestion(text);
-
-    const classifications =
-      Scraper.Classifier.getClassifications(questionTokens);
+    const classifications = Classifier.SingletonClassifier.getClassifications(
+      this.text
+    );
 
     if (classifications.length === 0) {
       return null;
@@ -166,7 +216,20 @@ class Question {
 
     const { label, value } = classifications[0];
 
-    return value > Classifier.CONDIFENCE_THRESHHOLD ? label : null;
+    const attemptedAnswer =
+      value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
+
+    if (attemptedAnswer) {
+      console.log(
+        "Attempted answer is above threshold: ",
+        attemptedAnswer,
+        value
+      );
+      await this.answer(attemptedAnswer);
+      return true;
+    }
+
+    return false;
   }
 
   async getQuestionType() {

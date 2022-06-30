@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-labels */
 /* eslint-disable no-restricted-syntax */
@@ -11,17 +12,16 @@ const { exec } = require("child_process");
 const { Builder } = require("selenium-webdriver");
 
 const { Locator, TITLE } = require("./Locator");
-const Classifier = require("./Classifier");
+const { SingletonClassifier } = require("./Classifier");
 
 class Scraper {
   constructor() {
     this.driver = undefined;
   }
 
-  static Classifier = new Classifier();
-
   async start() {
     console.log("Starting bot");
+    this.running = true;
 
     this.openSession();
     await this.attachToSession();
@@ -33,20 +33,13 @@ class Scraper {
 
   async stop() {
     console.log("Stopping bot");
-
+    this.running = false;
     await this.driver.close();
-
-    Scraper.Classifier.save(Classifier.CLASSIFIER_PATH, (err) => {
-      if (err) {
-        throw Error(err);
-      } else {
-        console.log("Classifier saved successfully.");
-      }
-    });
+    SingletonClassifier.save();
   }
 
   async run() {
-    while (true) {
+    while (this.running) {
       for (const key in this.locator.locationsAndActions) {
         if (key in this.locator.locationsAndActions) {
           const value = this.locator.locationsAndActions[key];
@@ -64,6 +57,7 @@ class Scraper {
             try {
               console.log("Running action for", key);
               await value.action();
+              await this.driver.sleep(1000);
             } catch (e) {
               await new Promise((resolve) => {
                 setTimeout(async () => {
@@ -75,6 +69,7 @@ class Scraper {
           }
         }
       }
+      await this.locator.goToJobsPage();
     }
   }
 
@@ -83,8 +78,15 @@ class Scraper {
     exec(
       'google-chrome --remote-debugging-port=9222 --user-data-dir="/home/mahmoud/userchromedata"',
       (error, stdout, stderr) => {
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+        if (stdout) {
+          console.log(`stdout: ${stdout}`);
+          if (stdout && stdout.includes("existing browser session")) {
+            this.sessionAlreadyOpen = true;
+          } else {
+            this.attachToSession = false;
+          }
+        }
+        stderr && console.log(`stderr: ${stderr}`);
         if (error !== null) {
           console.log(`exec error: ${error}`);
         }
