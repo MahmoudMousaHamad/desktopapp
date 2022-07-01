@@ -204,11 +204,13 @@ class Question {
   }
 
   async attemptToAnswer() {
-    console.log("Attempting to answer question: ", this.text);
+    console.log("Attempting to answer question: ", this.questionTokens);
 
     const classifications = Classifier.SingletonClassifier.getClassifications(
-      this.text
+      this.questionTokens
     );
+
+    console.log("Classifications: ", classifications);
 
     if (classifications.length === 0) {
       return null;

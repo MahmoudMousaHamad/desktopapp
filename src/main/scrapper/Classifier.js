@@ -26,6 +26,8 @@ class Classifier {
           throw Error(err);
         }
         this.classifier = c;
+
+        console.log("Classifier loaded successfully");
       });
     } else {
       this.classifier = new natural.BayesClassifier();

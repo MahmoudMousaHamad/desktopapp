@@ -1,4 +1,4 @@
-import { QUESTIONS_ENDED, SET_QUESTION } from "./types";
+import { QUESTIONS_ENDED, QUESTION_ANSWERED, SET_QUESTION } from "./types";
 
 export const setQuestion = (question) => ({
   type: SET_QUESTION,
@@ -7,4 +7,8 @@ export const setQuestion = (question) => ({
 
 export const endQuestions = () => ({
   type: QUESTIONS_ENDED,
+});
+
+export const questionAnswered = () => ({
+  type: QUESTION_ANSWERED,
 });

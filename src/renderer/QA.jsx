@@ -1,13 +1,16 @@
 /* eslint-disable react/jsx-no-bind */
+import { Button } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { questionAnswered } from "./actions/qa";
 
 import "./App.css";
 import "./Form.css";
 import Question from "./Question";
 
 export default function QA() {
-  const { question } = useSelector((state) => state.qa);
+  const { question, answered } = useSelector((state) => state.qa);
+  const dispatch = useDispatch();
   const [answer, setAnswer] = useState();
   const [error, setError] = useState();
 
@@ -24,6 +27,7 @@ export default function QA() {
         question,
       });
       setAnswer(undefined);
+      dispatch(questionAnswered());
     } else {
       setError("Please answer the question.");
     }
@@ -31,6 +35,12 @@ export default function QA() {
 
   function handleChange(value) {
     setAnswer(value);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
   }
 
   console.log("Answer: ", answer);
@@ -43,14 +53,21 @@ export default function QA() {
             question={question}
             handleChange={handleChange}
             answer={answer}
+            onKeyDown={handleKeyDown}
           />
-          {error && <p>{error}</p>}
-          <button type="button" onClick={handleSubmit}>
+          <Button type="button" onClick={handleSubmit}>
             Submit
-          </button>
+          </Button>
+          {error && <p style={{ color: "red" }}>{error}</p>}
         </>
       ) : (
-        <p>No questions yet</p>
+        <>
+          {answered ? (
+            <h4>No questions yet</h4>
+          ) : (
+            <h4>Waiting for next question...</h4>
+          )}
+        </>
       )}
     </div>
   );

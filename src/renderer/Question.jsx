@@ -1,10 +1,12 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/prop-types */
 
+import { Checkbox, Input, Radio, Sheet } from "@mui/joy";
+
 const questionTypeInput = {
   text: {
     element: (handleChange, value = "") => (
-      <input
+      <Input
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Your answer..."
         type="text"
@@ -14,7 +16,7 @@ const questionTypeInput = {
   },
   textarea: {
     element: (handleChange, value = "") => (
-      <textarea
+      <Input
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Your answer..."
         value={value}
@@ -23,7 +25,7 @@ const questionTypeInput = {
   },
   number: {
     element: (handleChange, value = "") => (
-      <input
+      <Input
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Your answer..."
         type="number"
@@ -33,7 +35,7 @@ const questionTypeInput = {
   },
   date: {
     element: (handleChange, value = "") => (
-      <input
+      <Input
         onChange={(e) => handleChange(e.target.value)}
         placeholder="yyyy-MM-dd"
         type="date"
@@ -45,9 +47,9 @@ const questionTypeInput = {
     element: (options, handleChange, value) => (
       <div>
         {options.map((o, index) => (
-          <div>
-            <input
-              key={index}
+          <div key={index}>
+            <Radio
+              checked={parseInt(value, 10) === index}
               onChange={(e) => handleChange(e.target.value)}
               value={index}
               name="current_question"
@@ -77,7 +79,7 @@ const questionTypeInput = {
       <div>
         {options.map((o, index) => (
           <>
-            <input
+            <Checkbox
               type="checkbox"
               key={index}
               checked={
@@ -88,8 +90,8 @@ const questionTypeInput = {
               onChange={(v) =>
                 handleChange({ ...checked, [index.toString()]: v })
               }
+              label={o}
             />
-            {o}
           </>
         ))}
       </div>
@@ -97,23 +99,28 @@ const questionTypeInput = {
   },
 };
 
-function constructInput(type, options, handleChange, answer) {
+function constructInput(type, options, handleChange, answer, ...args) {
   if (options === "None") {
-    return questionTypeInput[type].element(handleChange, answer);
+    return questionTypeInput[type].element(handleChange, answer, ...args);
   }
-  return questionTypeInput[type].element(options, handleChange, answer);
+  return questionTypeInput[type].element(
+    options,
+    handleChange,
+    answer,
+    ...args
+  );
 }
 
-export default ({ question, handleChange, answer }) => {
+export default ({ question, handleChange, answer, ...params }) => {
   const { text, type, options } = question;
 
-  const questionText = <label htmlFor="question">{text}</label>;
+  const questionText = <h3>{text}</h3>;
   const input = constructInput(type, options, handleChange, answer);
 
   return (
-    <div>
-      {questionText}
-      {input}
-    </div>
+    <Sheet sx={{ marginBottom: 2, maxWidth: 400 }}>
+      <Sheet>{questionText}</Sheet>
+      <Sheet>{input}</Sheet>
+    </Sheet>
   );
 };

@@ -34,10 +34,8 @@ class Scraper {
   async stop() {
     console.log("Stopping bot");
     this.running = false;
-    setTimeout(async () => {
-      await this.driver.quit();
-      SingletonClassifier.save();
-    }, 500);
+    await this.driver.close();
+    SingletonClassifier.save();
   }
 
   async run() {
@@ -102,6 +100,7 @@ class Scraper {
     options.options_.debuggerAddress = "localhost:9222";
 
     this.driver = await new Builder()
+      .withCapabilities({ unexpectedAlertBehaviour: "accept" })
       .forBrowser("chrome")
       .setChromeOptions(options)
       .build();

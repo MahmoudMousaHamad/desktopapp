@@ -6,7 +6,7 @@ import Button from "@mui/joy/Button";
 import Card from "@mui/joy/Card";
 
 import "./App.css";
-import { CssBaseline } from "@mui/material";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { Sheet } from "@mui/joy";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -17,6 +17,18 @@ import QA from "./QA";
 import { logout } from "./actions/auth";
 import { endQuestions, setQuestion } from "./actions/qa";
 import { sendData } from "./actions/socket";
+
+const theme = createTheme({
+  palette: {
+    type: "dark",
+    primary: {
+      main: "#3f51b5",
+    },
+    secondary: {
+      main: "#f50057",
+    },
+  },
+});
 
 const App = () => {
   const { isLoggedIn } = useSelector((state) => state.auth);
@@ -43,64 +55,66 @@ const App = () => {
   }, [dispatch, question]);
 
   return (
-    <CssVarsProvider>
-      <CssBaseline />
-      <HashRouter>
-        <Sheet
-          sx={{
-            marginBottom: 2,
-            display: "flex",
-            justifyContent: "space-evenly",
-            width: 500,
-          }}
-        >
-          {isLoggedIn ? (
-            <>
-              <Button variant="solid">
-                <Link to="/">Dashboard</Link>
-              </Button>
-              <Button variant="solid">
-                <Link to="/profile">Profile</Link>
-              </Button>
-              <Button variant="solid">
-                <Link to="/qa">Question</Link>
-              </Button>
-              <Button variant="solid">
-                <a href="/login" onClick={logOut}>
-                  Log out
-                </a>
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="solid">
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button variant="outlined">
-                <Link to="/register" style={{ color: "green" }}>
-                  Sign Up
-                </Link>
-              </Button>
-            </>
-          )}
-        </Sheet>
-        <Sheet
-          sx={{
-            display: "flex",
-            justifyContent: "space-evenly",
-            padding: 5,
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/qa" element={<QA />} />
-          </Routes>
-        </Sheet>
-      </HashRouter>
-    </CssVarsProvider>
+    <ThemeProvider theme={theme}>
+      <CssVarsProvider>
+        <CssBaseline />
+        <HashRouter>
+          <Sheet
+            sx={{
+              marginBottom: 2,
+              display: "flex",
+              justifyContent: "space-evenly",
+              width: 500,
+            }}
+          >
+            {isLoggedIn ? (
+              <>
+                <Button variant="solid">
+                  <Link to="/">Dashboard</Link>
+                </Button>
+                <Button variant="solid">
+                  <Link to="/profile">Profile</Link>
+                </Button>
+                <Button variant="solid">
+                  <Link to="/qa">Question</Link>
+                </Button>
+                <Button variant="solid">
+                  <a href="/login" onClick={logOut}>
+                    Log out
+                  </a>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="solid">
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button variant="outlined">
+                  <Link to="/register" style={{ color: "green" }}>
+                    Sign Up
+                  </Link>
+                </Button>
+              </>
+            )}
+          </Sheet>
+          <Sheet
+            sx={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              padding: 5,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/qa" element={<QA />} />
+            </Routes>
+          </Sheet>
+        </HashRouter>
+      </CssVarsProvider>
+    </ThemeProvider>
   );
 };
 
