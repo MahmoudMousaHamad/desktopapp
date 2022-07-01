@@ -54,8 +54,8 @@ const questionTypeInput = {
               value={index}
               name="current_question"
               type="radio"
+              label={o}
             />
-            <span> {o}</span>
           </div>
         ))}
       </div>

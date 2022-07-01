@@ -6,9 +6,11 @@
 require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
 const natural = require("natural");
+const { BrowserWindow } = require("electron");
 
 const Scraper = require("./index");
 const Classifier = require("./Classifier");
+const { categorize } = require("./Categories");
 
 function filterInt(value) {
   if (/^[-+]?(\d+|Infinity)$/.test(value)) {
@@ -204,6 +206,14 @@ class Question {
   }
 
   async attemptToAnswer() {
+    console.log("Attempting to categorize question and answer it.");
+
+    const { category, score } = categorize(this.questionText);
+    console.log("Question category:", category, "Score", score);
+
+    // if (score > 0) {
+    // }
+
     console.log("Attempting to answer question: ", this.questionTokens);
 
     const classifications = Classifier.SingletonClassifier.getClassifications(
@@ -229,6 +239,7 @@ class Question {
         attemptedAnswer,
         value
       );
+
       await this.answer(attemptedAnswer);
       return true;
     }

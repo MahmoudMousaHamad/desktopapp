@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/return-await */
 /* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
@@ -87,7 +88,26 @@ class QAManager {
     }
   }
 
+  async getQuestionText(element) {
+    const text = await element.getText();
+    if (text.length > 0) {
+      return text;
+    }
+
+    const parent = await element.findElement(By.xpath("./.."));
+    return await this.getQuestionText(parent);
+  }
+
   async gatherQuestions() {
+    // const inputs = await this.driver.findElements(
+    //   By.css("textarea, input, select")
+    // );
+
+    // for (const input of inputs) {
+    //   const text = await this.getQuestionText(input);
+    //   console.log("Question Text: ", text);
+    // }
+
     const questionsElements = await this.driver.findElements(
       By.css(".ia-Questions-item")
     );

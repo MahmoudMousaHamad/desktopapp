@@ -18,6 +18,7 @@ import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
 import Scraper from "./scrapper";
 import config from "../config";
+import { UserAnswersSingleton } from "./scrapper/Categories";
 
 export default class AppUpdater {
   constructor() {
@@ -146,7 +147,9 @@ app
 
 const scraper = new Scraper.Scraper();
 
-ipcMain.on("start-scraper", async () => {
+ipcMain.on("start-scraper", async (event, { userAnswers }) => {
+  UserAnswersSingleton.setUserAnswers(userAnswers);
+  console.log(UserAnswersSingleton.userAnswers);
   await scraper.start();
 });
 

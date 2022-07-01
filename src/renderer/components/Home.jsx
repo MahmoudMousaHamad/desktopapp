@@ -8,7 +8,9 @@ export default () => {
   // const dispatch = useDispatch();
 
   const start = () => {
-    window.electron.ipcRenderer.send("start-scraper");
+    window.electron.ipcRenderer.send("start-scraper", {
+      userAnswers: JSON.parse(localStorage.getItem("userAnswers")),
+    });
   };
 
   const stop = () => {

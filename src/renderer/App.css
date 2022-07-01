@@ -7,10 +7,15 @@ body {
   color: white;
   height: 100vh;
   font-family: sans-serif;
-  overflow-y: hidden;
+  overflow-y: scroll;
   display: flex;
   justify-content: center;
   align-items: baseline;
+  
+}
+
+body::-webkit-scrollbar{
+  display: none;
 }
 
 button {
