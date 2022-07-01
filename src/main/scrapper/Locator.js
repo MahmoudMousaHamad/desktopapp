@@ -76,7 +76,15 @@ class Locator {
   }
 
   async getPageSource() {
-    const source = await this.driver.getPageSource();
+    let source;
+
+    try {
+      source = await this.driver.getPageSource();
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+
     return source;
   }
 

@@ -53,6 +53,11 @@ class Scraper {
             console.log(e);
           }
 
+          if (!string) {
+            await this.locator.goToJobsPage();
+            break;
+          }
+
           if (value.strings.some((s) => string.includes(s))) {
             try {
               console.log("Running action for", key);

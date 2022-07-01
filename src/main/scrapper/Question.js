@@ -218,6 +218,8 @@ class Question {
 
     const { label, value } = classifications[0];
 
+    console.log("Highest confidence value: ", classifications[0]);
+
     const attemptedAnswer =
       value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
 

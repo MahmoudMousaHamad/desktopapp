@@ -9,6 +9,7 @@ const fs = require("fs");
 // Saved to file when driver is closed
 
 const CLASSIFIER_PATH = path.resolve(__dirname, "./classifier.json");
+const CONDIFENCE_THRESHOLD = 0.33;
 
 class Classifier {
   constructor() {
@@ -16,8 +17,6 @@ class Classifier {
   }
 
   static ACCEPTED_TAGS = ["NN", "NNS", "NNP", "VB", "VBN"];
-
-  static CONDIFENCE_THRESHOLD = 0.2;
 
   loadClassifier() {
     if (fs.existsSync(CLASSIFIER_PATH)) {
@@ -76,6 +75,7 @@ const TokenizeQuestion = (question) => {
 
 module.exports = {
   CLASSIFIER_PATH,
+  CONDIFENCE_THRESHOLD,
   SingletonClassifier,
   TokenizeQuestion,
 };
