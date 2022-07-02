@@ -223,6 +223,8 @@ class Question {
   }
 
   async attemptToAnswer() {
+    console.log("Attempting to answer question: ", this.text);
+
     let attemptedAnswer = null;
 
     console.log("Attempting to categorize question and answer it.");
@@ -255,6 +257,7 @@ class Question {
         console.log("Mapped answer:", attemptedAnswer);
       }
       await this.answer(attemptedAnswer);
+      console.log("Question answered automatically");
       return true;
     }
 

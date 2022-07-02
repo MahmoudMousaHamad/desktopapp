@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/prop-types */
 
-import { Checkbox, Input, Radio, Sheet } from "@mui/joy";
+import { Box, Checkbox, Input, Radio, Sheet, Typography } from "@mui/joy";
 
 const questionTypeInput = {
   text: {
@@ -53,6 +53,7 @@ const questionTypeInput = {
               checked={option === value}
               value={option}
               label={option}
+              sx={{ fontSize: 20, p: 1 }}
             />
           </div>
         ))}
@@ -110,13 +111,17 @@ function constructInput(type, options, handleChange, answer, ...args) {
 export default ({ question, handleChange, answer, ...params }) => {
   const { text, type, options } = question;
 
-  const questionText = <h3>{text}</h3>;
   const input = constructInput(type, options, handleChange, answer);
 
   return (
-    <Sheet sx={{ marginBottom: 2, maxWidth: 400 }}>
-      <Sheet>{questionText}</Sheet>
-      <Sheet>{input}</Sheet>
-    </Sheet>
+    <Box
+      sx={{
+        p: 2,
+        mb: 1,
+      }}
+    >
+      <Typography level="h3">{text}</Typography>
+      <Box sx={{ mt: 5 }}>{input}</Box>
+    </Box>
   );
 };

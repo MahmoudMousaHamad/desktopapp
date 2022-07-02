@@ -70,7 +70,12 @@ class Scraper {
             } catch (e) {
               await new Promise((resolve) => {
                 setTimeout(async () => {
-                  await value.action();
+                  try {
+                    await value.action();
+                  } catch (e2) {
+                    console.error(e2);
+                    await this.locator.goToJobsPage();
+                  }
                   resolve();
                 }, 5000);
               });
@@ -89,7 +94,10 @@ class Scraper {
       (error, stdout, stderr) => {
         if (stdout) {
           console.log(`stdout: ${stdout}`);
-          if (stdout && stdout.toLowerCase().includes("existing browser session")) {
+          if (
+            stdout &&
+            stdout.toLowerCase().includes("existing browser session")
+          ) {
             this.sessionAlreadyOpen = true;
           } else {
             this.attachToSession = false;

@@ -1,7 +1,8 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
-import UserInformation from "./UserInformation";
+
+import UserInformation from "../components/UserInformation";
 
 const Profile = () => {
   const { user: currentUser } = useSelector((state) => state.auth);

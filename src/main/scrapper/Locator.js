@@ -63,7 +63,7 @@ class Locator {
       type: TITLE,
       action: this.submitApplication.bind(this),
     },
-    jobSearch: {
+    submitted: {
       strings: ["Your application has been submitted!"],
       type: SOURCE,
       action: this.goToJobsPage.bind(this),
