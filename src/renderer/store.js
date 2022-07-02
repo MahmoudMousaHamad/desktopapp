@@ -47,6 +47,7 @@ const SocketMiddleware = (store) => (next) => (action) => {
       socket = Socket.connect(config.SERVER_ENDPOINT, store);
       break;
     case LOGOUT:
+      console.log("Socket is disconnecting");
       if (socket) {
         socket.disconnect();
       }

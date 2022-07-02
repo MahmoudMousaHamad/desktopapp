@@ -1,13 +1,14 @@
 import { extendTheme } from "@mui/joy/styles";
 
-declare module "@mui/joy/styles" {
-  interface PaletteBackground {
-    bodyEmail: string;
-    componentBg: string;
-  }
-}
-
 export default extendTheme({
+  typography: {
+    label: {
+      fontSize: "var(--joy-fontSize-sm)",
+      fontWeight: "var(--joy-fontWeight-lg)",
+      lineHeight: "var(--joy-lineHeight-lg)",
+      marginBottom: "3px",
+    },
+  },
   colorSchemes: {
     light: {
       palette: {

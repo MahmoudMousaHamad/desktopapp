@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Link, Routes, HashRouter } from "react-router-dom";
+import { Route, Link, Routes, HashRouter, Navigate } from "react-router-dom";
 import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import Button from "@mui/joy/Button";
 import Card from "@mui/joy/Card";
@@ -72,10 +72,6 @@ const App = () => {
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const logOut = () => {
-    dispatch(logout());
-  };
-
   useEffect(() => {
     window.electron.ipcRenderer.on("question", (data) => {
       dispatch(setQuestion(data.question));
@@ -90,6 +86,10 @@ const App = () => {
       window.electron.ipcRenderer.removeAllListeners("question");
     };
   }, [dispatch, question]);
+
+  // if (!isLoggedIn) {
+  //   return <Login />;
+  // }
 
   return (
     <CssVarsProvider disableTransitionOnChange theme={theme}>

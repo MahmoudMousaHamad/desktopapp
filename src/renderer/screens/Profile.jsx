@@ -8,11 +8,13 @@ import JobTitles from "../components/JobTitles";
 import Locations from "../components/Locations";
 
 const Profile = () => {
-  const { user: currentUser } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.auth);
 
-  if (!currentUser) {
-    return <Redirect to="/login" />;
-  }
+  console.log(user);
+
+  // if (!currentUser) {
+  //   return <Redirect to="/login" />;
+  // }
 
   return (
     <>

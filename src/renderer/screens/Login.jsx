@@ -1,32 +1,17 @@
-import React, { useState, useRef } from "react";
+/* eslint-disable promise/always-return */
+import { Box, Button, Input, Typography } from "@mui/joy";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
 
 import { login } from "../actions/auth";
 
-const required = (value) => {
-  if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This field is required!
-      </div>
-    );
-  }
-};
-
-const Login = (props) => {
-  const form = useRef();
-  const checkBtn = useRef();
+const Login = () => {
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const { isLoggedIn } = useSelector((state) => state.auth);
-  const { message } = useSelector((state) => state.message);
   const dispatch = useDispatch();
-  const onChangeemail = (e) => {
+  const onChangeEmail = (e) => {
     setemail(e.target.value);
   };
   const onChangePassword = (e) => {
@@ -34,73 +19,44 @@ const Login = (props) => {
   };
   const handleLogin = (e) => {
     e.preventDefault();
-    setLoading(true);
-    form.current.validateAll();
-    if (checkBtn.current.context._errors.length === 0) {
+    if (email && password) {
       dispatch(login(email, password))
         .then(() => {
           console.log("Login successful!");
         })
-        .catch(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+        .catch(console.log);
     }
   };
 
   if (isLoggedIn) {
-    return <Navigate to="/profile" />;
+    return <Navigate to="/" />;
   }
 
   return (
-    <div className="col-md-12">
-      <div className="card card-container">
-        <img
-          src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-          alt="profile-img"
-          className="profile-img-card"
+    <Box sx={{ p: 5 }}>
+      <form onSubmit={handleLogin}>
+        <Typography level="label" textColor="text.secondary">
+          Email
+        </Typography>
+        <Input
+          sx={{ mb: 1 }}
+          type="text"
+          value={email}
+          onChange={onChangeEmail}
         />
-        <Form onSubmit={handleLogin} ref={form}>
-          <div className="form-group">
-            <label htmlFor="email">email</label>
-            <Input
-              type="text"
-              className="form-control"
-              name="email"
-              value={email}
-              onChange={onChangeemail}
-              validations={[required]}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <Input
-              type="password"
-              className="form-control"
-              name="password"
-              value={password}
-              onChange={onChangePassword}
-              validations={[required]}
-            />
-          </div>
-          <div className="form-group">
-            <button className="btn btn-primary btn-block" disabled={loading}>
-              {loading && <span className="spinner-border spinner-border-sm" />}
-              <span>Login</span>
-            </button>
-          </div>
-          {message && (
-            <div className="form-group">
-              <div className="alert alert-danger" role="alert">
-                {message}
-              </div>
-            </div>
-          )}
-          <CheckButton style={{ display: "none" }} ref={checkBtn} />
-        </Form>
-      </div>
-    </div>
+
+        <Typography level="label" textColor="text.secondary">
+          Password
+        </Typography>
+        <Input
+          sx={{ mb: 1 }}
+          type="password"
+          value={password}
+          onChange={onChangePassword}
+        />
+        <Button type="submit">Login</Button>
+      </form>
+    </Box>
   );
 };
 export default Login;
