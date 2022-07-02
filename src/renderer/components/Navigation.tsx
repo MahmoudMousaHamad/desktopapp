@@ -16,6 +16,7 @@ import AssistantPhotoRoundedIcon from "@mui/icons-material/AssistantPhotoRounded
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
+import LogoutSharpIcon from "@mui/icons-material/LogoutSharp";
 import { DashboardRounded } from "@mui/icons-material";
 
 export default function Nav() {
@@ -28,24 +29,28 @@ export default function Nav() {
             "& .JoyListItemButton-root": { p: "8px" },
           }}
         >
-          <ListItem>
+          <ListItem component={RouterLink} to="/">
             <ListItemButton>
               <ListItemDecorator sx={{ color: "inherit" }}>
                 <DashboardRounded fontSize="small" />
               </ListItemDecorator>
-              <JoyLink component={RouterLink} to="/">
-                Dashboard
-              </JoyLink>
+              Dashboard
             </ListItemButton>
           </ListItem>
-          <ListItem>
+          <ListItem component={RouterLink} to="/profile">
             <ListItemButton>
               <ListItemDecorator sx={{ color: "inherit" }}>
-                <DashboardRounded fontSize="small" />
+                <AccountCircleSharpIcon fontSize="small" />
               </ListItemDecorator>
-              <JoyLink component={RouterLink} to="/profile">
-                Profile
-              </JoyLink>
+              Profile
+            </ListItemButton>
+          </ListItem>
+          <ListItem component={RouterLink} to="/login">
+            <ListItemButton>
+              <ListItemDecorator sx={{ color: "red" }}>
+                <LogoutSharpIcon fontSize="small" />
+              </ListItemDecorator>
+              Logout
             </ListItemButton>
           </ListItem>
         </List>

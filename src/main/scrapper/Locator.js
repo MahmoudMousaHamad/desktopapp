@@ -7,7 +7,6 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
-const Scraper = require("./index");
 const Classifier = require("./Classifier");
 
 const { locations } = require("./locations");

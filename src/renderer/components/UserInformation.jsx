@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-import { Input, Radio, Sheet } from "@mui/joy";
+import { Box, Input, Radio, Sheet, Typography } from "@mui/joy";
 import { useState } from "react";
 
 const categoriesQuestions = {
@@ -134,6 +134,7 @@ export default () => {
   const [answers, setAnswers] = useState(
     JSON.parse(localStorage.getItem("userAnswers")) || {}
   );
+
   const questions = [];
 
   const handleChange = (value, category) => {
@@ -147,10 +148,16 @@ export default () => {
 
   for (const category in categoriesQuestions) {
     const { question } = categoriesQuestions[category];
+    const text = (
+      <Typography sx={{ mb: 1 }} textColor="text.secondary" level="h5">
+        {question.text}
+      </Typography>
+    );
+
     if (question.type === "text") {
       questions.push(
         <>
-          <h3>{question.text}</h3>
+          {text}
           <Input
             name={category}
             type="text"
@@ -163,14 +170,19 @@ export default () => {
     } else {
       questions.push(
         <>
-          <h3>{question.text}</h3>
+          {text}
           {question.options.map((option, index) => (
             <div key={index}>
               <Radio
+                sx={{ mb: 1 }}
                 checked={answers[category] === option}
                 onChange={(e) => handleChange(e.target.value, category)}
                 value={option}
-                label={option}
+                label={
+                  <Typography textColor="text.tertiary" level="body1">
+                    {option}
+                  </Typography>
+                }
               />
             </div>
           ))}
@@ -179,5 +191,13 @@ export default () => {
     }
   }
 
-  return <Sheet sx={{ maxWidth: 400 }}>{...questions}</Sheet>;
+  return (
+    <>
+      {questions.map((q, index) => (
+        <Box key={index} sx={{ mb: 2 }}>
+          {q}
+        </Box>
+      ))}
+    </>
+  );
 };
