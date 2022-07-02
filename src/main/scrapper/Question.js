@@ -10,7 +10,7 @@ const { BrowserWindow } = require("electron");
 
 const Scraper = require("./index");
 const Classifier = require("./Classifier");
-const { categorize } = require("./Categories");
+const { categorize, UserAnswersSingleton } = require("./Categories");
 
 function filterInt(value) {
   if (/^[-+]?(\d+|Infinity)$/.test(value)) {
@@ -114,16 +114,14 @@ class Question {
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
-        if (Number.isNaN(filterInt(answer))) {
-          console.log("Attempting to use classifier's answer");
-          await selectElement(elements, answer);
-        } else {
-          await elements.forEach(async (element, index) => {
-            if (index === parseInt(answer, 10)) {
-              await element.click();
-            }
-          });
+        for (const option of elements) {
+          const text = await option.getText();
+          if (text === answer) {
+            await option.click();
+            return;
+          }
         }
+        await elements[0].click();
       },
     },
     select: {
@@ -136,19 +134,14 @@ class Question {
         const element = this.element.findElement(By.css("select"));
         await element.click();
         const options = await element.findElements(By.css("option"));
-        if (Number.isNaN(filterInt(answer))) {
-          console.log("Attempting to use classifier's answer");
-          await selectElement(options, answer);
-          return true;
-        }
-        for (let i = 0; i < options.length; i++) {
-          if (i === parseInt(answer, 10)) {
-            await options[i].click();
-            await element.sendKeys(Key.ESCAPE);
-            return true;
+        for (const option of options) {
+          const text = await option.getText();
+          if (text === answer) {
+            await option.click();
+            return;
           }
         }
-        return false;
+        await options[0].click();
       },
     },
     checkbox: {
@@ -159,14 +152,23 @@ class Question {
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
-        if (Number.isNaN(filterInt(answer))) {
-          await selectElement(elements, answer);
-        }
-        await elements.forEach(async (element, index) => {
-          if (answer.includes(index.toString())) {
-            await element.click();
+        if (Array.isArray(answer)) {
+          for (const option of elements) {
+            const text = await option.getText();
+            if (answer.includes(text)) {
+              await option.click();
+            }
           }
-        });
+          return;
+        }
+        for (const option of elements) {
+          const text = await option.getText();
+          if (text === answer) {
+            await option.click();
+            return;
+          }
+        }
+        await elements[0].click();
       },
     },
   };
@@ -201,45 +203,57 @@ class Question {
     };
   }
 
+  mapAnswerToOption(answer) {
+    if (this.options === "None") throw Error("No options to map answer to");
+    let max = 0;
+    let maxOption;
+    for (const option of this.options) {
+      const distance = natural.JaroWinklerDistance(option, answer);
+      if (distance > max) {
+        max = distance;
+        maxOption = option;
+      }
+    }
+
+    return maxOption;
+  }
+
   async answer(answer) {
     await this.typesSelectors[this.type].answer(this.inputElement, answer);
   }
 
   async attemptToAnswer() {
-    console.log("Attempting to categorize question and answer it.");
+    let attemptedAnswer = null;
 
+    console.log("Attempting to categorize question and answer it.");
     const { category, score } = categorize(this.questionText);
     console.log("Question category:", category, "Score", score);
-
-    // if (score > 0) {
-    // }
-
-    console.log("Attempting to answer question: ", this.questionTokens);
-
-    const classifications = Classifier.SingletonClassifier.getClassifications(
-      this.questionTokens
-    );
-
-    console.log("Classifications: ", classifications);
-
-    if (classifications.length === 0) {
-      return null;
+    if (score > 0) {
+      console.log("Answering question using category");
+      attemptedAnswer = UserAnswersSingleton.userAnswers[category];
+    } else {
+      console.log(
+        "Attempting to answer question using classifier with tokens: ",
+        this.questionTokens
+      );
+      const classifications = Classifier.SingletonClassifier.getClassifications(
+        this.questionTokens
+      );
+      if (classifications.length === 0) {
+        console.log("No classifications");
+        return false;
+      }
+      const { label, value } = classifications[0];
+      console.log("Highest confidence value: ", classifications[0]);
+      attemptedAnswer = value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
     }
 
-    const { label, value } = classifications[0];
-
-    console.log("Highest confidence value: ", classifications[0]);
-
-    const attemptedAnswer =
-      value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
-
     if (attemptedAnswer) {
-      console.log(
-        "Attempted answer is above threshold: ",
-        attemptedAnswer,
-        value
-      );
-
+      if (this.options !== "None") {
+        attemptedAnswer = this.mapAnswerToOption(attemptedAnswer);
+        if (!attemptedAnswer) return false;
+        console.log("Mapped answer:", attemptedAnswer);
+      }
       await this.answer(attemptedAnswer);
       return true;
     }

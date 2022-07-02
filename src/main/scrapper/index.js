@@ -58,7 +58,11 @@ class Scraper {
             break;
           }
 
-          if (value.strings.some((s) => string.includes(s))) {
+          if (
+            value.strings.some((s) =>
+              string.toLowerCase().includes(s.toLowerCase())
+            )
+          ) {
             try {
               console.log("Running action for", key);
               await value.action();
@@ -85,7 +89,7 @@ class Scraper {
       (error, stdout, stderr) => {
         if (stdout) {
           console.log(`stdout: ${stdout}`);
-          if (stdout && stdout.includes("existing browser session")) {
+          if (stdout && stdout.toLowerCase().includes("existing browser session")) {
             this.sessionAlreadyOpen = true;
           } else {
             this.attachToSession = false;

@@ -124,15 +124,17 @@ class QAManager {
   setupIPCListeners() {
     ipcMain.on(this.listeners.answer, async (event, { answer, question }) => {
       console.log("Answer as recieved from client: ", answer);
+
       let classifierAnswer = answer;
-      if (question.options !== "None") {
-        if (question.type === "checkbox") {
-          classifierAnswer = question.options.filter((option, index) =>
-            answer.includes(index.toString())
-          );
-        } else {
-          classifierAnswer = question.options[parseInt(answer, 10)];
-        }
+
+      if (question.type === "checkbox") {
+        classifierAnswer = Object.keys(answer)
+          .filter((key) => answer[key] === true)
+          .reduce((res, key) => Object.assign(res, { [key]: obj[key] }), {});
+        classifierAnswer = Object.keys(classifierAnswer);
+        // classifierAnswer = question.options.filter((option) =>
+        //   answer.toLowerCase().includes(option.toLowerCase())
+        // );
       }
 
       console.log("Answer as input to classifier: ", classifierAnswer);

@@ -63,7 +63,7 @@ export default function QA() {
       ) : (
         <>
           {answered ? (
-            <h4>...</h4>
+            <h4>Waiting for the next question.</h4>
           ) : (
             <h4>If a question needs your answer, it will show up here.</h4>
           )}

@@ -46,15 +46,13 @@ const questionTypeInput = {
   radio: {
     element: (options, handleChange, value) => (
       <div>
-        {options.map((o, index) => (
+        {options.map((option, index) => (
           <div key={index}>
             <Radio
-              checked={parseInt(value, 10) === index}
               onChange={(e) => handleChange(e.target.value)}
-              value={index}
-              name="current_question"
-              type="radio"
-              label={o}
+              checked={option === value}
+              value={option}
+              label={option}
             />
           </div>
         ))}
@@ -65,9 +63,9 @@ const questionTypeInput = {
     element: (options, handleChange, value) => {
       return (
         <select onChange={(e) => handleChange(e.target.value)} value={value}>
-          {options.map((o, index) => (
-            <option key={index} value={index}>
-              {o}
+          {options.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
             </option>
           ))}
         </select>
@@ -77,20 +75,18 @@ const questionTypeInput = {
   checkbox: {
     element: (options, handleChange, checked = {}) => (
       <div>
-        {options.map((o, index) => (
+        {options.map((option, index) => (
           <>
             <Checkbox
               type="checkbox"
               key={index}
               checked={
                 typeof checked === "object" && checked !== null
-                  ? checked[index.toString()]
+                  ? checked[option]
                   : false
               }
-              onChange={(v) =>
-                handleChange({ ...checked, [index.toString()]: v })
-              }
-              label={o}
+              onChange={(v) => handleChange({ ...checked, [option]: v })}
+              label={option}
             />
           </>
         ))}

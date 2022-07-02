@@ -50,7 +50,7 @@ const categorize = (questionText) => {
     const keywords = categories[category];
     let score = 0;
     for (const word of keywords) {
-      if (questionText.includes(word)) {
+      if (questionText.toLowerCase().includes(word.toLowerCase())) {
         score++;
       }
     }
