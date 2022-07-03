@@ -3,39 +3,55 @@ variables:
 
 stages:
   - build
-  - deploy
-
+  
 build:
   image: electronuserland/builder:wine
   stage: build
-  script:
-    - npm i
-    - npm run package -- --linux
-    - npm run package -- --windows
-    # - npm run package -- --mac
-
-  artifacts:
-    expire_in: 30 days
-    name: '$CI_COMMIT_REF_NAME'
-    paths:
-      - release/build/*.AppImage
-      - release/build/*-mac.zip
-      - release/build/*.exe
-  only:
-    - main
-
-pages:
-  stage: deploy
-  script:
-    - mkdir .public
-    - cp -r release/build/* .public
-    - mv .public public
-  dependencies:
-    - build
   artifacts:
     paths:
-      - public/*-mac.zip
-      - public/*.exe
-      - public/*.AppImage
-  only:
-    - main
+      - $CI_PROJECT_DIR/dist/*.*
+  script:
+    - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
+    - npm install && npm run build
+
+# variables:
+#   VERSION_ID: '1.0.$CI_PIPELINE_ID'
+
+# stages:
+#   - build
+#   - deploy
+
+# build:
+#   image: electronuserland/builder:wine
+#   stage: build
+#   script:
+#     - npm i
+#     - npm run package -- --linux
+#     - npm run package -- --windows
+#     # - npm run package -- --mac
+
+#   artifacts:
+#     expire_in: 30 days
+#     name: '$CI_COMMIT_REF_NAME'
+#     paths:
+#       - release/build/*.AppImage
+#       - release/build/*-mac.zip
+#       - release/build/*.exe
+#   only:
+#     - main
+
+# pages:
+#   stage: deploy
+#   script:
+#     - mkdir .public
+#     - cp -r release/build/* .public
+#     - mv .public public
+#   dependencies:
+#     - build
+#   artifacts:
+#     paths:
+#       - public/*-mac.zip
+#       - public/*.exe
+#       - public/*.AppImage
+#   only:
+#     - main
