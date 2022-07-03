@@ -24,12 +24,12 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = "info";
     autoUpdater.logger = log;
-    autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "Personal access Token" };
+    autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "glpat-TuBeeX7Y18UEzcfKdbf2" };
     autoUpdater.autoDownload = true;
 
     autoUpdater.setFeedURL({
-        provider: "generic",
-        url: "https://gitlab.com/_example_repo_/-/jobs/artifacts/master/raw/dist?job=build"
+      provider: "generic",
+      url: "https://gitlab.com/mahmoudmousahamad/desktopapp/-/jobs/artifacts/main/raw/dist?job=build"
     });
     autoUpdater.checkForUpdatesAndNotify();
   }

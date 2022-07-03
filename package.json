@@ -1,10 +1,9 @@
 {
-  "name": "electronapp",
-  "description": "A foundation for scalable desktop apps",
+  "name": "desktopapp",
+  "description": "Electron desktop app",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "Mahmoud Mousa Hamad",
+    "email": "mahmoudmousahamad@gmail.com"
   },
   "main": "./src/main/main.ts",
   "scripts": {
