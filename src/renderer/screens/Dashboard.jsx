@@ -12,7 +12,11 @@ export default () => {
 
   const start = () => {
     window.electron.ipcRenderer.send("start-scraper", {
-      userAnswers: JSON.parse(localStorage.getItem("userAnswers")),
+      answers: JSON.parse(localStorage.getItem("user-answers")),
+      titles: JSON.parse(localStorage.getItem("titles")),
+      locations: JSON.parse(localStorage.getItem("locations")),
+      jobType: JSON.parse(localStorage.getItem("job-type")),
+      experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
     });
     setStartStop("stop");
   };

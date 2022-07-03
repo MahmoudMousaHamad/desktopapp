@@ -63,16 +63,7 @@ const categorize = (questionText) => {
   return { category: questionCategory, score: maxScore };
 };
 
-class UserAnswers {
-  setUserAnswers(userAnswers) {
-    this.userAnswers = userAnswers;
-  }
-}
-
-const UserAnswersSingleton = new UserAnswers();
-
 module.exports = {
-  UserAnswersSingleton,
   categories,
   categorize,
 };

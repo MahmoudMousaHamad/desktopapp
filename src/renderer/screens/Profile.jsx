@@ -6,16 +6,9 @@ import UserInformation from "../components/UserInformation";
 
 import JobTitles from "../components/JobTitles";
 import Locations from "../components/Locations";
+import TypeAndExperience from "../components/TypeAndExperience";
 
 const Profile = () => {
-  const user = useSelector((state) => state.auth);
-
-  console.log(user);
-
-  // if (!currentUser) {
-  //   return <Redirect to="/login" />;
-  // }
-
   return (
     <>
       <Box sx={{ p: 3 }}>
@@ -24,6 +17,7 @@ const Profile = () => {
         </Typography>
         <JobTitles />
         <Locations />
+        <TypeAndExperience />
       </Box>
       <Box sx={{ p: 3 }}>
         <UserInformation />

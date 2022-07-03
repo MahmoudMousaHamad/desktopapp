@@ -10,7 +10,8 @@ const { BrowserWindow } = require("electron");
 
 const Scraper = require("./index");
 const Classifier = require("./Classifier");
-const { categorize, UserAnswersSingleton } = require("./Categories");
+const { categorize } = require("./Categories");
+const Preferences = require("./UserPrefernces");
 
 function filterInt(value) {
   if (/^[-+]?(\d+|Infinity)$/.test(value)) {
@@ -232,7 +233,7 @@ class Question {
     console.log("Question category:", category, "Score", score);
     if (score > 0) {
       console.log("Answering question using category");
-      attemptedAnswer = UserAnswersSingleton.userAnswers[category];
+      attemptedAnswer = Preferences.answers[category];
     } else {
       console.log(
         "Attempting to answer question using classifier with tokens: ",

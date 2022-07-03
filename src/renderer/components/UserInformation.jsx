@@ -132,15 +132,15 @@ const categoriesQuestions = {
 
 export default () => {
   const [answers, setAnswers] = useState(
-    JSON.parse(localStorage.getItem("userAnswers")) || {}
+    JSON.parse(localStorage.getItem("user-answers")) || {}
   );
 
   const questions = [];
 
   const handleChange = (value, category) => {
-    const userAnswers = JSON.parse(localStorage.getItem("userAnswers"));
+    const userAnswers = JSON.parse(localStorage.getItem("user-answers"));
     localStorage.setItem(
-      "userAnswers",
+      "user-answers",
       JSON.stringify({ ...userAnswers, [category]: value })
     );
     setAnswers({ ...answers, [category]: value });

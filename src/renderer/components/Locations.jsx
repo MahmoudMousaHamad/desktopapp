@@ -37,22 +37,25 @@ export default () => {
       "locations",
       JSON.stringify([...new Set([...locations, ...addedLocations])])
     );
+    console.log(
+      "default-locations:",
+      localStorage.getItem("default-locations")
+    );
+    console.log("user-added:", localStorage.getItem("user-added-locations"));
     console.log("Locations from storage:", localStorage.getItem("locations"));
   }, [locations, addedLocations]);
 
   return (
     <>
-      <Sheet sx={{ p: 5, borderRadius: 15 }} color="primary" variant="outlined">
+      <Sheet
+        sx={{ p: 5, borderRadius: 15, mb: 5 }}
+        color="primary"
+        variant="outlined"
+      >
         <Typography sx={{ mb: 2 }} textColor="text.secondary" level="h4">
           Locations
         </Typography>
         <Box sx={{ mb: 1 }}>
-          {/* <MultiSelect
-            options={options}
-            value={locations.map((l) => ({ label: l, value: l }))}
-            onChange={(selected) => setLocations(selected.map((s) => s.value))}
-            labelledBy="Select"
-          /> */}
           <Box role="group" aria-labelledby="topping">
             <List
               row
@@ -77,10 +80,6 @@ export default () => {
                         if (e.target.checked) {
                           setLocations([...locations, location]);
                         } else {
-                          console.log(
-                            "Index of: ",
-                            locations.indexOf(location)
-                          );
                           locations.splice(locations.indexOf(location), 1);
                           setLocations([...locations]);
                         }
@@ -130,7 +129,7 @@ export default () => {
                     sx={{ borderRadius: "50%" }}
                     onClick={() => {
                       addedLocations.splice(index, 1);
-                      setAddedLocations([...locations]);
+                      setAddedLocations([...addedLocations]);
                     }}
                   >
                     <RemoveCircleOutlineSharpIcon />
@@ -144,3 +143,10 @@ export default () => {
     </>
   );
 };
+
+/* <MultiSelect
+            options={options}
+            value={locations.map((l) => ({ label: l, value: l }))}
+            onChange={(selected) => setLocations(selected.map((s) => s.value))}
+            labelledBy="Select"
+          /> */

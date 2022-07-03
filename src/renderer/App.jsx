@@ -87,10 +87,6 @@ const App = () => {
     };
   }, [dispatch, question]);
 
-  // if (!isLoggedIn) {
-  //   return <Login />;
-  // }
-
   return (
     <CssVarsProvider disableTransitionOnChange theme={theme}>
       <GlobalStyles

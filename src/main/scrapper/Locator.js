@@ -11,6 +11,7 @@ const Classifier = require("./Classifier");
 
 const { locations } = require("./locations");
 const QAManager = require("./QAManager");
+const Preferences = require("./UserPrefernces");
 
 const TITLE = "TITLE";
 const SOURCE = "SOURCE";
@@ -133,9 +134,16 @@ class Locator {
   }
 
   async goToJobsPage() {
-    const location = locations[Math.floor(Math.random() * locations.length)];
+    const location =
+      Preferences.locations[
+        Math.floor(Math.random() * Preferences.locations.length)
+      ];
+
+    const title =
+      Preferences.titles[Math.floor(Math.random() * Preferences.titles.length)];
+
     this.driver.get(
-      `https://www.indeed.com/jobs?q=software%20developer&l=${location}&sc=0kf%3Aexplvl(ENTRY_LEVEL)jt(fulltime)%3B&from=smart-apply&vjk=fcc224d605e356c1`
+      `https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${Preferences.experienceLevel})jt(${Preferences.jobType})%3B&from=smart-apply&vjk=fcc224d605e356c1`
     );
   }
 
