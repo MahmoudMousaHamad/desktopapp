@@ -28,7 +28,7 @@ build:
     - npm i
     - npm run package -- --linux
     - npm run package -- --windows
-    - npm run package -- --mac
+    # - npm run package -- --mac
 
   artifacts:
     expire_in: 30 days
