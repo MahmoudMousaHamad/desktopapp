@@ -27,9 +27,11 @@ export default class AppUpdater {
     autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "glpat-TuBeeX7Y18UEzcfKdbf2" };
     autoUpdater.autoDownload = true;
 
+    // https://gitlab.com/mahmoudmousahamad/desktopapp/-/jobs/artifacts/main/raw/release/build/JobApplier-4.6.0.AppImage?job=build
+    
     autoUpdater.setFeedURL({
       provider: "generic",
-      url: "https://gitlab.com/mahmoudmousahamad/desktopapp/-/jobs/artifacts/main/raw/dist?job=build"
+      url: "https://gitlab.com/api/v4/projects/37126811/jobs/artifacts/main/raw/release/build/JobApplier-4.6.0.AppImage?job=build"
     });
     autoUpdater.checkForUpdatesAndNotify();
   }
@@ -83,8 +85,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    // width: 1024,
+    // height: 728,
     icon: getAssetPath("icon.png"),
     webPreferences: {
       preload: app.isPackaged
@@ -95,6 +97,7 @@ const createWindow = async () => {
     },
   });
 
+  mainWindow.maximize();
   mainWindow.loadURL(resolveHtmlPath("index.html"));
 
   mainWindow.on("ready-to-show", () => {

@@ -24,11 +24,18 @@ stages:
 build:
   image: electronuserland/builder:wine
   stage: build
+  variables:
+    # These values are used for auto updates signing
+    APPLE_ID: $APPLE_ID
+    APPLE_ID_PASS: $APPLE_ID_PASS
+    CSC_LINK: $CSC_LINK
+    CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
+
   script:
-    - npm i
-    - npm run package -- --linux
-    - npm run package -- --windows
-    # - npm run package -- --mac
+    - npm install
+    - npm run postinstall
+    - npm run build
+    - npm exec electron-builder -- --publish always --win --linux
 
   artifacts:
     expire_in: 30 days
