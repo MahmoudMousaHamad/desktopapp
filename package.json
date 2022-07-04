@@ -1,6 +1,12 @@
 {
   "name": "desktopapp",
   "description": "Electron desktop app",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/mahmoudmousahamad/desktopapp.git",
+    "release": "latest"
+  },
   "author": {
     "name": "Mahmoud Mousa Hamad",
     "email": "mahmoudmousahamad@gmail.com"
@@ -149,13 +155,12 @@
   },
   "build": {
     "productName": "JobApplier",
-    "appId": "mahmoudmousahamad.JobApplier",
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "https://gitlab.com"
-      }
-    ],
+    "appId": "com.mahmoudmousahamad.JobApplier",
+    "artifactName": "${productName}-${version}.${ext}",
+    "publish": {
+      "provider": "generic",
+      "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/dist?job=build"
+    },  
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
