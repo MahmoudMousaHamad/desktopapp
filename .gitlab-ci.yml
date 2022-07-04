@@ -11,9 +11,14 @@ build:
     - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
     - npm install
     - npm run build
+    - npm run package
   artifacts:
     paths:
       - release/*/*/*/*.*
+      - release/build/*.AppImage
+      - release/build/*-mac.zip
+      - release/build/*.exe
+      - release/build/*.yml
   
 # # variables:
 # #   VERSION_ID: '1.0.$CI_PIPELINE_ID'

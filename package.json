@@ -159,7 +159,7 @@
     "artifactName": "${productName}-${version}.${ext}",
     "publish": {
       "provider": "generic",
-      "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/dist?job=build"
+      "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/release/build?job=build"
     },  
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
