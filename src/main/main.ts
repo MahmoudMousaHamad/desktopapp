@@ -17,7 +17,6 @@ import { exec } from "child_process";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
 import Scraper from "./scrapper";
-import config from "../config";
 import Preferences from "./scrapper/UserPrefernces";
 
 export default class AppUpdater {
@@ -31,7 +30,7 @@ export default class AppUpdater {
     
     autoUpdater.setFeedURL({
       provider: "generic",
-      url: "https://gitlab.com/api/v4/projects/37126811/jobs/artifacts/main/raw/release/build/JobApplier-4.6.0.AppImage?job=build"
+      url: "https://gitlab.com/api/v4/projects/37126811/jobs/artifacts/main/raw/release/build?job=build"
     });
     autoUpdater.checkForUpdatesAndNotify();
   }

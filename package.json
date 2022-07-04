@@ -156,7 +156,7 @@
   "build": {
     "productName": "JobApplier",
     "appId": "com.mahmoudmousahamad.JobApplier",
-    "artifactName": "${productName}-${version}.${ext}",
+    "artifactName": "${productName}.${ext}",
     "publish": {
       "provider": "generic",
       "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/release/build?job=build"
