@@ -6,8 +6,8 @@
 #   CSC_LINK: $CSC_LINK
 #   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
 
-variables:
-  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+# variables:
+#   CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
 stages:
   - build
@@ -21,7 +21,7 @@ build:
     # - npm run build
     # - npm run package -- --windows --linux
     - npm install
-    - npm run package -- --windows
+    - npx cross-env CSC_IDENTITY_AUTO_DISCOVERY=false npm run package -- --windows
   artifacts:
     paths:
       - release/*/*/*/*.*
