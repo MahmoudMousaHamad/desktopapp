@@ -10,11 +10,11 @@ variables:
   CSC_IDENTITY_AUTO_DISCOVERY: false
 
 stages:
-  - package
+  - build
 
-package:
+build:
   image: electronuserland/builder:wine
-  stage: package
+  stage: build
   script:
     # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
     # - npm install
