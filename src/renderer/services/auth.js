@@ -1,16 +1,16 @@
 import axios from "axios";
 
-import config from '../../config';
+import config from '../config';
 
 const register = (email, password) => {
-  return axios.post(config.AUTH_API_URL + "signup", {
+  return axios.post(config.endpoints(window.electron.NODE_ENV).AUTH_API_URL + "signup", {
     email,
     password,
   });
 };
 const login = (email, password) => {
   return axios
-    .post(config.AUTH_API_URL + "signin", {
+    .post(config.endpoints(window.electron.NODE_ENV).AUTH_API_URL + "signin", {
       email,
       password,
     })

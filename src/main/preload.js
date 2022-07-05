@@ -2,7 +2,9 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
+
 contextBridge.exposeInMainWorld("electron", {
+  NODE_ENV: process.env.NODE_ENV,
   ipcRenderer: {
     send(channel, ...args) {
       ipcRenderer.send(channel, ...args);

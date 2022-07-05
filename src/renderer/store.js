@@ -4,7 +4,7 @@ import thunk from "redux-thunk";
 import socketIOClient from "socket.io-client";
 
 import * as Actions from "./actions/socket";
-import config from "../config";
+import config from "./config";
 import reducer from "./reducers";
 import {
   LOGIN_SUCCESS,
@@ -66,7 +66,7 @@ const store = createStore(reducer, applyMiddleware(SocketMiddleware, thunk));
 
 if (store.getState().auth.isLoggedIn) {
   // Set up socket
-  socket = Socket.connect(config.SERVER_ENDPOINT, store);
+  socket = Socket.connect(config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT, store);
 }
 
 export default store;
