@@ -135,7 +135,7 @@ const App = () => {
               >
                 <Work />
               </IconButton>
-              <Typography fontWeight={700}>Job Applyer</Typography>
+              <Typography fontWeight={700}>Job Applyer v0.1.1</Typography>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>
               <IconButton
