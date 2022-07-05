@@ -161,67 +161,6 @@ const App = () => {
         </Layout.Root>
       </HashRouter>
     </CssVarsProvider>
-
-    // <ThemeProvider theme={theme}>
-    //   <CssVarsProvider>
-    //     <CssBaseline />
-    //     <HashRouter>
-    //       <Sheet
-    //         sx={{
-    //           marginBottom: 2,
-    //           display: "flex",
-    //           justifyContent: "space-evenly",
-    //           width: 500,
-    //         }}
-    //       >
-    //         {isLoggedIn ? (
-    //           <>
-    //             <Button variant="solid">
-    //               <Link to="/">Dashboard</Link>
-    //             </Button>
-    //             <Button variant="solid">
-    //               <Link to="/profile">Profile</Link>
-    //             </Button>
-    //             <Button variant="solid">
-    //               <Link to="/qa">Question</Link>
-    //             </Button>
-    //             <Button variant="solid">
-    //               <a href="/login" onClick={logOut}>
-    //                 Log out
-    //               </a>
-    //             </Button>
-    //           </>
-    //         ) : (
-    //           <>
-    //             <Button variant="solid">
-    //               <Link to="/login">Login</Link>
-    //             </Button>
-    //             <Button variant="outlined">
-    //               <Link to="/register" style={{ color: "green" }}>
-    //                 Sign Up
-    //               </Link>
-    //             </Button>
-    //           </>
-    //         )}
-    //       </Sheet>
-    //       <Sheet
-    //         sx={{
-    //           display: "flex",
-    //           justifyContent: "space-evenly",
-    //           padding: 5,
-    //         }}
-    //       >
-    // <Routes>
-    //   <Route path="/" element={<Home />} />
-    //   <Route path="/login" element={<Login />} />
-    //   <Route path="/register" element={<Register />} />
-    //   <Route path="/profile" element={<Profile />} />
-    //   <Route path="/qa" element={<QA />} />
-    // </Routes>
-    //       </Sheet>
-    //     </HashRouter>
-    //   </CssVarsProvider>
-    // </ThemeProvider>
   );
 };
 

@@ -1,10 +1,10 @@
-variables:
-  VERSION_ID: '0.1.$CI_PIPELINE_ID'
-  # These values are used for auto updates signing
-  APPLE_ID: $APPLE_ID
-  APPLE_ID_PASS: $APPLE_ID_PASS
-  CSC_LINK: $CSC_LINK
-  CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
+# variables:
+#   VERSION_ID: '0.1.$CI_PIPELINE_ID'
+#   # These values are used for auto updates signing
+#   APPLE_ID: $APPLE_ID
+#   APPLE_ID_PASS: $APPLE_ID_PASS
+#   CSC_LINK: $CSC_LINK
+#   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
 
 stages:
   - build
@@ -14,9 +14,10 @@ build:
   stage: build
   script:
     # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
-    - npm install
+    # - npm install
     # - npm run build
-    - npm run package -- --windows --linux
+    # - npm run package -- --windows --linux
+    - npm i && run package -- --windows
   artifacts:
     paths:
       - release/*/*/*/*.*
