@@ -6,18 +6,22 @@
 #   CSC_LINK: $CSC_LINK
 #   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
 
-stages:
-  - build
+variables:
+  CSC_IDENTITY_AUTO_DISCOVERY: false
 
-build:
+stages:
+  - package
+
+package:
   image: electronuserland/builder:wine
-  stage: build
+  stage: package
   script:
     # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
     # - npm install
     # - npm run build
     # - npm run package -- --windows --linux
-    - npm i && npm run package -- --windows
+    - npm install
+    - npm run package -- --windows
   artifacts:
     paths:
       - release/*/*/*/*.*
