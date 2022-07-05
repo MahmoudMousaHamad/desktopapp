@@ -17,7 +17,7 @@ build:
     # - npm install
     # - npm run build
     # - npm run package -- --windows --linux
-    - npm i && run package -- --windows
+    - npm i && npm run package -- --windows
   artifacts:
     paths:
       - release/*/*/*/*.*
