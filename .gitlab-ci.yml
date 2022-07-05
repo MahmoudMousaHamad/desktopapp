@@ -20,8 +20,8 @@ build:
     # - npm install
     # - npm run build
     # - npm run package -- --windows --linux
-    - npm install
-    - npx cross-env CSC_IDENTITY_AUTO_DISCOVERY=false npm run package -- --windows
+    - npm i
+    - npm run package -- --windows
   artifacts:
     paths:
       - release/*/*/*/*.*
