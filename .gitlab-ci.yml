@@ -17,11 +17,8 @@ build:
   stage: build
   script:
     # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
-    # - npm install
-    # - npm run build
-    # - npm run package -- --windows --linux
     - npm install
-    - npx cross-env WIN_CSC_LINK=null npm run package -- --windows
+    - npm run package -- --windows --linux
   artifacts:
     paths:
       - release/*/*/*/*.*

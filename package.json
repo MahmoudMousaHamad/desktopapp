@@ -200,12 +200,14 @@
       ]
     },
     "win": {
+      "artifactName": "${productName}.${ext}",
       "verifyUpdateCodeSignature": false,
       "target": [
         "nsis"
       ]
     },
     "linux": {
+      "artifactName": "${productName}.${ext}",
       "target": [
         "AppImage"
       ],
