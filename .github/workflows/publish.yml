@@ -42,4 +42,4 @@ jobs:
         run: |
           npm run postinstall
           npm run build
-          npm run publish -- --mac
+          npm run publish -- --mac --windows --linux
