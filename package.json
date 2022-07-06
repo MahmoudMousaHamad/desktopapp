@@ -18,6 +18,7 @@
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
+    "publish": "electron-builder -p always",
     "prepare": "husky install",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
@@ -158,15 +159,18 @@
     "appId": "com.mahmoudmousahamad.JobApplier",
     "artifactName": "${productName}.${ext}",
     "publish": {
-      "provider": "generic",
-      "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/release/build?job=build"
-    },  
+      "provider": "spaces",
+      "name": "jobappliercdn",
+      "region": "nyc3",
+      "acl": "public-read"
+    },
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "!electron-builder.env"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
@@ -201,7 +205,6 @@
     },
     "win": {
       "artifactName": "${productName}.${ext}",
-      "verifyUpdateCodeSignature": false,
       "target": [
         "nsis"
       ]

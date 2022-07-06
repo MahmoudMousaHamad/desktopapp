@@ -1,24 +1,12 @@
-# variables:
-#   VERSION_ID: '0.1.$CI_PIPELINE_ID'
-#   # These values are used for auto updates signing
-#   APPLE_ID: $APPLE_ID
-#   APPLE_ID_PASS: $APPLE_ID_PASS
-#   CSC_LINK: $CSC_LINK
-#   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
-
-# variables:
-#   CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-
 stages:
   - build
 
 build:
-  image: electronuserland/builder:wine
+  image: macos-11-xcode-12
   stage: build
   script:
-    # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
     - npm install
-    - npm run package -- --windows --linux
+    - npm run package -- --mac
   artifacts:
     paths:
       - release/*/*/*/*.*
@@ -26,61 +14,90 @@ build:
       - release/build/*-mac.zip
       - release/build/*.exe
       - release/build/*.yml
-  
+
 # # variables:
-# #   VERSION_ID: '1.0.$CI_PIPELINE_ID'
+# #   VERSION_ID: '0.1.$CI_PIPELINE_ID'
+# #   # These values are used for auto updates signing
+# #   APPLE_ID: $APPLE_ID
+# #   APPLE_ID_PASS: $APPLE_ID_PASS
+# #   CSC_LINK: $CSC_LINK
+# #   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
 
-# # stages:
-# #   - build
-  
-# # build:
-# #   image: electronuserland/builder:wine
-# #   stage: build
-# #   artifacts:
-# #     paths:
-# #       - $CI_PROJECT_DIR/dist/*.*
-# #   script:
-# #     - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
-# #     - npm install && npm run build
-
-# variables:
-#   VERSION_ID: '0.1.$CI_PIPELINE_ID'
-#   # These values are used for auto updates signing
-#   APPLE_ID: $APPLE_ID
-#   APPLE_ID_PASS: $APPLE_ID_PASS
-#   CSC_LINK: $CSC_LINK
-#   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
+# # variables:
+# #   CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
 # stages:
 #   - build
-#   - package
 
 # build:
-#  stage: build
-#  script:
-#    — npm ci — cache .npm
-#    — npm run build
-#  artifacts:
-#    paths:
-#      — dist/
-
-# package:
 #   image: electronuserland/builder:wine
-#   stage: package
+#   stage: build
 #   script:
+#     # - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
 #     - npm install
-#     - npm run postinstall
-#     - npm run package -- --linux
-#     - npm run package -- --windows
-#     # - npm run package -- --mac
-
+#     - npm run package -- --windows --linux
 #   artifacts:
-#     expire_in: 30 days
-#     name: '$CI_COMMIT_REF_NAME'
 #     paths:
+#       - release/*/*/*/*.*
 #       - release/build/*.AppImage
 #       - release/build/*-mac.zip
 #       - release/build/*.exe
 #       - release/build/*.yml
-#   only:
-#     - main
+  
+# # # variables:
+# # #   VERSION_ID: '1.0.$CI_PIPELINE_ID'
+
+# # # stages:
+# # #   - build
+  
+# # # build:
+# # #   image: electronuserland/builder:wine
+# # #   stage: build
+# # #   artifacts:
+# # #     paths:
+# # #       - $CI_PROJECT_DIR/dist/*.*
+# # #   script:
+# # #     - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
+# # #     - npm install && npm run build
+
+# # variables:
+# #   VERSION_ID: '0.1.$CI_PIPELINE_ID'
+# #   # These values are used for auto updates signing
+# #   APPLE_ID: $APPLE_ID
+# #   APPLE_ID_PASS: $APPLE_ID_PASS
+# #   CSC_LINK: $CSC_LINK
+# #   CSC_KEY_PASSWORD: $CSC_KEY_PASSWORD
+
+# # stages:
+# #   - build
+# #   - package
+
+# # build:
+# #  stage: build
+# #  script:
+# #    — npm ci — cache .npm
+# #    — npm run build
+# #  artifacts:
+# #    paths:
+# #      — dist/
+
+# # package:
+# #   image: electronuserland/builder:wine
+# #   stage: package
+# #   script:
+# #     - npm install
+# #     - npm run postinstall
+# #     - npm run package -- --linux
+# #     - npm run package -- --windows
+# #     # - npm run package -- --mac
+
+# #   artifacts:
+# #     expire_in: 30 days
+# #     name: '$CI_COMMIT_REF_NAME'
+# #     paths:
+# #       - release/build/*.AppImage
+# #       - release/build/*-mac.zip
+# #       - release/build/*.exe
+# #       - release/build/*.yml
+# #   only:
+# #     - main
