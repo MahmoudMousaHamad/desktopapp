@@ -122,6 +122,12 @@ class Locator {
       ) {
         try {
           await this.driver.findElement(By.id("indeedApplyButton")).click();
+          const tabs = await this.driver.getAllWindowHandles();
+          if (tabs.length === 2) {
+            await this.driver.switchTo().window(tabs[0]);
+            await this.driver.close();
+            await this.driver.switchTo().window(tabs[1]);
+          }
         } catch (e) {
           await this.driver.switchTo().defaultContent();
           continue;

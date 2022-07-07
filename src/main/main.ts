@@ -32,7 +32,7 @@ export default class AppUpdater {
     // "publish": {
     //   "provider": "generic",
     //   "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/release/build?job=build"
-    // },  
+    // },
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
@@ -128,43 +128,44 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 
-
-  autoUpdater.on('checking-for-update', function () {
-    sendStatusToWindow('Checking for update...');
+  autoUpdater.on("checking-for-update", function () {
+    sendStatusToWindow("Checking for update...");
   });
 
-  autoUpdater.on('update-available', function (info) {
-    sendStatusToWindow('Update available.');
+  autoUpdater.on("update-available", function (info) {
+    sendStatusToWindow("Update available.");
   });
 
-  autoUpdater.on('update-not-available', function (info) {
-    sendStatusToWindow('Update not available.');
+  autoUpdater.on("update-not-available", function (info) {
+    sendStatusToWindow("Update not available.");
   });
 
-  autoUpdater.on('error', function (err) {
-    sendStatusToWindow('Error in auto-updater.');
+  autoUpdater.on("error", function (err) {
+    sendStatusToWindow("Error in auto-updater.");
   });
 
-  autoUpdater.on('download-progress', function (progressObj) {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + parseInt(progressObj.percent) + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  autoUpdater.on("download-progress", function (progressObj) {
+    let log_message = `Download speed: ${progressObj.bytesPerSecond}`;
+    log_message = `${log_message} - Downloaded ${parseInt(
+      progressObj.percent
+    )}%`;
+    log_message = `${log_message} (${progressObj.transferred}/${progressObj.total})`;
     sendStatusToWindow(log_message);
   });
 
-  autoUpdater.on('update-downloaded', function (info) {
-    sendStatusToWindow('Update downloaded; will install in 1 seconds');
+  autoUpdater.on("update-downloaded", function (info) {
+    sendStatusToWindow("Update downloaded; will install in 1 seconds");
   });
 
-  autoUpdater.on('update-downloaded', function (info) {
+  autoUpdater.on("update-downloaded", function (info) {
     setTimeout(function () {
-        autoUpdater.quitAndInstall();
+      autoUpdater.quitAndInstall();
     }, 1000);
   });
 
   autoUpdater.checkForUpdates();
 
-  function sendStatusToWindow(message: String) {
+  function sendStatusToWindow(message: string) {
     console.log("Window status:", message);
   }
 };
@@ -199,12 +200,28 @@ const scraper = new Scraper.Scraper();
 
 ipcMain.on("start-scraper", async (event, preferences) => {
   Preferences.setPreferences(preferences);
+  event.reply("scraper-status", "running");
   await scraper.start();
 });
 
-ipcMain.on("stop-scraper", async () => {
+ipcMain.on("stop-scraper", async (event) => {
   await scraper.stop();
   exec("pkill -9 -f chromedriver");
+  event.reply("scraper-status", scraper.getRunning());
+});
+
+ipcMain.on("pause-scraper", async (event) => {
+  scraper.pause();
+  event.reply("scraper-status", scraper.getRunning());
+});
+
+ipcMain.on("resume-scraper", async (event) => {
+  event.reply("scraper-status", "running");
+  await scraper.resume();
+});
+
+ipcMain.on("scraper-status", (e) => {
+  e.reply("scraper-status", scraper.getRunning());
 });
 
 /**

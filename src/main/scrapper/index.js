@@ -17,29 +17,62 @@ const { SingletonClassifier } = require("./Classifier");
 class Scraper {
   constructor() {
     this.driver = undefined;
+    this.running = null;
   }
 
   async start() {
     console.log("Starting bot");
-    this.running = true;
+    this.running = "running";
 
     this.openSession();
     await this.attachToSession();
 
     this.locator = new Locator(this.driver);
     await this.locator.goToJobsPage();
+
+    await this.waitUntilSignIn();
+
     await this.run();
   }
 
   async stop() {
     console.log("Stopping bot");
-    this.running = false;
+    this.running = "stopped";
     await this.driver.close();
     SingletonClassifier.save();
   }
 
+  pause() {
+    console.log("Pausing bot");
+    this.running = "paused";
+  }
+
+  async resume() {
+    console.log("Resume bot");
+    this.running = "running";
+    await this.run();
+  }
+
+  getRunning() {
+    // console.log("Driver to string: ", this.driver?.toString());
+    return this.running;
+  }
+
+  async waitUntilSignIn() {
+    await new Promise((resolve) => {
+      this.interval = setInterval(async () => {
+        if (
+          (await this.driver.getPageSource()).toLowerCase().includes("sign in")
+        ) {
+          clearInterval(this.interval);
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+
   async run() {
-    while (this.running) {
+    while (this.running === "running") {
       for (const key in this.locator.locationsAndActions) {
         if (key in this.locator.locationsAndActions) {
           const value = this.locator.locationsAndActions[key];
@@ -50,7 +83,7 @@ class Scraper {
                 ? await this.locator.getTitle()
                 : await this.locator.getPageSource();
           } catch (e) {
-            console.log(e);
+            throw Error(e);
           }
 
           if (!string) {

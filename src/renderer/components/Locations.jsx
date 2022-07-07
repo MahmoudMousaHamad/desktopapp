@@ -37,12 +37,6 @@ export default () => {
       "locations",
       JSON.stringify([...new Set([...locations, ...addedLocations])])
     );
-    console.log(
-      "default-locations:",
-      localStorage.getItem("default-locations")
-    );
-    console.log("user-added:", localStorage.getItem("user-added-locations"));
-    console.log("Locations from storage:", localStorage.getItem("locations"));
   }, [locations, addedLocations]);
 
   return (

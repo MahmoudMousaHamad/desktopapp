@@ -1,14 +1,37 @@
-import { useSelector } from "react-redux";
+/* eslint-disable promise/always-return */
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { Box, Button, Typography } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import { useState } from "react";
+import { useEffect, useReducer } from "react";
 
 import QA from "../components/QA";
 import Layout from "../components/Layout";
 
+const initialState = null;
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "running":
+      return { running: true };
+    case "stopped":
+      return null;
+    case "paused":
+      return { running: false, paused: true };
+    default:
+      throw new Error();
+  }
+}
+
 export default () => {
-  const [startStop, setStartStop] = useState("start");
+  const [status, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    window.electron.ipcRenderer.on("scraper-status", (state) => {
+      state && dispatch({ type: state });
+    });
+
+    window.electron.ipcRenderer.send("scraper-status");
+  });
 
   const start = () => {
     window.electron.ipcRenderer.send("start-scraper", {
@@ -18,12 +41,18 @@ export default () => {
       jobType: JSON.parse(localStorage.getItem("job-type")),
       experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
     });
-    setStartStop("stop");
   };
 
   const stop = () => {
     window.electron.ipcRenderer.send("stop-scraper");
-    setStartStop("start");
+  };
+
+  const pause = () => {
+    window.electron.ipcRenderer.send("pause-scraper");
+  };
+
+  const resume = () => {
+    window.electron.ipcRenderer.send("resume-scraper");
   };
 
   return (
@@ -98,13 +127,28 @@ export default () => {
           </IconButton>
         </Box>
         <Box sx={{ p: 10, textAlign: "center" }}>
-          <Button
-            size="lg"
-            onClick={startStop === "start" ? start : stop}
-            color={startStop === "start" ? "primary" : "danger"}
-          >
-            {startStop.toUpperCase()}
-          </Button>
+          {status && (
+            <Button
+              sx={{ mr: 2 }}
+              size="lg"
+              onClick={status?.running || status?.paused ? stop : start}
+              color={status?.running || status?.paused ? "danger" : "primary"}
+            >
+              {(status?.running || status?.paused
+                ? "stop"
+                : "start"
+              ).toUpperCase()}
+            </Button>
+          )}
+          {status && !status?.stopped && (
+            <Button
+              size="lg"
+              onClick={status?.running ? pause : resume}
+              color="warning"
+            >
+              {(status?.running ? "Pause" : "Resume").toUpperCase()}
+            </Button>
+          )}
         </Box>
       </Layout.SidePane>
       <Layout.Main sx={{ display: "flex", alignItems: "center" }}>

@@ -297,6 +297,8 @@ class Question {
       selectors: { text: textSelectors },
     } = this.typesSelectors[this.type];
 
+    // TODO: checkboxes not working:
+    // Unable to locate element: {"method":"css selector","selector":"legend"}
     const textElement = await this.element.findElement(
       By.css(textSelectors.join(","))
     );
