@@ -57,11 +57,11 @@ class Question {
     text: {
       selectors: {
         text: ["label"],
-        input: ["input[type=text]"],
+        input: ["input[type=text]", "input[type=tel]"],
       },
       answer: async (_element, answer) => {
         const element = await this.element.findElement(
-          By.css("input[type=text]")
+          By.css("input[type=text], input[type=tel]")
         );
         await this.clearInput(element);
         await element.sendKeys(answer);
@@ -147,12 +147,17 @@ class Question {
     },
     checkbox: {
       selectors: {
-        text: ["legend"],
+        text: ["legend", "label"],
         input: ["input[type=checkbox]"],
         options: ["label"],
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
+        console.log("Attempting to fillout checkboxes. Attempting answer: ", answer);
+        if (elements.length === 1) {
+          await elements[0].click();
+          return;
+        }
         if (Array.isArray(answer)) {
           for (const option of elements) {
             const text = await option.getText();
@@ -170,6 +175,19 @@ class Question {
           }
         }
         await elements[0].click();
+      },
+    },
+    fallback: {
+      selectors: {
+        text: ["label"],
+        input: ["input"],
+      },
+      answer: async (_element, answer) => {
+        const element = await this.element.findElement(
+          By.css("input")
+        );
+        await this.clearInput(element);
+        await element.sendKeys(answer);
       },
     },
   };
@@ -220,6 +238,7 @@ class Question {
   }
 
   async answer(answer) {
+    console.log("Question type: ", this.type);
     await this.typesSelectors[this.type].answer(this.inputElement, answer);
   }
 
@@ -252,6 +271,7 @@ class Question {
     }
 
     if (attemptedAnswer) {
+      console.log("Attempted answer: ", attemptedAnswer);
       if (this.options !== "None") {
         attemptedAnswer = this.mapAnswerToOption(attemptedAnswer);
         if (!attemptedAnswer) return false;

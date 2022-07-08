@@ -30,7 +30,7 @@ const categories = {
   workAuthorization: ["authorized", "work"],
   citizen: ["citizen"],
   clearance: ["clearance", "security"],
-  salary: ["approximately", "offer", "kyr", "salary", "position"],
+  salary: ["approximately", "offer", "kyr", "salary", "position", "amount"],
   gpa: ["average", "grade", "scale", "point", "university", "gpa"],
   degree: ["education", "degree", "highest", "level"],
   phone: ["phone", "number"],
@@ -50,7 +50,7 @@ const categorize = (questionText) => {
     const keywords = categories[category];
     let score = 0;
     for (const word of keywords) {
-      if (questionText.toLowerCase().includes(word.toLowerCase())) {
+      if (questionText.toLowerCase().split(' ').includes(word.toLowerCase())) {
         score++;
       }
     }

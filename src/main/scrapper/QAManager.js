@@ -61,7 +61,8 @@ class QAManager {
       if (!questionPrepared) continue;
       const answered = await question.attemptToAnswer();
       if (answered) {
-        console.log("Clasifier answered question.");
+        console.log("Question answering attempt successful.");
+        await this.driver.sleep(1000);
       } else {
         this.clientQuestions.push(question);
       }
@@ -99,23 +100,19 @@ class QAManager {
   }
 
   async gatherQuestions() {
-    // const inputs = await this.driver.findElements(
-    //   By.css("textarea, input, select")
-    // );
-
-    // for (const input of inputs) {
-    //   const text = await this.getQuestionText(input);
-    //   console.log("Question Text: ", text);
-    // }
-
     const questionsElements = await this.driver.findElements(
-      By.css(".ia-Questions-item")
+      By.xpath(
+        "//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/.. | //legend/.."
+      )
     );
 
     for (const qe of questionsElements) {
-      const elementText = await qe.getText();
-      if (!elementText.includes("(optional)")) {
-        this.questions.push(new Question(qe));
+      const inputText = await qe.findElement(By.xpath("./label | ./legend"));
+      const text = await inputText.getText();
+      if (!text.includes("(optional)")) {
+        const question = new Question(qe);
+        console.log("Pushing question: ", await question.prepare());
+        this.questions.push(question);
       }
     }
     this.currentIndex = 0;

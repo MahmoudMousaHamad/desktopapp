@@ -127,19 +127,17 @@ export default () => {
           </IconButton>
         </Box>
         <Box sx={{ p: 10, textAlign: "center" }}>
-          {status && (
-            <Button
-              sx={{ mr: 2 }}
-              size="lg"
-              onClick={status?.running || status?.paused ? stop : start}
-              color={status?.running || status?.paused ? "danger" : "primary"}
-            >
-              {(status?.running || status?.paused
-                ? "stop"
-                : "start"
-              ).toUpperCase()}
-            </Button>
-          )}
+          <Button
+            sx={{ mr: 2 }}
+            size="lg"
+            onClick={status?.running || status?.paused ? stop : start}
+            color={status?.running || status?.paused ? "danger" : "primary"}
+          >
+            {(status?.running || status?.paused
+              ? "stop"
+              : "start"
+            ).toUpperCase()}
+          </Button>
           {status && !status?.stopped && (
             <Button
               size="lg"

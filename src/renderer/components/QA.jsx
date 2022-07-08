@@ -43,8 +43,6 @@ export default function QA() {
     }
   }
 
-  console.log("Answer: ", answer);
-
   return (
     <Box sx={{ margin: "auto", width: "fit-content" }}>
       {question ? (
