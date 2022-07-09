@@ -6,11 +6,13 @@
 /* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-const { path } = require("chromedriver");
+const { path: chromePath } = require("chromedriver");
+const path = require("path");
 const chrome = require("selenium-webdriver/chrome");
 const { exec } = require("child_process");
 const { Builder } = require("selenium-webdriver");
 
+const { app } = require("electron");
 const { Locator, TITLE } = require("./Locator");
 const { SingletonClassifier } = require("./Classifier");
 
@@ -147,9 +149,17 @@ class Scraper {
   }
 
   async attachToSession() {
-    console.log("Chrome driver path:", path);
+    const RESOURCES_PATH = app.isPackaged
+      ? path.join(process.resourcesPath, "assets")
+      : path.join(__dirname, "../../../assets");
 
-    const service = new chrome.ServiceBuilder(path).build();
+    const getAssetPath = (...paths) => {
+      return path.join(RESOURCES_PATH, ...paths);
+    };
+
+    const myChromePath = getAssetPath("drivers", "linux-103");
+    console.log("Chrome driver path:", myChromePath);
+    const service = new chrome.ServiceBuilder(myChromePath).build();
     chrome.setDefaultService(service);
 
     const options = new chrome.Options();

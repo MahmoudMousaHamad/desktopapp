@@ -167,8 +167,9 @@
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
+      "assets/",
       "dist",
-      "node_modules",
+      "node_modules/",
       "package.json",
       "!electron-builder.env"
     ],
