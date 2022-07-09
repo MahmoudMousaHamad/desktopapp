@@ -4,7 +4,7 @@
   "version": "0.1.1",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/mahmoudmousahamad/desktopapp.git",
+    "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
     "release": "latest"
   },
   "author": {

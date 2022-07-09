@@ -6,7 +6,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-require("chromedriver");
+const { path } = require("chromedriver");
 const chrome = require("selenium-webdriver/chrome");
 const { exec } = require("child_process");
 const { Builder } = require("selenium-webdriver");
@@ -147,6 +147,11 @@ class Scraper {
   }
 
   async attachToSession() {
+    console.log("Chrome driver path:", path);
+
+    const service = new chrome.ServiceBuilder(path).build();
+    chrome.setDefaultService(service);
+
     const options = new chrome.Options();
     // eslint-disable-next-line no-underscore-dangle
     options.options_.debuggerAddress = "localhost:9222";

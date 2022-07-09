@@ -23,27 +23,11 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = "info";
     autoUpdater.logger = log;
-    // autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "glpat-TuBeeX7Y18UEzcfKdbf2" };
-    // autoUpdater.autoDownload = true;
-    // autoUpdater.setFeedURL({
-    //   provider: "generic",
-    //   url: "https://gitlab.com/api/v4/projects/37126811/jobs/artifacts/main/raw/release/build?job=build"
-    // });
-    // "publish": {
-    //   "provider": "generic",
-    //   "url": "https://gitlab.com/api/v4/projects/desktopapp/jobs/artifacts/main/raw/release/build?job=build"
-    // },
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on("ipc-example", async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply("ipc-example", msgTemplate("pong"));
-});
 
 if (process.env.NODE_ENV === "production") {
   const sourceMapSupport = require("source-map-support");
@@ -85,30 +69,21 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    // width: 1024,
-    // height: 728,
     icon: getAssetPath("icon.png"),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, "preload.js")
         : path.join(__dirname, "../../.erb/dll/preload.js"),
-      // nodeIntegration: true,
-      // contextIsolation: false,
     },
   });
 
-  mainWindow.maximize();
   mainWindow.loadURL(resolveHtmlPath("index.html"));
 
   mainWindow.on("ready-to-show", () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
-    }
+    mainWindow.maximize();
   });
 
   mainWindow.on("closed", () => {
@@ -127,47 +102,6 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
-
-  autoUpdater.on("checking-for-update", function () {
-    sendStatusToWindow("Checking for update...");
-  });
-
-  autoUpdater.on("update-available", function (info) {
-    sendStatusToWindow("Update available.");
-  });
-
-  autoUpdater.on("update-not-available", function (info) {
-    sendStatusToWindow("Update not available.");
-  });
-
-  autoUpdater.on("error", function (err) {
-    sendStatusToWindow("Error in auto-updater.");
-  });
-
-  autoUpdater.on("download-progress", function (progressObj) {
-    let log_message = `Download speed: ${progressObj.bytesPerSecond}`;
-    log_message = `${log_message} - Downloaded ${parseInt(
-      progressObj.percent
-    )}%`;
-    log_message = `${log_message} (${progressObj.transferred}/${progressObj.total})`;
-    sendStatusToWindow(log_message);
-  });
-
-  autoUpdater.on("update-downloaded", function (info) {
-    sendStatusToWindow("Update downloaded; will install in 1 seconds");
-  });
-
-  autoUpdater.on("update-downloaded", function (info) {
-    setTimeout(function () {
-      autoUpdater.quitAndInstall();
-    }, 1000);
-  });
-
-  autoUpdater.checkForUpdates();
-
-  function sendStatusToWindow(message: string) {
-    console.log("Window status:", message);
-  }
 };
 
 /**
