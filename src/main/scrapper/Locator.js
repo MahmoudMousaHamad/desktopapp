@@ -169,12 +169,12 @@ class Locator {
   }
 
   async chooseExperience() {
-    const experiences = await this.driver.findElements(
-      By.className("css-4l8g94")
-    );
-    if (experiences.length === 4) {
-      await experiences[2].click();
-    }
+    // const experiences = await this.driver.findElements(
+    //   By.className("css-4l8g94")
+    // );
+    // if (experiences.length === 4) {
+    //   await experiences[2].click();
+    // }
     await this.driver.sleep(5000);
     await this.continue();
   }

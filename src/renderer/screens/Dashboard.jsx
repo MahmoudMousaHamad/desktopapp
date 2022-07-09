@@ -6,6 +6,8 @@ import { useEffect, useReducer } from "react";
 
 import QA from "../components/QA";
 import Layout from "../components/Layout";
+import { sendData } from "renderer/actions/socket";
+import { useDispatch } from "react-redux";
 
 const initialState = null;
 
@@ -24,6 +26,7 @@ function reducer(state, action) {
 
 export default () => {
   const [status, dispatch] = useReducer(reducer, initialState);
+  const dispatchRedux = useDispatch();
 
   useEffect(() => {
     window.electron.ipcRenderer.on("scraper-status", (state) => {
@@ -53,6 +56,16 @@ export default () => {
 
   const resume = () => {
     window.electron.ipcRenderer.send("resume-scraper");
+  };
+
+  const sendQuestion = () => {
+    dispatchRedux(
+      sendData("question", {
+        text: "Test Question",
+        type: "text",
+        options: "None",
+      })
+    );
   };
 
   return (
@@ -147,6 +160,15 @@ export default () => {
               {(status?.running ? "Pause" : "Resume").toUpperCase()}
             </Button>
           )}
+          <Box sx={{ m: 2 }}>
+            <Button
+              size="lg"
+              onClick={sendQuestion}
+              color="neutral"
+            >
+              SEND QUESTION TO PHONE
+            </Button>
+          </Box>
         </Box>
       </Layout.SidePane>
       <Layout.Main sx={{ display: "flex", alignItems: "center" }}>
@@ -156,12 +178,4 @@ export default () => {
   );
 };
 
-// const sendQuestion = () => {
-//   dispatch(
-//     sendData("question", {
-//       text: "Test Question",
-//       type: "text",
-//       options: "None",
-//     })
-//   );
-// };
+

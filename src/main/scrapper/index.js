@@ -83,7 +83,9 @@ class Scraper {
                 ? await this.locator.getTitle()
                 : await this.locator.getPageSource();
           } catch (e) {
-            throw Error(e);
+            console.error(e);
+            this.pause();
+            await this.resume();
           }
 
           if (!string) {
