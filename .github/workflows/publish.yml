@@ -40,6 +40,4 @@ jobs:
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }} 
 
         run: |
-          npm run postinstall
-          npm run build
-          npm run publish:all
+          npm run package
