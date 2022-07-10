@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 
 import { Box, Checkbox, Input, Radio, Sheet, Typography } from "@mui/joy";
+import { MenuItem, Select } from "@mui/material";
 
 const questionTypeInput = {
   text: {
@@ -47,15 +48,15 @@ const questionTypeInput = {
     element: (options, handleChange, value) => (
       <div>
         {options.map((option, index) => (
-          <div key={index}>
+          <Box sx={{ mb: 1 }} key={index}>
             <Radio
-              onChange={(e) => handleChange(e.target.value)}
-              checked={option === value}
-              value={option}
+              onChange={(e) => handleChange(Number(e.target.value))}
+              checked={index === value}
+              value={index}
               label={option}
               sx={{ fontSize: 20, p: 1 }}
             />
-          </div>
+          </Box>
         ))}
       </div>
     ),
@@ -63,33 +64,38 @@ const questionTypeInput = {
   select: {
     element: (options, handleChange, value) => {
       return (
-        <select onChange={(e) => handleChange(e.target.value)} value={value}>
+        <Select
+          label="Select an option"
+          onChange={(e) => handleChange(Number(e.target.value))}
+          value={value || 0}
+        >
           {options.map((option, index) => (
-            <option key={index} value={option}>
+            <MenuItem key={index} value={index}>
               {option}
-            </option>
+            </MenuItem>
           ))}
-        </select>
+        </Select>
       );
     },
   },
   checkbox: {
-    element: (options, handleChange, checked = {}) => (
+    element: (
+      options,
+      handleChange,
+      checked = Array(options.length).fill(false)
+    ) => (
       <div>
         {options.map((option, index) => (
-          <>
+          <Box sx={{ mb: 1 }} key={index}>
             <Checkbox
-              type="checkbox"
-              key={index}
-              checked={
-                typeof checked === "object" && checked !== null
-                  ? checked[option]
-                  : false
-              }
-              onChange={(v) => handleChange({ ...checked, [option]: v })}
+              checked={checked[index]}
+              onChange={() => {
+                checked[index] = !checked[index];
+                handleChange([...checked]);
+              }}
               label={option}
             />
-          </>
+          </Box>
         ))}
       </div>
     ),

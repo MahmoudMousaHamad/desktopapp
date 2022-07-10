@@ -9,7 +9,7 @@ import { questionAnswered } from "../actions/qa";
 import Question from "./Question";
 
 export default function QA() {
-  const { question, answered } = useSelector((state) => state.qa);
+  const { question } = useSelector((state) => state.qa);
   const dispatch = useDispatch();
   const [answer, setAnswer] = useState();
   const [error, setError] = useState();

@@ -1,3 +1,4 @@
+/* eslint-disable promise/always-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 /* eslint-disable global-require */
@@ -7,6 +8,7 @@ const StreamZip = require("node-stream-zip");
 const { app, dialog } = require("electron");
 const { exec } = require("child_process");
 const https = require("https");
+const ps = require("ps-node");
 const path = require("path");
 const fs = require("fs");
 
@@ -129,8 +131,26 @@ async function attachToSession() {
   return driver;
 }
 
+function killDriverProcess() {
+  const find = require("find-process");
+
+  find("name", "chromedriver")
+    .then((list) => {
+      list.forEach((p) => {
+        ps.kill(p.pid, (e) => {
+          if (e) throw e;
+          console.log(`${p.name} has been killed`);
+        });
+      });
+    })
+    .catch((e) => {
+      throw e;
+    });
+}
+
 module.exports = {
   downloadChromeDriver,
   openChromeSession,
+  killDriverProcess,
   attachToSession,
 };

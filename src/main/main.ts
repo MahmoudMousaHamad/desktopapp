@@ -14,7 +14,10 @@ import { exec } from "child_process";
 import log from "electron-log";
 import path from "path";
 
-import { downloadChromeDriver } from "./scrapper/DriverManager";
+import {
+  downloadChromeDriver,
+  killDriverProcess,
+} from "./scrapper/DriverManager";
 import Preferences from "./scrapper/UserPrefernces";
 import { resolveHtmlPath } from "./util";
 import MenuBuilder from "./menu";
@@ -114,9 +117,11 @@ app.on("window-all-closed", () => {
   // after all windows have been closed
   if (process.platform !== "darwin") {
     // Kill chrome driver process
-    exec("pkill -9 -f chromedriver");
     app.quit();
   }
+
+  // exec("pkill -9 -f chromedriver");
+  killDriverProcess();
 });
 
 app
@@ -146,7 +151,8 @@ ipcMain.on("start-scraper", async (event, preferences) => {
 
 ipcMain.on("stop-scraper", async (event) => {
   await scraper.stop();
-  exec("pkill -9 -f chromedriver");
+  // exec("pkill -9 -f chromedriver");
+  killDriverProcess();
   event.reply("scraper-status", scraper.getStatus());
   powerSaveBlocker.stop(blockerId);
 });

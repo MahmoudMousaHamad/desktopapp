@@ -7,6 +7,7 @@ import Card from "@mui/joy/Card";
 import { GlobalStyles } from "@mui/system";
 import Typography from "@mui/joy/Typography";
 import TextField from "@mui/joy/TextField";
+import { deepmerge } from '@mui/utils';
 
 // Icons import
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -21,7 +22,7 @@ import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { Box, Sheet } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
 import { Work } from "@mui/icons-material";
-import theme from "./theme";
+import { joyTheme, muiTheme } from "./theme";
 import Menu from "./components/Menu";
 import Layout from "./components/Layout";
 import Navigation from "./components/Navigation";
@@ -88,7 +89,7 @@ const App = () => {
   }, [dispatch, question]);
 
   return (
-    <CssVarsProvider disableTransitionOnChange theme={theme}>
+    <CssVarsProvider disableTransitionOnChange theme={deepmerge(muiTheme, joyTheme)}>
       <GlobalStyles
         styles={(_theme) => ({
           body: {
