@@ -4,13 +4,14 @@ const path = require("path");
 const pos = require("pos");
 const fs = require("fs");
 
+const { appDatatDirPath } = require("./OSHelper");
+
+const CLASSIFIER_PATH = path.resolve(appDatatDirPath, "./classifier.json");
+const CONDIFENCE_THRESHOLD = 0.33;
+
 // Loaded when scrapper is started
 // Retrained after every application
 // Saved to file when driver is closed
-
-const CLASSIFIER_PATH = path.resolve(__dirname, "./classifier.json");
-const CONDIFENCE_THRESHOLD = 0.33;
-
 class Classifier {
   constructor() {
     this.loadClassifier();

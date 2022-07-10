@@ -153,7 +153,10 @@ class Question {
       },
       answer: async (_elements, answer) => {
         const elements = await this.element.findElements(By.css("label"));
-        console.log("Attempting to fillout checkboxes. Attempting answer: ", answer);
+        console.log(
+          "Attempting to fillout checkboxes. Attempting answer: ",
+          answer
+        );
         if (elements.length === 1) {
           await elements[0].click();
           return;
@@ -183,9 +186,7 @@ class Question {
         input: ["input"],
       },
       answer: async (_element, answer) => {
-        const element = await this.element.findElement(
-          By.css("input")
-        );
+        const element = await this.element.findElement(By.css("input"));
         await this.clearInput(element);
         await element.sendKeys(answer);
       },

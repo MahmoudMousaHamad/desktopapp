@@ -18,6 +18,7 @@ import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
 import Scraper from "./scrapper";
 import Preferences from "./scrapper/UserPrefernces";
+import { downloadChromeDriver } from "./scrapper/DriverManager";
 
 export default class AppUpdater {
   constructor() {
@@ -122,7 +123,7 @@ app
   .whenReady()
   .then(async () => {
     createWindow();
-    await Scraper.downloadChromeDriver();
+    await downloadChromeDriver();
     app.on("activate", () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
@@ -142,12 +143,12 @@ ipcMain.on("start-scraper", async (event, preferences) => {
 ipcMain.on("stop-scraper", async (event) => {
   await scraper.stop();
   exec("pkill -9 -f chromedriver");
-  event.reply("scraper-status", scraper.getRunning());
+  event.reply("scraper-status", scraper.getStatus());
 });
 
 ipcMain.on("pause-scraper", async (event) => {
   scraper.pause();
-  event.reply("scraper-status", scraper.getRunning());
+  event.reply("scraper-status", scraper.getStatus());
 });
 
 ipcMain.on("resume-scraper", async (event) => {
@@ -156,7 +157,7 @@ ipcMain.on("resume-scraper", async (event) => {
 });
 
 ipcMain.on("scraper-status", (e) => {
-  e.reply("scraper-status", scraper.getRunning());
+  e.reply("scraper-status", scraper.getStatus());
 });
 
 /**
