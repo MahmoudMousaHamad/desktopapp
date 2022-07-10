@@ -8,17 +8,17 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from "path";
-import { app, BrowserWindow, shell, ipcMain } from "electron";
+import { app, BrowserWindow, shell, ipcMain, powerSaveBlocker } from "electron";
 import { autoUpdater } from "electron-updater";
-import log from "electron-log";
-
 import { exec } from "child_process";
-import MenuBuilder from "./menu";
-import { resolveHtmlPath } from "./util";
-import Scraper from "./scrapper";
-import Preferences from "./scrapper/UserPrefernces";
+import log from "electron-log";
+import path from "path";
+
 import { downloadChromeDriver } from "./scrapper/DriverManager";
+import Preferences from "./scrapper/UserPrefernces";
+import { resolveHtmlPath } from "./util";
+import MenuBuilder from "./menu";
+import Scraper from "./scrapper";
 
 export default class AppUpdater {
   constructor() {
@@ -124,6 +124,7 @@ app
   .then(async () => {
     createWindow();
     await downloadChromeDriver();
+
     app.on("activate", () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
@@ -132,11 +133,14 @@ app
   })
   .catch(console.log);
 
+let blockerId = 0;
 const scraper = new Scraper.Scraper();
 
 ipcMain.on("start-scraper", async (event, preferences) => {
   Preferences.setPreferences(preferences);
   event.reply("scraper-status", "running");
+  blockerId = powerSaveBlocker.start("prevent-display-sleep");
+
   await scraper.start();
 });
 
@@ -144,6 +148,7 @@ ipcMain.on("stop-scraper", async (event) => {
   await scraper.stop();
   exec("pkill -9 -f chromedriver");
   event.reply("scraper-status", scraper.getStatus());
+  powerSaveBlocker.stop(blockerId);
 });
 
 ipcMain.on("pause-scraper", async (event) => {

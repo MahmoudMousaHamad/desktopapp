@@ -14,7 +14,7 @@ import {
 import IconButton from "@mui/joy/IconButton";
 // import { MultiSelect } from "react-multi-select-component";
 
-import locationOptions from "../../main/scrapper/locations";
+import locationOptions from "../locations";
 
 const options = locationOptions.locations.map((l) => ({ label: l, value: l }));
 

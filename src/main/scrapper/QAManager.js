@@ -3,13 +3,12 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-undef */
+const window = require("electron").BrowserWindow;
 const { By } = require("selenium-webdriver");
 const { ipcMain } = require("electron");
-const window = require("electron").BrowserWindow;
 
-const { Question } = require("./Question");
-const Scraper = require("./index");
 const { SingletonClassifier } = require("./Classifier");
+const { Question } = require("./Question");
 
 class QAManager {
   constructor(driver, handleDone) {
@@ -22,7 +21,6 @@ class QAManager {
   }
 
   async startWorkflow() {
-    // this.removeAllListeners();
     this.setupIPCListeners();
 
     await this.gatherQuestions();

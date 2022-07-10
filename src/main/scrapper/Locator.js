@@ -7,11 +7,10 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
-const Classifier = require("./Classifier");
 
-const { locations } = require("./locations");
-const QAManager = require("./QAManager");
 const Preferences = require("./UserPrefernces");
+const Classifier = require("./Classifier");
+const QAManager = require("./QAManager");
 
 const TITLE = "TITLE";
 const SOURCE = "SOURCE";
@@ -46,6 +45,7 @@ class Locator {
       strings: [
         "Want to include any supporting documents?",
         "requests a cover letter for this application",
+        "Consider adding supporting documents",
       ],
       type: SOURCE,
       action: this.chooseLetter.bind(this),
@@ -169,12 +169,6 @@ class Locator {
   }
 
   async chooseExperience() {
-    // const experiences = await this.driver.findElements(
-    //   By.className("css-4l8g94")
-    // );
-    // if (experiences.length === 4) {
-    //   await experiences[2].click();
-    // }
     await this.driver.sleep(5000);
     await this.continue();
   }

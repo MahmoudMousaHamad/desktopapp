@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable array-callback-return */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable guard-for-in */
@@ -85,15 +87,15 @@ class Question {
         options: ["label"],
       },
       answer: async (_elements, answer) => {
-        const elements = await this.element.findElements(By.css("label"));
-        for (const option of elements) {
-          const text = await option.getText();
-          if (text === answer) {
-            await option.click();
+        const options = await this.element.findElements(By.css("label"));
+        for (let i = 0; i < options.length; ++i) {
+          if (i === answer) {
+            await options[i].click();
             return;
           }
         }
-        await elements[0].click();
+        // Fallback
+        await options[0].click();
       },
     },
     select: {
@@ -106,13 +108,13 @@ class Question {
         const element = this.element.findElement(By.css("select"));
         await element.click();
         const options = await element.findElements(By.css("option"));
-        for (const option of options) {
-          const text = await option.getText();
-          if (text === answer) {
-            await option.click();
+        for (let i = 0; i < options.length; ++i) {
+          if (i === answer) {
+            await options[i].click();
             return;
           }
         }
+        // Fallback
         await options[0].click();
       },
     },
@@ -123,32 +125,30 @@ class Question {
         options: ["label"],
       },
       answer: async (_elements, answer) => {
-        const elements = await this.element.findElements(By.css("label"));
+        const options = await this.element.findElements(By.css("label"));
         console.log(
-          "Attempting to fillout checkboxes. Attempting answer: ",
+          "Attempting to fillout checkboxes. Attempting answer of index ",
           answer
         );
-        if (elements.length === 1) {
-          await elements[0].click();
+        if (options.length === 1) {
+          await options[0].click();
           return;
         }
         if (Array.isArray(answer)) {
-          for (const option of elements) {
-            const text = await option.getText();
-            if (answer.includes(text)) {
-              await option.click();
+          for (let i = 0; i < options.length; ++i) {
+            if (answer.includes(i)) {
+              await options[i].click();
             }
           }
           return;
         }
-        for (const option of elements) {
-          const text = await option.getText();
-          if (text === answer) {
-            await option.click();
+        for (let i = 0; i < options.length; ++i) {
+          if (i === answer) {
+            await options.click();
             return;
           }
         }
-        await elements[0].click();
+        await options[0].click();
       },
     },
     fallback: {
@@ -210,6 +210,7 @@ class Question {
   }
 
   async answer(answer) {
+    // Questions that have options will expect an index number
     console.log("Question type: ", this.type);
     await this.typesSelectors[this.type].answer(this.inputElement, answer);
   }
@@ -234,7 +235,7 @@ class Question {
         this.questionTokens
       );
       if (classifications.length === 0) {
-        console.log("No classifications");
+        console.log("No classification");
         return false;
       }
       const { label, value } = classifications[0];
@@ -243,14 +244,23 @@ class Question {
     }
 
     if (attemptedAnswer) {
-      console.log("Attempted answer: ", attemptedAnswer);
       if (this.options !== "None") {
-        attemptedAnswer = this.mapAnswerToOption(attemptedAnswer);
-        if (!attemptedAnswer) return false;
-        console.log("Mapped answer:", attemptedAnswer);
+        // Go through options and see if the attempted answer makes sense
+        const attemptedAnswerMakesSense = this.options.some((option, index) => {
+          if (option.toLowerCase().includes(attemptedAnswer.toLowerCase())) {
+            attemptedAnswer = index;
+            return true;
+          }
+        });
+
+        if (!attemptedAnswerMakesSense) return false;
       }
+
+      console.log("Attempted answer: ", attemptedAnswer);
+
       await this.answer(attemptedAnswer);
       console.log("Question answered automatically");
+
       return true;
     }
 
