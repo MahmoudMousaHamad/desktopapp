@@ -6,39 +6,10 @@
 require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
 const natural = require("natural");
-const { BrowserWindow } = require("electron");
 
-const Scraper = require("./index");
 const Classifier = require("./Classifier");
-const { categorize } = require("./Categories");
+const { categorize } = require("./Categorizer");
 const Preferences = require("./UserPrefernces");
-
-function filterInt(value) {
-  if (/^[-+]?(\d+|Infinity)$/.test(value)) {
-    return Number(value);
-  }
-  return NaN;
-}
-
-async function selectElement(elements, answer) {
-  let maxJaroWinklerDistance = 0;
-  let elementWithMax = null;
-  for (const element of elements) {
-    const elementText = await element.getText();
-    console.log("Option Text: ", elementText);
-    const distance = natural.JaroWinklerDistance(elementText, answer);
-    if (distance > maxJaroWinklerDistance) {
-      maxJaroWinklerDistance = distance;
-      elementWithMax = element;
-    }
-  }
-
-  if (elementWithMax) {
-    await elementWithMax.click();
-  } else {
-    throw Error("Could not find answer among options", answer);
-  }
-}
 
 class Question {
   constructor(element) {
