@@ -7,7 +7,7 @@ import Card from "@mui/joy/Card";
 import { GlobalStyles } from "@mui/system";
 import Typography from "@mui/joy/Typography";
 import TextField from "@mui/joy/TextField";
-import { deepmerge } from '@mui/utils';
+import { deepmerge } from "@mui/utils";
 
 // Icons import
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -68,8 +68,10 @@ const ColorSchemeToggle = () => {
 };
 
 const App = () => {
-  const { isLoggedIn } = useSelector((state) => state.auth);
   const { question } = useSelector((state) => state.qa);
+  const {
+    user: { id },
+  } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -81,7 +83,11 @@ const App = () => {
     });
 
     window.electron.ipcRenderer.on("application-submitted", () => {
-      dispatch(updateCount());
+      if (!id)
+        throw Error(
+          "User id is not defined, unable to send application update count"
+        );
+      dispatch(updateCount(id));
     });
 
     window.electron.ipcRenderer.on("questions-ended", () => {
@@ -93,10 +99,13 @@ const App = () => {
       window.electron.ipcRenderer.removeAllListeners("questions-ended");
       window.electron.ipcRenderer.removeAllListeners("application-submitted");
     };
-  }, [dispatch, question]);
+  }, [dispatch, question, id]);
 
   return (
-    <CssVarsProvider disableTransitionOnChange theme={deepmerge(muiTheme, joyTheme)}>
+    <CssVarsProvider
+      disableTransitionOnChange
+      theme={deepmerge(muiTheme, joyTheme)}
+    >
       <GlobalStyles
         styles={(_theme) => ({
           body: {

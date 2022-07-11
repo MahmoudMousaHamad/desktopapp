@@ -5,6 +5,7 @@ import { useEffect, useReducer } from "react";
 import IconButton from "@mui/joy/IconButton";
 import { useDispatch, useSelector } from "react-redux";
 
+import { getCounts } from "../actions/application";
 import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
 import QA from "../components/QA";
@@ -27,12 +28,17 @@ function reducer(state, action) {
 export default () => {
   const [status, dispatch] = useReducer(reducer, initialState);
   const { count, countLimit } = useSelector((state) => state.application);
+  const {
+    user: { id },
+  } = useSelector((state) => state.auth);
   const dispatchRedux = useDispatch();
 
   useEffect(() => {
     window.electron.ipcRenderer.on("scraper-status", (state) => {
       if (state) dispatch({ type: state });
     });
+
+    dispatchRedux(getCounts(id));
 
     window.electron.ipcRenderer.send("scraper-status");
   });
