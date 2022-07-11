@@ -22,7 +22,7 @@ export default {
     this.socket.on("connect", async () => {
       this.isConnected = true;
 
-      console.log("User: ", store.getState().auth);
+      console.log("User: ", store.getState().auth.user);
 
       store.dispatch(
         Actions.sendData("authentication", {
@@ -35,7 +35,12 @@ export default {
 
       ["answer"].forEach((channel) => {
         this.socket.on(channel, (data) => {
-          console.log("Got data from server on channel: ", channel, ", and data: ", data);
+          console.log(
+            "Got data from server on channel: ",
+            channel,
+            ", and data: ",
+            data
+          );
           store.dispatch(Actions.gotData(data, channel));
         });
       });
@@ -47,5 +52,10 @@ export default {
     });
 
     return this.socket;
+  },
+  disconnect() {
+    this.socket.disconnect();
+    this.socket.destroy();
+    this.socket = null;
   },
 };

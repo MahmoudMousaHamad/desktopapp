@@ -20,7 +20,7 @@ export default function QA() {
   }, [question]);
 
   function handleSubmit() {
-    if (answer) {
+    if (answer || answer === 0) {
       console.log("Sending answer to main...", answer);
       window.electron.ipcRenderer.send("answer", {
         answer,

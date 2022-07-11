@@ -79,18 +79,19 @@ const questionTypeInput = {
     },
   },
   checkbox: {
-    element: (
-      options,
-      handleChange,
-      checked = Array(options.length).fill(false)
-    ) => (
+    element: (options, handleChange, checked = []) => (
       <div>
         {options.map((option, index) => (
           <Box sx={{ mb: 1 }} key={index}>
             <Checkbox
-              checked={checked[index]}
+              checked={checked.includes(index)}
               onChange={() => {
-                checked[index] = !checked[index];
+                if (checked.includes(index)) {
+                  checked.splice(checked.indexOf(index));
+                } else {
+                  checked.push(index);
+                }
+                // checked[index] = !checked[index];
                 handleChange([...checked]);
               }}
               label={option}

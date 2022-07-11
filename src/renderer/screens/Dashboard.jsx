@@ -3,12 +3,14 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import { Box, Button, Typography } from "@mui/joy";
 import { useEffect, useReducer } from "react";
 import IconButton from "@mui/joy/IconButton";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 
 import { getCounts } from "../actions/application";
 import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
 import QA from "../components/QA";
+import Socket from "../Socket";
+import config from "../config";
 
 const initialState = null;
 
@@ -32,6 +34,7 @@ export default () => {
     user: { id },
   } = useSelector((state) => state.auth);
   const dispatchRedux = useDispatch();
+  const store = useStore();
 
   useEffect(() => {
     window.electron.ipcRenderer.on("scraper-status", (state) => {
@@ -41,7 +44,7 @@ export default () => {
     dispatchRedux(getCounts(id));
 
     window.electron.ipcRenderer.send("scraper-status");
-  });
+  }, [dispatchRedux, id]);
 
   const start = () => {
     window.electron.ipcRenderer.send("start-scraper", {
@@ -51,10 +54,15 @@ export default () => {
       jobType: JSON.parse(localStorage.getItem("job-type")),
       experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
     });
+    Socket.connect(
+      config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT,
+      store
+    );
   };
 
   const stop = () => {
     window.electron.ipcRenderer.send("stop-scraper");
+    Socket.disconnect();
   };
 
   const pause = () => {

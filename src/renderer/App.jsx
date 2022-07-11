@@ -69,9 +69,7 @@ const ColorSchemeToggle = () => {
 
 const App = () => {
   const { question } = useSelector((state) => state.qa);
-  const {
-    user: { id },
-  } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -82,13 +80,15 @@ const App = () => {
       dispatch(sendData("question", data.question));
     });
 
-    window.electron.ipcRenderer.on("application-submitted", () => {
-      if (!id)
-        throw Error(
-          "User id is not defined, unable to send application update count"
-        );
-      dispatch(updateCount(id));
-    });
+    if (auth.isLoggedIn) {
+      window.electron.ipcRenderer.on("application-submitted", () => {
+        if (!auth.user.id)
+          throw Error(
+            "User id is not defined, unable to send application update count"
+          );
+        dispatch(updateCount(auth.user.id));
+      });
+    }
 
     window.electron.ipcRenderer.on("questions-ended", () => {
       dispatch(endQuestions());
@@ -99,7 +99,7 @@ const App = () => {
       window.electron.ipcRenderer.removeAllListeners("questions-ended");
       window.electron.ipcRenderer.removeAllListeners("application-submitted");
     };
-  }, [dispatch, question, id]);
+  }, [dispatch, question, auth]);
 
   return (
     <CssVarsProvider

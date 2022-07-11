@@ -39,7 +39,7 @@ export const updateCount = (userId) => (dispatch) => {
     (res) => {
       dispatch({
         type: COUNT_UPDATE_SUCCESS,
-        payload: res,
+        payload: res.data,
       });
       return Promise.resolve();
     },
