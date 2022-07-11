@@ -1,13 +1,13 @@
 /* eslint-disable promise/always-return */
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { Box, Button, Typography } from "@mui/joy";
-import IconButton from "@mui/joy/IconButton";
 import { useEffect, useReducer } from "react";
+import IconButton from "@mui/joy/IconButton";
+import { useDispatch, useSelector } from "react-redux";
 
-import QA from "../components/QA";
+import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
-import { sendData } from "renderer/actions/socket";
-import { useDispatch } from "react-redux";
+import QA from "../components/QA";
 
 const initialState = null;
 
@@ -26,11 +26,12 @@ function reducer(state, action) {
 
 export default () => {
   const [status, dispatch] = useReducer(reducer, initialState);
+  const { count, countLimit } = useSelector((state) => state.application);
   const dispatchRedux = useDispatch();
 
   useEffect(() => {
     window.electron.ipcRenderer.on("scraper-status", (state) => {
-      state && dispatch({ type: state });
+      if (state) dispatch({ type: state });
     });
 
     window.electron.ipcRenderer.send("scraper-status");
@@ -101,6 +102,9 @@ export default () => {
           </IconButton>
         </Box>
         <Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
+          <Typography textColor="text.primary" level="h2">
+            {`${count} / ${countLimit}`}
+          </Typography>
           <Typography textColor="text.tertiary" level="h3">
             Job Title
           </Typography>
@@ -161,11 +165,7 @@ export default () => {
             </Button>
           )}
           <Box sx={{ m: 2 }}>
-            <Button
-              size="lg"
-              onClick={sendQuestion}
-              color="neutral"
-            >
+            <Button size="lg" onClick={sendQuestion} color="neutral">
               SEND QUESTION TO PHONE
             </Button>
           </Box>
@@ -177,5 +177,3 @@ export default () => {
     </>
   );
 };
-
-

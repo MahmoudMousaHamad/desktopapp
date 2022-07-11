@@ -38,6 +38,7 @@ import Dashboard from "./screens/Dashboard";
 import { logout } from "./actions/auth";
 import { endQuestions, setQuestion } from "./actions/qa";
 import { sendData } from "./actions/socket";
+import { updateCount } from "./actions/application";
 
 const ColorSchemeToggle = () => {
   const { mode, setMode } = useColorScheme();
@@ -79,12 +80,18 @@ const App = () => {
       dispatch(sendData("question", data.question));
     });
 
+    window.electron.ipcRenderer.on("application-submitted", () => {
+      dispatch(updateCount());
+    });
+
     window.electron.ipcRenderer.on("questions-ended", () => {
       dispatch(endQuestions());
     });
 
     return () => {
       window.electron.ipcRenderer.removeAllListeners("question");
+      window.electron.ipcRenderer.removeAllListeners("questions-ended");
+      window.electron.ipcRenderer.removeAllListeners("application-submitted");
     };
   }, [dispatch, question]);
 

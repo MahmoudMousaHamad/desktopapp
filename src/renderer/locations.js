@@ -23,7 +23,6 @@ module.exports.locations = [
   "Colorado Springs, CO",
   "Green Bay, WI",
   "San Jose, CA",
-  "Boulder, CO",
   "Fayetteville, AR",
   "Naples, FL",
   "Austin, TX",

@@ -17,9 +17,10 @@ function endpoints(NODE_ENV) {
   return {
     SERVER_ENDPOINT: serverEndpoint,
     AUTH_API_URL: `${serverEndpoint}api/auth/`,
+    APPLICATIONS_API_URL: `${serverEndpoint}api/applications/`,
   };
 }
 
 export default {
   endpoints,
-}
+};

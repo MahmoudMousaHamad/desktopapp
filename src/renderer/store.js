@@ -13,8 +13,20 @@ import {
   SOCKET_SEND_DATA,
 } from "./actions/types";
 import Socket from "./Socket";
+import { getCounts } from "./actions/application";
 
 let socket;
+
+function setupStartup(store) {
+  console.log("Starting up...");
+  console.log("Setting up socket...");
+  socket = Socket.connect(
+    config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT,
+    store
+  );
+  console.log("Getting updates from server...");
+  store.dispatch(getCounts(store.getState().auth.user.id));
+}
 
 const SocketMiddleware = (store) => (next) => (action) => {
   console.log(action);
@@ -43,8 +55,7 @@ const SocketMiddleware = (store) => (next) => (action) => {
       });
       break;
     case LOGIN_SUCCESS:
-      console.log("Setting up socket.");
-      socket = Socket.connect(config.SERVER_ENDPOINT, store);
+      setupStartup(store);
       break;
     case LOGOUT:
       console.log("Socket is disconnecting");
@@ -66,7 +77,7 @@ const store = createStore(reducer, applyMiddleware(SocketMiddleware, thunk));
 
 if (store.getState().auth.isLoggedIn) {
   // Set up socket
-  socket = Socket.connect(config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT, store);
+  setupStartup(store);
 }
 
 export default store;

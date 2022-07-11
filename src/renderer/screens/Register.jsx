@@ -9,6 +9,8 @@ import { register } from "../actions/auth";
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const { message } = useSelector((state) => state.message);
   const dispatch = useDispatch();
 
@@ -18,11 +20,17 @@ const Register = () => {
   const onChangePassword = (e) => {
     setPassword(e.target.value);
   };
+  const onChangeFirstName = (e) => {
+    setFirstName(e.target.value);
+  };
+  const onChangeLastName = (e) => {
+    setLastName(e.target.value);
+  };
 
   const handleRegister = (e) => {
     e.preventDefault();
-    if (email && password) {
-      dispatch(register(email, password))
+    if (email && password && firstName && lastName) {
+      dispatch(register(email, password, firstName, lastName))
         .then(() => {
           setMessage("Registration was successfull");
         })
@@ -40,7 +48,7 @@ const Register = () => {
           </Typography>
           <Input
             sx={{ mb: 1 }}
-            type="text"
+            type="email"
             value={email}
             onChange={onChangeEmail}
           />
@@ -53,6 +61,26 @@ const Register = () => {
             type="password"
             value={password}
             onChange={onChangePassword}
+          />
+
+          <Typography level="label" textColor="text.secondary">
+            First Name
+          </Typography>
+          <Input
+            sx={{ mb: 1 }}
+            type="text"
+            value={firstName}
+            onChange={onChangeFirstName}
+          />
+
+          <Typography level="label" textColor="text.secondary">
+            Last Name
+          </Typography>
+          <Input
+            sx={{ mb: 1 }}
+            type="text"
+            value={lastName}
+            onChange={onChangeLastName}
           />
           <Button type="submit">Register</Button>
         </>

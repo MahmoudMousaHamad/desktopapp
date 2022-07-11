@@ -7,6 +7,7 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 const { By, until } = require("selenium-webdriver");
+const window = require("electron").BrowserWindow;
 
 const Preferences = require("./UserPrefernces");
 const Classifier = require("./Classifier");
@@ -191,6 +192,7 @@ class Locator {
 
   async submitApplication() {
     await this.continue();
+    window.getAllWindows()[0].webContents.send("application-submitted");
   }
 
   async waitFor(locator, timeout = 10) {
