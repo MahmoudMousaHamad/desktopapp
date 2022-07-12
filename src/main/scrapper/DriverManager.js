@@ -12,7 +12,7 @@ const ps = require("ps-node");
 const path = require("path");
 const fs = require("fs");
 
-const { appDatatDirPath, targetPlatform } = require("./OSHelper");
+const { appDatatDirPath, targetPlatform, isWindows } = require("./OSHelper");
 
 const versionIndex = {
   104: "104.0.5112.29",
@@ -21,6 +21,8 @@ const versionIndex = {
   101: "101.0.4951.41",
   100: "100.0.4896.60",
 };
+
+const chromeRemoteDebugPort = 9222;
 
 async function getChromeMajorVersion() {
   const chromeVersion = await require("find-chrome-version")();
@@ -66,10 +68,12 @@ async function downloadChromeDriver() {
   const request = https.get(fileUrl, (response) => {
     response.pipe(file);
 
+    console.log("Downloading chrome driver...");
+
     // after download completed close filestream
     file.on("finish", async () => {
       file.close();
-      console.log("Download of zip file ended, unzipping...");
+      console.log("Download of chrome driver file ended, unzipping...");
 
       const zip = new StreamZip.async({
         file: path.join(appDatatDirPath, "chromedriver.zip"),
@@ -86,9 +90,31 @@ async function downloadChromeDriver() {
 }
 
 function openChromeSession() {
-  // Open chrome on specified port
+  const userChromeDataDir = `${appDatatDirPath}/userchromedata`;
+  if (!fs.existsSync(userChromeDataDir)) {
+    fs.mkdirSync(userChromeDataDir);
+  }
+
+  let chromeCommand;
+
+  if (isWindows) {
+    const chrome86Path =
+      "%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe";
+    const chromePath =
+      "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe";
+    if (!(fs.existsSync(chrome86Path) || fs.existsSync(chromePath))) {
+      throw Error(`
+        It looks like Chrome is not installed. Please make sure that Chrome
+        is installed correctly in ${chrome86Path} or ${chromePath}.
+        `);
+    }
+    chromeCommand = fs.existsSync(chrome86Path) ? chrome86Path : chromePath;
+  } else {
+    chromeCommand = "google-chrome";
+  }
+
   exec(
-    'google-chrome --remote-debugging-port=9222 --user-data-dir="/home/mahmoud/userchromedata"',
+    `${chromeCommand} --remote-debugging-port=${chromeRemoteDebugPort} --user-data-dir="${userChromeDataDir}"`,
     (error, stdout, stderr) => {
       if (stdout) {
         console.log(`stdout: ${stdout}`);
@@ -98,8 +124,6 @@ function openChromeSession() {
           stdout.toLowerCase().includes("existing browser session")
         ) {
           this.sessionAlreadyOpen = true;
-        } else {
-          this.attachToSession = false;
         }
       }
 
@@ -120,7 +144,7 @@ async function attachToSession() {
   chrome.setDefaultService(service);
 
   const options = new chrome.Options();
-  options.options_.debuggerAddress = "localhost:9222";
+  options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
 
   const driver = await new Builder()
     .withCapabilities({ unexpectedAlertBehaviour: "accept" })
@@ -139,7 +163,7 @@ function killDriverProcess() {
       list.forEach((p) => {
         ps.kill(p.pid, (e) => {
           if (e) throw e;
-          console.log(`${p.name} has been killed`);
+          console.log(`The ${p.name} process has been killed`);
         });
       });
     })

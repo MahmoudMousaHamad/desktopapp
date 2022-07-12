@@ -5,6 +5,7 @@ const platform = os.platform();
 
 let targetPlatform;
 let appDatatDirPath;
+let isWindows = false;
 
 switch (platform) {
   case "darwin":
@@ -25,6 +26,7 @@ switch (platform) {
   case "win32":
     targetPlatform = "win32";
     appDatatDirPath = path.join(process.env.APPDATA, "JobApplier");
+    isWindows = true;
     break;
   default:
     throw Error("Unknown OS platform");
@@ -36,4 +38,5 @@ console.log("appDatatDirPath", appDatatDirPath);
 module.exports = {
   targetPlatform,
   appDatatDirPath,
+  isWindows,
 };
