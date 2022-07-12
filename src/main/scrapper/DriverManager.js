@@ -99,16 +99,18 @@ function openChromeSession() {
 
   if (isWindows) {
     const chrome86Path =
-      "%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe";
+      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
     const chromePath =
-      "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe";
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     if (!(fs.existsSync(chrome86Path) || fs.existsSync(chromePath))) {
       throw Error(`
         It looks like Chrome is not installed. Please make sure that Chrome
         is installed correctly in ${chrome86Path} or ${chromePath}.
         `);
     }
-    chromeCommand = fs.existsSync(chrome86Path) ? chrome86Path : chromePath;
+    chromeCommand = fs.existsSync(chrome86Path)
+      ? `"${chrome86Path}"`
+      : `"${chromePath}"`;
   } else {
     chromeCommand = "google-chrome";
   }

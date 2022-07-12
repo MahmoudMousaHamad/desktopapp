@@ -10,7 +10,6 @@
  */
 import { app, BrowserWindow, shell, ipcMain, powerSaveBlocker } from "electron";
 import { autoUpdater } from "electron-updater";
-import { exec } from "child_process";
 import log from "electron-log";
 import path from "path";
 
@@ -32,6 +31,8 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+// app.commandLine.appendSwitch("ignore-certificate-errors");
 
 if (process.env.NODE_ENV === "production") {
   const sourceMapSupport = require("source-map-support");

@@ -1,10 +1,11 @@
 /* eslint-disable promise/always-return */
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
 import { useEffect, useReducer } from "react";
 import IconButton from "@mui/joy/IconButton";
-import { useDispatch, useSelector, useStore } from "react-redux";
 
+import { Navigate } from "react-router-dom";
 import { getCounts } from "../actions/application";
 import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
@@ -27,24 +28,37 @@ function reducer(state, action) {
   }
 }
 
+function profileFilled() {
+  const titles = localStorage.getItem("titles");
+  const locations = localStorage.getItem("locations");
+  const type = localStorage.getItem("job-type");
+  const experience = localStorage.getItem("experience-level");
+
+  return titles && locations && type && experience;
+}
+
 export default () => {
   const [status, dispatch] = useReducer(reducer, initialState);
   const { count, countLimit } = useSelector((state) => state.application);
-  const {
-    user: { id },
-  } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const dispatchRedux = useDispatch();
   const store = useStore();
 
   useEffect(() => {
+    if (!auth.isLoggedIn) return;
+
     window.electron.ipcRenderer.on("scraper-status", (state) => {
       if (state) dispatch({ type: state });
     });
 
-    dispatchRedux(getCounts(id));
+    dispatchRedux(getCounts(auth.user.id));
 
     window.electron.ipcRenderer.send("scraper-status");
-  }, [dispatchRedux, id]);
+  }, [dispatchRedux, auth]);
+
+  if (!auth.isLoggedIn) {
+    return <Navigate to="/login" />;
+  }
 
   const start = () => {
     window.electron.ipcRenderer.send("start-scraper", {
@@ -158,31 +172,40 @@ export default () => {
           </IconButton>
         </Box>
         <Box sx={{ p: 10, textAlign: "center" }}>
-          <Button
-            sx={{ mr: 2 }}
-            size="lg"
-            onClick={status?.running || status?.paused ? stop : start}
-            color={status?.running || status?.paused ? "danger" : "primary"}
-          >
-            {(status?.running || status?.paused
-              ? "stop"
-              : "start"
-            ).toUpperCase()}
-          </Button>
-          {status && !status?.stopped && (
-            <Button
-              size="lg"
-              onClick={status?.running ? pause : resume}
-              color="warning"
-            >
-              {(status?.running ? "Pause" : "Resume").toUpperCase()}
-            </Button>
+          {profileFilled() ? (
+            <>
+              <Button
+                sx={{ mr: 2 }}
+                size="lg"
+                onClick={status?.running || status?.paused ? stop : start}
+                color={status?.running || status?.paused ? "danger" : "primary"}
+              >
+                {(status?.running || status?.paused
+                  ? "stop"
+                  : "start"
+                ).toUpperCase()}
+              </Button>
+              {status && !status?.stopped && (
+                <Button
+                  size="lg"
+                  onClick={status?.running ? pause : resume}
+                  color="warning"
+                >
+                  {(status?.running ? "Pause" : "Resume").toUpperCase()}
+                </Button>
+              )}
+              <Box sx={{ m: 2 }}>
+                <Button size="lg" onClick={sendQuestion} color="neutral">
+                  SEND QUESTION TO PHONE
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Typography textColor="text.warning" level="h3">
+              Before starting, please go to your profile and fill out all the
+              information there.
+            </Typography>
           )}
-          <Box sx={{ m: 2 }}>
-            <Button size="lg" onClick={sendQuestion} color="neutral">
-              SEND QUESTION TO PHONE
-            </Button>
-          </Box>
         </Box>
       </Layout.SidePane>
       <Layout.Main sx={{ display: "flex", alignItems: "center" }}>
