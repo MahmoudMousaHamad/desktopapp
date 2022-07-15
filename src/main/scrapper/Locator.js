@@ -60,14 +60,20 @@ class Locator {
       action: this.continueToApplication.bind(this),
     },
     submit: {
-      strings: ["Review the contents of this job application"],
+      strings: [
+        "Review the contents of this job application",
+        "Please review your application",
+      ],
       type: TITLE,
       action: this.submitApplication.bind(this),
     },
     submitted: {
-      strings: ["Your application has been submitted!"],
+      strings: ["Your application has been submitted!", "One more step"],
       type: SOURCE,
-      action: this.goToJobsPage.bind(this),
+      action: async () => {
+        window.getAllWindows()[0].webContents.send("application-submitted");
+        await this.goToJobsPage();
+      },
     },
   };
 
@@ -82,11 +88,34 @@ class Locator {
     try {
       source = await this.driver.getPageSource();
     } catch (e) {
-      console.error(e);
-      return null;
+      await this.goToJobsPage();
+      // console.error(e);
+      // return null;
     }
 
     return source;
+  }
+
+  async signedIn() {
+    return (await this.driver.findElements(By.css("#AccountMenu"))).length >= 1;
+  }
+
+  async waitUntilSignIn() {
+    console.log("User signed in:", await this.signedIn());
+    if (!(await this.signedIn())) {
+      this.driver.executeScript(
+        "alert('It looks like you are not signed in. We will start when you do.')"
+      );
+      await new Promise((resolve) => {
+        this.interval = setInterval(async () => {
+          if (await this.signedIn()) {
+            console.log("User is signed in.");
+            clearInterval(this.interval);
+            resolve();
+          }
+        }, 1000);
+      });
+    }
   }
 
   async resumeSection() {
@@ -167,6 +196,17 @@ class Locator {
     await this.continue();
     // Retrain classifier after we finish answering the questions
     Classifier.SingletonClassifier.retrain();
+
+    // await this.driver.sleep(1000);
+    // if (
+    //   await this.driver
+    //     .getPageSource()
+    //     .toLowerCase()
+    //     .includes("answer this question to continue")
+    // ) {
+    //   await this.goToJobsPage();
+    // } else {
+    // }
   }
 
   async chooseExperience() {
@@ -192,7 +232,6 @@ class Locator {
 
   async submitApplication() {
     await this.continue();
-    window.getAllWindows()[0].webContents.send("application-submitted");
   }
 
   async waitFor(locator, timeout = 10) {

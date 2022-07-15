@@ -21,7 +21,7 @@ class Scraper {
 
     this.locator = new Locator(this.driver);
     await this.locator.goToJobsPage();
-    await this.waitUntilSignIn();
+    await this.locator.waitUntilSignIn();
     await this.run();
   }
 
@@ -46,19 +46,6 @@ class Scraper {
   getStatus() {
     // console.log("Driver to string: ", this.driver?.toString());
     return this.running;
-  }
-
-  async waitUntilSignIn() {
-    await new Promise((resolve) => {
-      this.interval = setInterval(async () => {
-        if (
-          (await this.driver.getPageSource()).toLowerCase().includes("sign in")
-        ) {
-          clearInterval(this.interval);
-          resolve();
-        }
-      }, 1000);
-    });
   }
 
   async run() {

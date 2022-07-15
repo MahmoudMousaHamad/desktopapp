@@ -1,5 +1,6 @@
 import { applyMiddleware, createStore } from "redux";
 import thunk from "redux-thunk";
+import { questionAnswered } from "./actions/qa";
 
 import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./actions/types";
 import reducer from "./reducers";
@@ -32,6 +33,9 @@ const SocketMiddleware = (store) => (next) => (action) => {
       }
       break;
     case SOCKET_GOT_DATA:
+      if (action.name === "answer") {
+        store.dispatch(questionAnswered());
+      }
       window.electron.ipcRenderer.send(action.name, {
         [action.name]: action[action.name],
       });

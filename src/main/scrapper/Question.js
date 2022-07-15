@@ -144,7 +144,7 @@ class Question {
         }
         for (let i = 0; i < options.length; ++i) {
           if (i === answer) {
-            await options.click();
+            await options[i].click();
             return;
           }
         }

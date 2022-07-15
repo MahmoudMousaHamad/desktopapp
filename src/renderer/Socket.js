@@ -1,4 +1,4 @@
-import { connect } from "socket.io-client";
+import io from "socket.io-client";
 
 import * as Actions from "./actions/socket";
 
@@ -13,11 +13,27 @@ export default {
       this.socket = null;
     }
 
-    this.socket = connect(SERVER_ENDPOINT, {
-      reconnection: true,
-      reconnectionDelay: 5000,
+    this.socket = io(SERVER_ENDPOINT, {
       reconnectionAttempts: Infinity,
+      reconnectionDelay: 5000,
+      reconnection: true,
+      autoConnect: false,
     });
+
+    this.socket.auth = {
+      user: store.getState().auth.user,
+      source: "desktop",
+    };
+
+    this.socket.onAny((event, ...args) => {
+      console.log(event, args);
+    });
+
+    this.socket.on("connect_error", (err) => {
+      console.log("Connection to server failed", err);
+    });
+
+    this.socket.connect();
 
     this.socket.on("connect", async () => {
       this.isConnected = true;
@@ -36,9 +52,9 @@ export default {
       ["answer"].forEach((channel) => {
         this.socket.on(channel, (data) => {
           console.log(
-            "Got data from server on channel: ",
+            "Got data from server on channel:",
             channel,
-            ", and data: ",
+            ", and data:",
             data
           );
           store.dispatch(Actions.gotData(data, channel));
@@ -54,8 +70,8 @@ export default {
     return this.socket;
   },
   disconnect() {
-    this.socket.disconnect();
-    this.socket.destroy();
+    this.socket?.disconnect();
+    this.socket?.destroy();
     this.socket = null;
   },
 };

@@ -1,9 +1,10 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 /* eslint-disable global-require */
 const chrome = require("selenium-webdriver/chrome");
-const { Builder } = require("selenium-webdriver");
+const { Builder, Capabilities } = require("selenium-webdriver");
 const StreamZip = require("node-stream-zip");
 const { app, dialog } = require("electron");
 const { exec } = require("child_process");
@@ -121,12 +122,12 @@ function openChromeSession() {
       if (stdout) {
         console.log(`stdout: ${stdout}`);
 
-        if (
-          stdout &&
-          stdout.toLowerCase().includes("existing browser session")
-        ) {
-          this.sessionAlreadyOpen = true;
-        }
+        // if (
+        //   stdout &&
+        //   stdout.toLowerCase().includes("existing browser session")
+        // ) {
+        //   this.sessionAlreadyOpen = true;
+        // }
       }
 
       if (stderr) console.log(`stderr: ${stderr}`);
@@ -148,8 +149,24 @@ async function attachToSession() {
   const options = new chrome.Options();
   options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
 
+  // const args = [
+  //   "--disable-extensions",
+  //   "--window-size=1366,768",
+  //   "--no-sandbox", // required for Linux without GUI
+  //   "--disable-gpu", // required for Windows,
+  //   "--enable-logging --v=1", // write debug logs to file(debug.log)
+  // ];
+
+  // if (false) {
+  //   args.push("--headless");
+  // }
+
+  // const chromeCapabilities = Capabilities.chrome()
+  //   .set("chromeOptions", { args })
+  //   .set("unexpectedAlertBehaviour", "ignore");
+
   const driver = await new Builder()
-    .withCapabilities({ unexpectedAlertBehaviour: "accept" })
+    // .withCapabilities(chromeCapabilities)
     .forBrowser("chrome")
     .setChromeOptions(options)
     .build();

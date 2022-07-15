@@ -20,7 +20,7 @@
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "package:all": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build -lwm --publish always",
     "publish": "electron-builder -p always",
-    "publish:all": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --linux --publish always",
+    "publish:all": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --linux --windows --publish always",
     "prepare": "husky install",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
@@ -89,6 +89,7 @@
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1",
     "selenium-webdriver": "^4.2.0",
+    "shell": "^0.9.4",
     "socket.io-client": "^4.5.1",
     "validator": "^13.7.0"
   },
