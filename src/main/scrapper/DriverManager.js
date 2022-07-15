@@ -1,3 +1,5 @@
+/* eslint-disable promise/no-nesting */
+/* eslint-disable promise/catch-or-return */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 /* eslint-disable no-underscore-dangle */
@@ -79,13 +81,13 @@ async function downloadChromeDriver() {
       const zip = new StreamZip.async({
         file: path.join(appDatatDirPath, "chromedriver.zip"),
       });
-      await zip.extract(
-        "chromedriver",
-        path.join(appDatatDirPath, "chromedriver")
-      );
-      await zip.close();
-
-      fs.chmodSync(path.join(appDatatDirPath, "chromedriver"), "755");
+      await zip
+        .extract("chromedriver", path.join(appDatatDirPath, "chromedriver"))
+        .then(() => {
+          zip.close().then(() => {
+            fs.chmodSync(path.join(appDatatDirPath, "chromedriver"), "755");
+          });
+        });
     });
   });
 }

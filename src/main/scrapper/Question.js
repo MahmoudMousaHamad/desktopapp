@@ -151,17 +151,17 @@ class Question {
         await options[0].click();
       },
     },
-    fallback: {
-      selectors: {
-        text: ["label"],
-        input: ["input"],
-      },
-      answer: async (_element, answer) => {
-        const element = await this.element.findElement(By.css("input"));
-        await this.clearInput(element);
-        await element.sendKeys(answer);
-      },
-    },
+    // fallback: {
+    //   selectors: {
+    //     text: ["label"],
+    //     input: ["input"],
+    //   },
+    //   answer: async (_element, answer) => {
+    //     const element = await this.element.findElement(By.css("input"));
+    //     await this.clearInput(element);
+    //     await element.sendKeys(answer);
+    //   },
+    // },
   };
 
   async prepare() {

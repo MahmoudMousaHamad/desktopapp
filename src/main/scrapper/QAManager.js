@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/return-await */
 /* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
@@ -20,10 +21,15 @@ class QAManager {
     this.questions = [];
   }
 
-  async startWorkflow() {
+  async startWorkflow(fallback) {
     this.setupIPCListeners();
 
-    await this.gatherQuestions();
+    const allQuestionsCool = await this.gatherQuestions();
+    if (!allQuestionsCool) {
+      await fallback();
+      return;
+    }
+
     await this.attemptToAnswerQuestions();
 
     if (this.clientQuestions.length > 0) {
@@ -109,11 +115,17 @@ class QAManager {
       const text = await inputText.getText();
       if (!text.includes("(optional)")) {
         const question = new Question(qe);
-        console.log("Pushing question: ", await question.prepare());
+        const coolQuestion = await question.prepare();
+        if (!coolQuestion) {
+          console.log("Question could not be prepared", await qe.getText());
+          return false;
+        }
         this.questions.push(question);
       }
     }
     this.currentIndex = 0;
+
+    return true;
   }
 
   setupIPCListeners() {

@@ -103,8 +103,8 @@ class Locator {
   async waitUntilSignIn() {
     console.log("User signed in:", await this.signedIn());
     if (!(await this.signedIn())) {
-      this.driver.executeScript(
-        "alert('It looks like you are not signed in. We will start when you do.')"
+      await this.driver.executeScript(
+        "alert('Please sign into Indeed to get started.')"
       );
       await new Promise((resolve) => {
         this.interval = setInterval(async () => {
@@ -146,7 +146,7 @@ class Locator {
 
       await this.driver
         .switchTo()
-        .frame(this.driver.findElement(By.css("#vjs-container-iframe")));
+        .frame(await this.driver.findElement(By.css("#vjs-container-iframe")));
       if (
         (await this.driver.findElements(By.id("indeedApplyButton"))).length > 0
       ) {
@@ -189,7 +189,12 @@ class Locator {
       this.handleDoneAnsweringQuestions.bind(this)
     );
 
-    await qaManager.startWorkflow();
+    await qaManager.startWorkflow(async () => {
+      await this.goToJobsPage();
+      await this.driver.sleep(2000);
+      const alert = await this.driver.wait(until.alertIsPresent(), 2000);
+      await alert?.accept();
+    });
   }
 
   async handleDoneAnsweringQuestions() {
@@ -257,7 +262,9 @@ class Locator {
   }
 
   async continue() {
-    await this.driver.findElement(By.className("ia-continueButton")).click();
+    await (
+      await this.driver.findElement(By.className("ia-continueButton"))
+    ).click();
   }
 }
 
