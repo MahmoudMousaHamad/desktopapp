@@ -8,6 +8,7 @@
 const chrome = require("selenium-webdriver/chrome");
 const { Builder, Capabilities } = require("selenium-webdriver");
 const StreamZip = require("node-stream-zip");
+const unzipper = require("unzipper");
 const { app, dialog } = require("electron");
 const { exec } = require("child_process");
 const https = require("https");
@@ -78,16 +79,25 @@ async function downloadChromeDriver() {
       file.close();
       console.log("Download of chrome driver file ended, unzipping...");
 
-      const zip = new StreamZip.async({
-        file: path.join(appDatatDirPath, "chromedriver.zip"),
-      });
-      await zip
-        .extract("chromedriver", path.join(appDatatDirPath, "chromedriver"))
-        .then(() => {
-          zip.close().then(() => {
-            fs.chmodSync(path.join(appDatatDirPath, "chromedriver"), "755");
-          });
-        });
+      fs.createReadStream(path.join(appDatatDirPath, "chromedriver.zip")).pipe(
+        unzipper.Extract({ path: path.join(appDatatDirPath, "chromedriver") })
+      );
+
+      fs.chmodSync(
+        path.join(appDatatDirPath, "chromedriver", `chromedriver${isWindows ? ".exe" : ""}`),
+        "755"
+      );
+
+      // const zip = new StreamZip.async({
+      //   file: path.join(appDatatDirPath, "chromedriver.zip"),
+      // });
+      // await zip
+      //   .extract("chromedriver", path.join(appDatatDirPath, "chromedriver"))
+      //   .then(() => {
+      //     zip.close().then(() => {
+      //       fs.chmodSync(path.join(appDatatDirPath, "chromedriver"), "755");
+      //     });
+      //   });
     });
   });
 }
@@ -142,36 +152,21 @@ function openChromeSession() {
 }
 
 async function attachToSession() {
-  const myChromePath = path.join(appDatatDirPath, "chromedriver");
+  const myChromePath = path.join(
+    appDatatDirPath,
+    "chromedriver",
+    `chromedriver${isWindows ? ".exe" : ""}`
+  );
   console.log("Chrome driver path:", myChromePath);
 
-  const service = new chrome.ServiceBuilder(myChromePath).build();
-  chrome.setDefaultService(service);
-
+  const service = new chrome.ServiceBuilder(myChromePath)
+         .enableVerboseLogging()
+         .build();
+ 
   const options = new chrome.Options();
   options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
-
-  // const args = [
-  //   "--disable-extensions",
-  //   "--window-size=1366,768",
-  //   "--no-sandbox", // required for Linux without GUI
-  //   "--disable-gpu", // required for Windows,
-  //   "--enable-logging --v=1", // write debug logs to file(debug.log)
-  // ];
-
-  // if (false) {
-  //   args.push("--headless");
-  // }
-
-  // const chromeCapabilities = Capabilities.chrome()
-  //   .set("chromeOptions", { args })
-  //   .set("unexpectedAlertBehaviour", "ignore");
-
-  const driver = await new Builder()
-    // .withCapabilities(chromeCapabilities)
-    .forBrowser("chrome")
-    .setChromeOptions(options)
-    .build();
+       
+  const driver = chrome.Driver.createSession(options, service);
 
   return driver;
 }

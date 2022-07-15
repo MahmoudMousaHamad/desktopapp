@@ -91,6 +91,7 @@
     "selenium-webdriver": "^4.2.0",
     "shell": "^0.9.4",
     "socket.io-client": "^4.5.1",
+    "unzipper": "^0.10.11",
     "validator": "^13.7.0"
   },
   "devDependencies": {
