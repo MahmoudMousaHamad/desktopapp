@@ -84,7 +84,11 @@ async function downloadChromeDriver() {
       );
 
       fs.chmodSync(
-        path.join(appDatatDirPath, "chromedriver", `chromedriver${isWindows ? ".exe" : ""}`),
+        path.join(
+          appDatatDirPath,
+          "chromedriver",
+          `chromedriver${isWindows ? ".exe" : ""}`
+        ),
         "755"
       );
 
@@ -160,12 +164,12 @@ async function attachToSession() {
   console.log("Chrome driver path:", myChromePath);
 
   const service = new chrome.ServiceBuilder(myChromePath)
-         .enableVerboseLogging()
-         .build();
- 
+    .enableVerboseLogging()
+    .build();
+
   const options = new chrome.Options();
   options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
-       
+
   const driver = chrome.Driver.createSession(options, service);
 
   return driver;

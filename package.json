@@ -215,6 +215,8 @@
     },
     "win": {
       "artifactName": "${productName}.${ext}",
+      "publisherName": "Mahmoud Mousa Hamad",
+      "certificatePassword": "",
       "target": [
         "nsis"
       ]

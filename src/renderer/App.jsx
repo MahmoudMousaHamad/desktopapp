@@ -35,150 +35,154 @@ import QA from "./components/QA";
 import Dashboard from "./screens/Dashboard";
 
 // Actions
-import { logout } from "./actions/auth";
 import { endQuestions, setQuestion } from "./actions/qa";
 import { sendData } from "./actions/socket";
 import { updateCount } from "./actions/application";
+import CoverLetter from "./screens/CoverLetter";
 
 const ColorSchemeToggle = () => {
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-  if (!mounted) {
-    return <IconButton size="sm" variant="outlined" color="primary" />;
-  }
-  return (
-    <IconButton
-      size="sm"
-      variant="outlined"
-      color="primary"
-      onClick={() => {
-        if (mode === "light") {
-          setMode("dark");
-        } else {
-          setMode("light");
-        }
-      }}
-    >
-      {mode === "light" ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
-    </IconButton>
-  );
+	const { mode, setMode } = useColorScheme("dark");
+	const [mounted, setMounted] = React.useState(false);
+	React.useEffect(() => {
+		setMounted(true);
+	}, []);
+	if (!mounted) {
+		return <IconButton size="sm" variant="outlined" color="primary" />;
+	}
+	return (
+		<IconButton
+			size="sm"
+			variant="outlined"
+			color="primary"
+			onClick={() => {
+				if (mode === "light") {
+					setMode("dark");
+				} else {
+					setMode("light");
+				}
+			}}
+		>
+			{mode === "light" ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
+		</IconButton>
+	);
 };
 
 const App = () => {
-  const { question } = useSelector((state) => state.qa);
-  const auth = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+	const { question } = useSelector((state) => state.qa);
+	const auth = useSelector((state) => state.auth);
+	const dispatch = useDispatch();
 
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+	const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  useEffect(() => {
-    window.electron.ipcRenderer.on("question", (data) => {
-      dispatch(setQuestion(data.question));
-      dispatch(sendData("question", data.question));
-    });
+	useEffect(() => {
+		window.electron.ipcRenderer.on("question", (data) => {
+			dispatch(setQuestion(data.question));
+			dispatch(sendData("question", data.question));
+		});
 
-    if (auth.isLoggedIn) {
-      window.electron.ipcRenderer.on("application-submitted", () => {
-        if (!auth.user.id)
-          throw Error(
-            "User id is not defined, unable to send application update count"
-          );
-        dispatch(updateCount(auth.user.id));
-      });
-    }
+		if (auth.isLoggedIn) {
+			window.electron.ipcRenderer.on("application-submitted", () => {
+				if (!auth.user.id)
+					throw Error(
+						"User id is not defined, unable to send application update count"
+					);
+				dispatch(updateCount(auth.user.id));
+			});
+		}
 
-    window.electron.ipcRenderer.on("questions-ended", () => {
-      dispatch(endQuestions());
-    });
+		window.electron.ipcRenderer.on("questions-ended", () => {
+			dispatch(endQuestions());
+		});
 
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners("question");
-      window.electron.ipcRenderer.removeAllListeners("questions-ended");
-      window.electron.ipcRenderer.removeAllListeners("application-submitted");
-    };
-  }, [dispatch, question, auth]);
+		return () => {
+			window.electron.ipcRenderer.removeAllListeners("question");
+			window.electron.ipcRenderer.removeAllListeners("questions-ended");
+			window.electron.ipcRenderer.removeAllListeners("application-submitted");
+		};
+	}, [dispatch, question, auth]);
 
-  return (
-    <CssVarsProvider
-      disableTransitionOnChange
-      theme={deepmerge(muiTheme, joyTheme)}
-    >
-      <GlobalStyles
-        styles={(_theme) => ({
-          body: {
-            margin: 0,
-            fontFamily: _theme.vars.fontFamily.body,
-          },
-        })}
-      />
-      {drawerOpen && (
-        <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-          <Navigation />
-        </Layout.SideDrawer>
-      )}
-      <HashRouter>
-        <Layout.Root
-          sx={{
-            ...(drawerOpen && {
-              height: "100vh",
-              overflow: "hidden",
-            }),
-          }}
-        >
-          <Layout.Header>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 1.5,
-              }}
-            >
-              <IconButton
-                variant="outlined"
-                size="sm"
-                onClick={() => setDrawerOpen(true)}
-                sx={{ display: { sm: "none" } }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <IconButton
-                size="sm"
-                variant="solid"
-                sx={{ display: { xs: "none", sm: "inline-flex" } }}
-              >
-                <Work />
-              </IconButton>
-              <Typography fontWeight={700}>Job Applyer v0.1.1</Typography>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>
-              <IconButton
-                size="sm"
-                variant="outlined"
-                color="primary"
-                sx={{ display: { xs: "inline-flex", sm: "none" } }}
-              >
-                <SearchRoundedIcon />
-              </IconButton>
-              <ColorSchemeToggle />
-            </Box>
-          </Layout.Header>
-          <Layout.SideNav>
-            <Navigation />
-          </Layout.SideNav>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </Layout.Root>
-      </HashRouter>
-    </CssVarsProvider>
-  );
+	return (
+		<CssVarsProvider
+			disableTransitionOnChange
+			theme={deepmerge(muiTheme, joyTheme)}
+		>
+			<GlobalStyles
+				styles={(_theme) => ({
+					body: {
+						margin: 0,
+						fontFamily: _theme.vars.fontFamily.body,
+					},
+				})}
+			/>
+			{drawerOpen && (
+				<Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
+					<Navigation />
+				</Layout.SideDrawer>
+			)}
+			<HashRouter>
+				<Layout.Root
+					sx={{
+						...(drawerOpen && {
+							height: "100vh",
+							overflow: "hidden",
+						}),
+					}}
+				>
+					<Layout.Header>
+						<Box
+							sx={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+								gap: 1.5,
+							}}
+						>
+							<IconButton
+								variant="outlined"
+								size="sm"
+								onClick={() => setDrawerOpen(true)}
+								sx={{ display: { sm: "none" } }}
+							>
+								<MenuIcon />
+							</IconButton>
+							<IconButton
+								size="lg"
+								variant="solid"
+								sx={{ display: { xs: "none", sm: "inline-flex" } }}
+							>
+								<Work />
+							</IconButton>
+							<Typography level="h2" fontWeight={700}>
+								JobApplyer
+							</Typography>
+							v0.1.1
+						</Box>
+						<Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>
+							<IconButton
+								size="sm"
+								variant="outlined"
+								color="primary"
+								sx={{ display: { xs: "inline-flex", sm: "none" } }}
+							>
+								<SearchRoundedIcon />
+							</IconButton>
+							<ColorSchemeToggle />
+						</Box>
+					</Layout.Header>
+					<Layout.SideNav>
+						<Navigation />
+					</Layout.SideNav>
+					<Routes>
+						<Route path="/" element={<Dashboard />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/register" element={<Register />} />
+						<Route path="/profile" element={<Profile />} />
+						<Route path="/coverletter" element={<CoverLetter />} />
+					</Routes>
+				</Layout.Root>
+			</HashRouter>
+		</CssVarsProvider>
+	);
 };
 
 export default App;
