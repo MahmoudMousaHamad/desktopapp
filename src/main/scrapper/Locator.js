@@ -6,7 +6,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-const { By, until } = require("selenium-webdriver");
+const { By, Key, until } = require("selenium-webdriver");
 const window = require("electron").BrowserWindow;
 
 const Preferences = require("./UserPrefernces");
@@ -120,7 +120,7 @@ class Locator {
 
 	async resumeSection() {
 		await this.scroll();
-		await this.driver.sleep(5000);
+		await this.driver.sleep(1000);
 		await this.continue();
 	}
 
@@ -142,7 +142,7 @@ class Locator {
 
 			await card.click();
 
-			await this.driver.sleep(5000);
+			await this.driver.sleep(2500);
 
 			await this.driver
 				.switchTo()
@@ -215,7 +215,7 @@ class Locator {
 	}
 
 	async chooseExperience() {
-		await this.driver.sleep(5000);
+		await this.driver.sleep(1000);
 		await this.continue();
 	}
 
@@ -227,7 +227,14 @@ class Locator {
 		} catch (e) {
 			console.error(e);
 		}
-		await this.driver.sleep(5000);
+		await this.driver.sleep(1000);
+		if (Preferences?.coverLetter && Preferences?.coverLetter !== "") {
+			const textarea = await this.driver.findElement(By.css("textarea"));
+			await this.driver.executeScript((element) => element.select(), textarea);
+			await textarea.sendKeys(Key.BACK_SPACE);
+			await textarea.sendKeys(Preferences.coverLetter);
+		}
+		await this.driver.sleep(1000);
 		await this.continue();
 	}
 

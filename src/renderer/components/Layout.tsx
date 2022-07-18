@@ -14,7 +14,7 @@ const Root = (props: BoxProps) => (
 				gridTemplateColumns: {
 					xs: "1fr",
 					sm: "minmax(64px, 200px) minmax(450px, 1fr)",
-					md: "minmax(160px, 300px) minmax(300px, 500px) minmax(500px, 1fr)",
+					md: "minmax(160px, 300px)minmax(500px, 1fr)",
 				},
 				gridTemplateRows: "64px 1fr",
 				minHeight: "100vh",
@@ -80,10 +80,8 @@ const SidePane = (props: BoxProps) => (
 				bgcolor: "background.componentBg",
 				borderRight: "1px solid",
 				borderColor: "divider",
-				display: {
-					xs: "none",
-					md: "initial",
-				},
+				display: "grid",
+				"grid-template-columns": "1fr 1fr",
 			},
 			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
 		]}
