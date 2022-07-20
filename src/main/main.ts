@@ -21,6 +21,7 @@ import Preferences from "./scrapper/UserPrefernces";
 import { resolveHtmlPath } from "./util";
 import MenuBuilder from "./menu";
 import Scraper from "./scrapper";
+import { SingletonCategorizer } from "./scrapper/Categorizer";
 
 export default class AppUpdater {
 	constructor() {
@@ -144,7 +145,10 @@ const scraper = new Scraper.Scraper();
 
 ipcMain.on("start-scraper", async (event, preferences) => {
 	Preferences.setPreferences(preferences);
+	SingletonCategorizer.load(preferences.answers);
+
 	event.reply("scraper-status", "running");
+
 	blockerId = powerSaveBlocker.start("prevent-display-sleep");
 
 	await scraper.start();

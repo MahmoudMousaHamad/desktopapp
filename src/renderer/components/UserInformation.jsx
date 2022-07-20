@@ -1,10 +1,49 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-import { Box, Input, Radio, Sheet, Typography } from "@mui/joy";
+import { Box, Input, Radio, Typography } from "@mui/joy";
 import { useState } from "react";
 
-const categoriesQuestions = {
+const keywords = {
+	sponsorship: [
+		"visa",
+		"sponsorship",
+		"future",
+		"require",
+		"status",
+		"will",
+		"employment",
+		"H-1B",
+		"eg",
+		"work",
+	],
+	experience: ["many", "how", "year", "experience"],
+	relocate: ["reliably", "commute", "able", "job", "will", "relocate"],
+	relocateYesNo: [
+		"willingness",
+		"open",
+		"requirement",
+		"relocate",
+		"united",
+		"state",
+		"nationwide",
+	],
+	workAuthorization: ["authorized", "work"],
+	citizen: ["citizen"],
+	clearance: ["clearance", "security"],
+	salary: ["approximately", "offer", "kyr", "salary", "position", "amount"],
+	gpa: ["average", "grade", "scale", "point", "university", "gpa"],
+	degree: ["education", "degree", "highest", "level"],
+	phone: ["phone", "number"],
+	country: ["country"],
+	address: ["address", "street"],
+	email: ["email"],
+	gender: ["gender"],
+	ethnicity: ["ethnicity"],
+	disability: ["disability", "status"],
+};
+
+let categoriesQuestions = {
 	sponsorship: {
 		question: {
 			type: "radio",
@@ -130,6 +169,18 @@ const categoriesQuestions = {
 	},
 };
 
+const getQuestionsByType = (type) => {
+	return Object.fromEntries(
+		Object.entries(categoriesQuestions).filter(
+			([, value]) => value.question.type === type
+		)
+	);
+};
+
+const textQuestions = getQuestionsByType("text");
+const radioQuestions = getQuestionsByType("radio");
+categoriesQuestions = { ...radioQuestions, ...textQuestions };
+
 export default () => {
 	const [answers, setAnswers] = useState(
 		JSON.parse(localStorage.getItem("user-answers")) || {}
@@ -141,9 +192,15 @@ export default () => {
 		const userAnswers = JSON.parse(localStorage.getItem("user-answers"));
 		localStorage.setItem(
 			"user-answers",
-			JSON.stringify({ ...userAnswers, [category]: value })
+			JSON.stringify({
+				...userAnswers,
+				[category]: { answer: value, keywords: keywords[category] },
+			})
 		);
-		setAnswers({ ...answers, [category]: value });
+		setAnswers({
+			...answers,
+			[category]: { answer: value, keywords: keywords[category] },
+		});
 	};
 
 	for (const category in categoriesQuestions) {
@@ -163,7 +220,7 @@ export default () => {
 						type="text"
 						placeholder="Your answer..."
 						onChange={(e) => handleChange(e.target.value, category)}
-						value={answers[category] || ""}
+						value={answers[category]?.answer || ""}
 					/>
 				</>
 			);
@@ -175,7 +232,7 @@ export default () => {
 						<div key={index}>
 							<Radio
 								sx={{ mb: 1 }}
-								checked={answers[category] === option}
+								checked={answers[category]?.answer === option}
 								onChange={(e) => handleChange(e.target.value, category)}
 								value={option}
 								label={
@@ -195,6 +252,10 @@ export default () => {
 		<>
 			<Typography sx={{ mb: 2 }} textColor="text.primary" level="h3">
 				Common Questions
+			</Typography>
+			<Typography sx={{ mb: 2 }} textColor="text.secondary" level="body1">
+				All of your answers are saved on your computer. We do not collect any of
+				your application-related information.
 			</Typography>
 			{questions.map((q, index) => (
 				<Box key={index} sx={{ mb: 2 }}>

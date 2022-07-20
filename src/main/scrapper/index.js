@@ -2,9 +2,10 @@
 /* eslint-disable no-restricted-syntax */
 require("chromedriver");
 
-const { Locator, TITLE } = require("./Locator");
-const { SingletonClassifier } = require("./Classifier");
 const { openChromeSession, attachToSession } = require("./DriverManager");
+const { SingletonClassifier } = require("./Classifier");
+const { Locator, TITLE } = require("./Locator");
+const { SingletonCategorizer } = require("./Categorizer");
 
 class Scraper {
 	constructor() {
@@ -30,6 +31,7 @@ class Scraper {
 		this.running = "stopped";
 		await this.driver.close();
 		SingletonClassifier.save();
+		SingletonCategorizer.save();
 	}
 
 	pause() {

@@ -10,6 +10,7 @@ const { ipcMain } = require("electron");
 
 const { SingletonClassifier } = require("./Classifier");
 const { Question } = require("./Question");
+const { SingletonCategorizer } = require("./Categorizer");
 
 class QAManager {
 	constructor(driver, handleDone) {
@@ -130,9 +131,13 @@ class QAManager {
 
 	setupIPCListeners() {
 		ipcMain.on(this.listeners.answer, async (event, { answer }) => {
+			if (!this.currentQuestion) return;
+
 			console.log("Answer as recieved from client: ", answer);
 
 			const { type, options } = this.currentQuestion.abstract();
+
+			// Answer as input to classifier
 			let classifierAnswer = answer;
 
 			if (options !== "None") {
@@ -141,12 +146,20 @@ class QAManager {
 						? options
 								.filter((option, index) => answer.includes(index))
 								.join(" ")
-						: (classifierAnswer = options[answer]);
+						: options[answer];
 			}
 
-			console.log("Answer as input to classifier: ", classifierAnswer);
+			console.log(
+				"Answer as input to classifier/categorizer: ",
+				classifierAnswer
+			);
 
 			SingletonClassifier.addDocument(
+				this.currentQuestion.questionTokens,
+				classifierAnswer
+			);
+
+			SingletonCategorizer.addCategory(
 				this.currentQuestion.questionTokens,
 				classifierAnswer
 			);
@@ -182,7 +195,12 @@ class QAManager {
 		);
 	}
 
+	internalClean() {
+		this.removeAllListeners();
+	}
+
 	async clean() {
+		this.internalClean();
 		await this.handleDone();
 	}
 }

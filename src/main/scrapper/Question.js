@@ -10,7 +10,7 @@ const { By, Key, promise } = require("selenium-webdriver");
 const natural = require("natural");
 
 const Classifier = require("./Classifier");
-const { categorize } = require("./Categorizer");
+const { categorize, SingletonCategorizer } = require("./Categorizer");
 const Preferences = require("./UserPrefernces");
 
 class Question {
@@ -221,11 +221,13 @@ class Question {
 		let attemptedAnswer = null;
 
 		console.log("Attempting to categorize question and answer it.");
-		const { category, score } = categorize(this.questionText);
+		const { category, score, answer } = SingletonCategorizer.categorize(
+			this.questionText
+		);
 		console.log("Question category:", category, "Score", score);
 		if (score > 0) {
 			console.log("Answering question using category");
-			attemptedAnswer = Preferences.answers[category];
+			attemptedAnswer = answer;
 		} else {
 			console.log(
 				"Attempting to answer question using classifier with tokens: ",
