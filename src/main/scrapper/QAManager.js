@@ -133,6 +133,12 @@ class QAManager {
 		ipcMain.on(this.listeners.answer, async (event, { answer }) => {
 			if (!this.currentQuestion) return;
 
+			/**
+			 * Remember that answer from clients is expected to be:
+			 * - A string if text input
+			 * - An integer if select
+			 * - An array of integers if checkbox
+			 */
 			console.log("Answer as recieved from client: ", answer);
 
 			const { type, options } = this.currentQuestion.abstract();
@@ -143,9 +149,7 @@ class QAManager {
 			if (options !== "None") {
 				classifierAnswer =
 					type === "checkbox"
-						? options
-								.filter((option, index) => answer.includes(index))
-								.join(" ")
+						? options.filter((option, index) => answer.includes(index))
 						: options[answer];
 			}
 
@@ -164,7 +168,7 @@ class QAManager {
 				classifierAnswer
 			);
 
-			await this.currentQuestion.answer(answer);
+			await this.currentQuestion.answer(classifierAnswer);
 
 			this.lastQuestionAnswered =
 				this.currentIndex >= this.clientQuestions.length;

@@ -153,7 +153,7 @@ const App = () => {
 								<Work />
 							</IconButton>
 							<Typography level="h2" fontWeight={700}>
-								JobApplyer
+								JobApplier
 							</Typography>
 							v0.1.1
 						</Box>

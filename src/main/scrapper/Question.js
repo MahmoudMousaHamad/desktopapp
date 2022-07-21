@@ -125,6 +125,9 @@ class Question {
 				options: ["label"],
 			},
 			answer: async (_elements, answer) => {
+				/**
+				 * Expects answer to be an array of strings
+				 */
 				const options = await this.element.findElements(By.css("label"));
 				console.log(
 					"Attempting to fillout checkboxes. Attempting answer of index ",
@@ -136,10 +139,15 @@ class Question {
 				}
 				if (Array.isArray(answer)) {
 					for (let i = 0; i < options.length; ++i) {
-						if (answer.includes(i)) {
+						if (answer.includes(await options[i].getText())) {
 							await options[i].click();
 						}
 					}
+					// for (let i = 0; i < options.length; ++i) {
+					// 	if (answer.includes(i)) {
+					// 		await options[i].click();
+					// 	}
+					// }
 					return;
 				}
 				for (let i = 0; i < options.length; ++i) {
@@ -222,11 +230,11 @@ class Question {
 
 		console.log("Attempting to categorize question and answer it.");
 		const { category, score, answer } = SingletonCategorizer.categorize(
-			this.questionText
+			this.questionTokens
 		);
 		console.log("Question category:", category, "Score", score);
 		if (score > 0) {
-			console.log("Answering question using category");
+			console.log("Answering question using category", answer);
 			attemptedAnswer = answer;
 		} else {
 			console.log(

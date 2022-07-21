@@ -88,9 +88,8 @@ class Categorizer {
 		console.log("Categorizer saved successfully.");
 	}
 
-	categorize(questionText) {
-		console.log("Categorizing question", questionText);
-		console.log("Categorizer", this.categorizer);
+	categorize(questionTokens) {
+		console.log("Categorizing question with tokens", questionTokens);
 
 		let maxScore = -1;
 		let questionCategory;
@@ -99,12 +98,20 @@ class Categorizer {
 			const { keywords } = this.categorizer[category];
 			let score = 0;
 			for (const keyword of keywords) {
-				const matchingWords = questionText.split(" ").filter((word) => {
+				const matchingWords = questionTokens.filter((word) => {
 					const distance = natural.JaroWinklerDistance(
 						word,
 						keyword,
 						undefined,
 						true
+					);
+					console.log(
+						"Distance between keyword",
+						keyword,
+						"and token",
+						word,
+						"is",
+						distance
 					);
 					return distance > 0.9;
 				});
@@ -126,8 +133,6 @@ class Categorizer {
 	}
 
 	addCategory(keywords, answer) {
-		console.log("Adding category:", keywords, answer);
-
 		if (!this.categorizer) {
 			throw Error("Categorizer was not instantiated", this.categorizer);
 		}
@@ -135,8 +140,10 @@ class Categorizer {
 		const category = keywords.join(" ");
 
 		if (this.categorizer[category]) {
-			throw Error("Category exists", category, this.categorizer[category]);
+			throw Error(`Category exists ${category} ${this.categorizer[category]}`);
 		}
+
+		console.log("Adding category:", keywords, answer);
 
 		this.categorizer[category] = {
 			keywords,

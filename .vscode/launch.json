@@ -1,6 +1,18 @@
 {
   "version": "0.2.0",
   "configurations": [
+		{
+      "name": "Debug Main Process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+      },
+      "args" : ["."],
+      "outputCapture": "std"
+    },
     {
       "name": "Electron: Main",
       "type": "node",
@@ -8,7 +20,7 @@
       "protocol": "inspector",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
-        "run start:main --inspect=5858 --remote-debugging-port=9223"
+        "run start:main --inspect=5858 --remote-debugging-port=1212"
       ],
       "preLaunchTask": "Start Webpack Dev"
     },
@@ -16,7 +28,7 @@
       "name": "Electron: Renderer",
       "type": "chrome",
       "request": "attach",
-      "port": 9223,
+      "port": 1212,
       "webRoot": "${workspaceFolder}",
       "timeout": 15000
     }
