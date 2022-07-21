@@ -1,44 +1,38 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Link, Routes, HashRouter, Navigate } from "react-router-dom";
+import { Route, Routes, HashRouter } from "react-router-dom";
 import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
-import Button from "@mui/joy/Button";
-import Card from "@mui/joy/Card";
 import { GlobalStyles } from "@mui/system";
 import Typography from "@mui/joy/Typography";
-import TextField from "@mui/joy/TextField";
 import { deepmerge } from "@mui/utils";
 
 // Icons import
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import MailRoundedIcon from "@mui/icons-material/MailRounded";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import MenuIcon from "@mui/icons-material/Menu";
 
-// custom
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
-import { Box, Sheet } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
 import { Work } from "@mui/icons-material";
-import { joyTheme, muiTheme } from "./theme";
-import Menu from "./components/Menu";
-import Layout from "./components/Layout";
+import { Box } from "@mui/joy";
+
+// custom
+import OnboardingModal from "./components/OnboardingModal";
 import Navigation from "./components/Navigation";
+import { joyTheme, muiTheme } from "./theme";
+import Layout from "./components/Layout";
 
 // Screens
-import Login from "./screens/Login";
+import Dashboard from "./screens/Dashboard";
 import Register from "./screens/Register";
 import Profile from "./screens/Profile";
-import QA from "./components/QA";
-import Dashboard from "./screens/Dashboard";
+import Login from "./screens/Login";
 
 // Actions
 import { endQuestions, setQuestion } from "./actions/qa";
-import { sendData } from "./actions/socket";
 import { updateCount } from "./actions/application";
 import CoverLetter from "./screens/CoverLetter";
+import { sendData } from "./actions/socket";
 
 const ColorSchemeToggle = () => {
 	const { mode, setMode } = useColorScheme("dark");
@@ -114,6 +108,9 @@ const App = () => {
 					},
 				})}
 			/>
+
+			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
+
 			{drawerOpen && (
 				<Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
 					<Navigation />

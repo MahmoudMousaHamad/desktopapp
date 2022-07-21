@@ -8,8 +8,11 @@ import Locations from "../components/Locations";
 
 const Profile = () => {
 	return (
-		<Box sx={{ display: "grid", "grid-template-columns": "1fr 1fr" }}>
+		<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
 			<Box sx={{ p: 3 }}>
+				<Typography sx={{ mb: 2 }} textColor="text.primary" level="h3">
+					Common Questions
+				</Typography>
 				<UserInformation />
 			</Box>
 			<Box sx={{ p: 3 }}>

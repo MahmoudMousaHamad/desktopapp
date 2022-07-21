@@ -250,9 +250,6 @@ export default () => {
 
 	return (
 		<>
-			<Typography sx={{ mb: 2 }} textColor="text.primary" level="h3">
-				Common Questions
-			</Typography>
 			<Typography sx={{ mb: 2 }} textColor="text.secondary" level="body1">
 				All of your answers are saved on your computer. We do not collect any of
 				your application-related information.

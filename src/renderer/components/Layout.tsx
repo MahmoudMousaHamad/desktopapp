@@ -81,7 +81,7 @@ const SidePane = (props: BoxProps) => (
 				borderRight: "1px solid",
 				borderColor: "divider",
 				display: "grid",
-				"grid-template-columns": "1fr 1fr",
+				gridTemplateColumns: "1fr 1fr",
 			},
 			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
 		]}
