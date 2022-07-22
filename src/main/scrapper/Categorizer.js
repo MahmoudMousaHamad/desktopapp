@@ -140,7 +140,9 @@ class Categorizer {
 		const category = keywords.join(" ");
 
 		if (this.categorizer[category]) {
-			throw Error(`Category exists ${category} ${this.categorizer[category]}`);
+			console.error(
+				`Category exists ${category} ${this.categorizer[category]}`
+			);
 		}
 
 		console.log("Adding category:", keywords, answer);

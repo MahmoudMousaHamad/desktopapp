@@ -107,7 +107,7 @@ class QAManager {
 	async gatherQuestions() {
 		const questionsElements = await this.driver.findElements(
 			By.xpath(
-				"//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/.. | //legend/.."
+				"//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/..//label[not(./input)]/.. | //legend/.."
 			)
 		);
 
