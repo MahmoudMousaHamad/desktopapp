@@ -105,18 +105,24 @@ class Question {
 				options: ["option"],
 			},
 			answer: async (_element, answer) => {
+				/**
+				 * Expects a string of the text of one of the options
+				 * Falls back to the first option
+				 */
 				const element = this.element.findElement(By.css("select"));
-				await element.click();
-				const options = await element.findElements(By.css("option"));
-				for (let i = 0; i < options.length; ++i) {
-					if (i === answer) {
-						await options[i].click();
-						return;
-					}
-				}
-				// Fallback
-				console.log("Checkbox falling back and answer was:", answer);
-				await options[0].click();
+				await element.sendKeys(answer);
+				// await element.click();
+				// const options = await element.findElements(By.css("option"));
+				// for (let i = 0; i < options.length; ++i) {
+				// 	if (answer.includes(await options[i].getText())) {
+				// 		await options[i].click();
+				// 		console.log("Clicked correct option");
+				// 		return;
+				// 	}
+				// }
+				// // Fallback
+				// console.log("Checkbox falling back and answer was:", answer);
+				// await options[0].click();
 			},
 		},
 		checkbox: {
