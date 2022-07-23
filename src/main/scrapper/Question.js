@@ -115,6 +115,7 @@ class Question {
 					}
 				}
 				// Fallback
+				console.log("Checkbox falling back and answer was:", answer);
 				await options[0].click();
 			},
 		},
@@ -229,11 +230,11 @@ class Question {
 		let attemptedAnswer = null;
 
 		console.log("Attempting to categorize question and answer it.");
-		const { category, score, answer } = SingletonCategorizer.categorize(
+		const { category, score, answer, type } = SingletonCategorizer.categorize(
 			this.questionTokens
 		);
-		console.log("Question category:", category, "Score", score);
-		if (score > 0) {
+		console.log("Question category:", category, "Score:", score, "Type:", type);
+		if (score > 0 && this.type === type) {
 			console.log("Answering question using category", answer);
 			attemptedAnswer = answer;
 		} else {
@@ -255,15 +256,45 @@ class Question {
 
 		if (attemptedAnswer) {
 			if (this.options !== "None") {
-				// Go through options and see if the attempted answer makes sense
-				const attemptedAnswerMakesSense = this.options.some((option, index) => {
-					if (option.toLowerCase().includes(attemptedAnswer.toLowerCase())) {
-						attemptedAnswer = index;
-						return true;
-					}
-				});
-
-				if (!attemptedAnswerMakesSense) return false;
+				if (this.type === "checkbox" && Array.isArray(attemptedAnswer)) {
+					const temp = [];
+					this.options.forEach((option, index) => {
+						attemptedAnswer.some((a) => {
+							const distance = natural.JaroWinklerDistance(
+								option,
+								a,
+								undefined,
+								true
+							);
+							if (distance > 0.9) {
+								temp.push(index);
+								return true;
+							}
+						});
+					});
+					if (temp.length === 0) return false;
+					attemptedAnswer = temp;
+				} else {
+					// Go through options and see if the attempted answer makes sense
+					const attemptedAnswerMakesSense = this.options.some(
+						(option, index) => {
+							const distance = natural.JaroWinklerDistance(
+								option,
+								attemptedAnswer,
+								undefined,
+								true
+							);
+							if (
+								distance > 0.9 ||
+								option.toLowerCase().includes(attemptedAnswer.toLowerCase())
+							) {
+								attemptedAnswer = index;
+								return true;
+							}
+						}
+					);
+					if (!attemptedAnswerMakesSense) return false;
+				}
 			}
 
 			console.log("Attempted answer: ", attemptedAnswer);

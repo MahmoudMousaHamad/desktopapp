@@ -125,6 +125,8 @@ class Locator {
 	}
 
 	async goToNextAvailableJob() {
+		let applyNowPressed = false;
+
 		if (!(await this.waitFor(By.css("#vjs-container-iframe"), 10))) {
 			this.goToJobsPage();
 		}
@@ -152,21 +154,28 @@ class Locator {
 			) {
 				try {
 					await this.driver.findElement(By.id("indeedApplyButton")).click();
-					const tabs = await this.driver.getAllWindowHandles();
-					if (tabs.length === 2) {
-						await this.driver.switchTo().window(tabs[0]);
-						await this.driver.close();
-						await this.driver.switchTo().window(tabs[1]);
-					}
+					await this.checkTabs();
 				} catch (e) {
 					await this.driver.switchTo().defaultContent();
 					continue;
 				}
+				applyNowPressed = true;
 				break;
 			}
 		}
 
 		await this.driver.switchTo().defaultContent();
+
+		if (!applyNowPressed) await this.goToJobsPage();
+	}
+
+	async checkTabs() {
+		const tabs = await this.driver.getAllWindowHandles();
+		if (tabs.length === 2) {
+			await this.driver.switchTo().window(tabs[0]);
+			await this.driver.close();
+			await this.driver.switchTo().window(tabs[1]);
+		}
 	}
 
 	async goToJobsPage() {

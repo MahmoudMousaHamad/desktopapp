@@ -67,7 +67,7 @@ class QAManager {
 			const answered = await question.attemptToAnswer();
 			if (answered) {
 				console.log("Question answering attempt successful.");
-				await this.driver.sleep(1000);
+				await this.driver.sleep(500);
 			} else {
 				this.clientQuestions.push(question);
 			}
@@ -165,7 +165,8 @@ class QAManager {
 
 			SingletonCategorizer.addCategory(
 				this.currentQuestion.questionTokens,
-				classifierAnswer
+				classifierAnswer,
+				this.currentQuestion.type
 			);
 
 			await this.currentQuestion.answer(classifierAnswer);
@@ -177,7 +178,7 @@ class QAManager {
 				this.lastQuestionAnswered = true;
 				await this.clean();
 			} else {
-				await this.driver.sleep(1000);
+				await this.driver.sleep(500);
 				await this.sendNextQuestion();
 			}
 		});

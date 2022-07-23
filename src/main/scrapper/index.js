@@ -51,17 +51,19 @@ class Scraper {
 
 	async run() {
 		while (this.running === "running") {
+			await this.driver.sleep(2000);
+			const pageTitle = await this.locator.getTitle();
+			const pageSource = await this.locator.getPageSource();
 			for (const key in this.locator.locationsAndActions) {
 				if (key in this.locator.locationsAndActions) {
 					const value = this.locator.locationsAndActions[key];
 					let string = "";
 					try {
-						string =
-							value.type === TITLE
-								? await this.locator.getTitle()
-								: await this.locator.getPageSource();
+						string = value.type === TITLE ? pageTitle : pageSource;
 					} catch (e) {
-						console.error(e);
+						console.error(
+							"Something went wrong while getting the title or source of the page, restarting applier engine."
+						);
 						this.pause();
 						await this.resume();
 					}
@@ -79,12 +81,17 @@ class Scraper {
 						try {
 							console.log("Running action for", key);
 							await value.action();
-							await this.driver.sleep(1000);
+							await this.locator.checkTabs();
 						} catch (e) {
+							console.error(
+								`Something went wrong while running action ${key}, trying again in 5 seconds`,
+								e
+							);
 							await new Promise((resolve) => {
 								setTimeout(async () => {
 									try {
 										await value.action();
+										await this.locator.checkTabs();
 									} catch (e2) {
 										console.error(e2);
 										await this.locator.goToJobsPage();
@@ -93,10 +100,11 @@ class Scraper {
 								}, 5000);
 							});
 						}
+						break;
 					}
 				}
 			}
-			await this.locator.goToJobsPage();
+			// await this.locator.goToJobsPage();
 		}
 	}
 }

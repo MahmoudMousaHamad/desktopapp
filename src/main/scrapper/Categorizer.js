@@ -105,14 +105,6 @@ class Categorizer {
 						undefined,
 						true
 					);
-					console.log(
-						"Distance between keyword",
-						keyword,
-						"and token",
-						word,
-						"is",
-						distance
-					);
 					return distance > 0.9;
 				});
 				if (matchingWords.length > 0) {
@@ -129,10 +121,11 @@ class Categorizer {
 			category: questionCategory,
 			score: maxScore,
 			answer: this.categorizer[questionCategory].answer,
+			type: this.categorizer[questionCategory].type,
 		};
 	}
 
-	addCategory(keywords, answer) {
+	addCategory(keywords, answer, type) {
 		if (!this.categorizer) {
 			throw Error("Categorizer was not instantiated", this.categorizer);
 		}
@@ -145,11 +138,12 @@ class Categorizer {
 			);
 		}
 
-		console.log("Adding category:", keywords, answer);
+		console.log("Adding category:", keywords, answer, type);
 
 		this.categorizer[category] = {
 			keywords,
 			answer,
+			type,
 		};
 	}
 }

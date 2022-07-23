@@ -129,14 +129,6 @@ export default () => {
 					>
 						Current Application
 					</Typography>
-					<IconButton
-						size="sm"
-						variant="plain"
-						color="primary"
-						sx={{ "--IconButton-size": "24px" }}
-					>
-						<KeyboardArrowDownRoundedIcon fontSize="small" color="primary" />
-					</IconButton>
 				</Box>
 				<Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
 					<Box sx={{ p: 2 }}>
@@ -181,14 +173,6 @@ export default () => {
 					>
 						Controls
 					</Typography>
-					<IconButton
-						size="sm"
-						variant="plain"
-						color="primary"
-						sx={{ "--IconButton-size": "24px" }}
-					>
-						<KeyboardArrowDownRoundedIcon fontSize="small" color="primary" />
-					</IconButton>
 				</Box>
 				<Box sx={{ p: 10, textAlign: "center" }}>
 					{profileFilled() && canSubmit && (

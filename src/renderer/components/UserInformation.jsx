@@ -53,7 +53,7 @@ let categoriesQuestions = {
 	},
 	experience: {
 		question: {
-			type: "text",
+			type: "number",
 			text: "On average, how many years of experience do you have in your field?",
 		},
 	},
@@ -61,7 +61,12 @@ let categoriesQuestions = {
 		question: {
 			type: "radio",
 			text: "Are you willing to relocate?",
-			options: ["Yes", "No"],
+			options: [
+				"Yes, I can make the commute",
+				"Yes, I am planning to relocate",
+				"Yes, but I need relocation assitance",
+				"No",
+			],
 		},
 	},
 	workAuthorization: {
@@ -87,13 +92,13 @@ let categoriesQuestions = {
 	},
 	salary: {
 		question: {
-			type: "text",
+			type: "number",
 			text: "What is your salary expectation?",
 		},
 	},
 	gpa: {
 		question: {
-			type: "text",
+			type: "number",
 			text: "What is your GPA?",
 		},
 	},
@@ -113,7 +118,7 @@ let categoriesQuestions = {
 	},
 	phone: {
 		question: {
-			type: "text",
+			type: "number",
 			text: "What is your phone number?",
 		},
 	},
@@ -177,9 +182,14 @@ const getQuestionsByType = (type) => {
 	);
 };
 
-const textQuestions = getQuestionsByType("text");
-const radioQuestions = getQuestionsByType("radio");
-categoriesQuestions = { ...radioQuestions, ...textQuestions };
+categoriesQuestions = Object.fromEntries(
+	Object.entries(categoriesQuestions).sort(([, a], [, b]) => {
+		if (a.question.type === "radio") return -1;
+		if (a.question.type === "number") return 0;
+		if (a.question.type === "text") return 1;
+		return 0;
+	})
+);
 
 export default () => {
 	const [answers, setAnswers] = useState(
@@ -194,12 +204,20 @@ export default () => {
 			"user-answers",
 			JSON.stringify({
 				...userAnswers,
-				[category]: { answer: value, keywords: keywords[category] },
+				[category]: {
+					answer: value,
+					keywords: keywords[category],
+					type: categoriesQuestions[category].question.type,
+				},
 			})
 		);
 		setAnswers({
 			...answers,
-			[category]: { answer: value, keywords: keywords[category] },
+			[category]: {
+				answer: value,
+				keywords: keywords[category],
+				type: categoriesQuestions[category].question.type,
+			},
 		});
 	};
 
@@ -211,13 +229,13 @@ export default () => {
 			</Typography>
 		);
 
-		if (question.type === "text") {
+		if (question.type === "text" || question.type === "number") {
 			questions.push(
 				<>
 					{text}
 					<Input
 						name={category}
-						type="text"
+						type={question.type}
 						placeholder="Your answer..."
 						onChange={(e) => handleChange(e.target.value, category)}
 						value={answers[category]?.answer || ""}
