@@ -85,7 +85,7 @@ class Question {
 				text: ["legend"],
 				input: ["input[type=radio]"],
 				options: ["label"],
-				optionsXpath: "//label/input//..",
+				optionsXpath: ".//label/input//..",
 			},
 			answer: async (_elements, answer) => {
 				/**
@@ -93,7 +93,7 @@ class Question {
 				 * Falls back to the first option
 				 */
 				const options = await this.element.findElements(
-					By.xpath("//label/input//..")
+					By.xpath(".//label/input//..")
 				);
 				for (let i = 0; i < options.length; ++i) {
 					if (answer.includes(await options[i].getText())) {
@@ -111,7 +111,7 @@ class Question {
 				text: ["label"],
 				input: ["select"],
 				options: ["option"],
-				optionsXpath: "//select/option",
+				optionsXpath: ".//select/option",
 			},
 			answer: async (_element, answer) => {
 				/**
@@ -139,14 +139,14 @@ class Question {
 				text: ["legend", "label"],
 				input: ["input[type=checkbox]"],
 				options: ["label"],
-				optionsXpath: "//label/input//..",
+				optionsXpath: ".//label/input//..",
 			},
 			answer: async (_elements, answer) => {
 				/**
 				 * Expects answer to be an array of strings
 				 */
 				const options = await this.element.findElements(
-					By.xpath("//label/input//..")
+					By.xpath(".//label/input//..")
 				);
 				console.log(
 					"Attempting to fillout checkboxes. Attempting answer of index ",
@@ -255,11 +255,12 @@ class Question {
 		let attemptedAnswer = null;
 
 		console.log("Attempting to categorize question and answer it.");
-		const { category, score, answer, type } = SingletonCategorizer.categorize(
-			this.questionTokens
+		const { category, score, answer } = SingletonCategorizer.categorize(
+			this.questionTokens,
+			this.type
 		);
-		console.log("Question category:", category, "Score:", score, "Type:", type);
-		if (score > 0 && this.type === type) {
+		console.log("Question category:", category, "Score:", score);
+		if (score > 0) {
 			console.log("Answering question using category", answer);
 			attemptedAnswer = answer;
 		} else {

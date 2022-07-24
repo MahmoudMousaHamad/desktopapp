@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
@@ -88,14 +89,17 @@ class Categorizer {
 		console.log("Categorizer saved successfully.");
 	}
 
-	categorize(questionTokens) {
+	categorize(questionTokens, type) {
 		console.log("Categorizing question with tokens", questionTokens);
 
 		let maxScore = -1;
 		let questionCategory;
 
 		for (const category in this.categorizer) {
-			const { keywords } = this.categorizer[category];
+			const { keywords, type: categoryType } = this.categorizer[category];
+			if (type !== categoryType) {
+				continue;
+			}
 			let score = 0;
 			for (const keyword of keywords) {
 				const matchingWords = questionTokens.filter((word) => {
@@ -120,14 +124,23 @@ class Categorizer {
 		return {
 			category: questionCategory,
 			score: maxScore,
-			answer: this.categorizer[questionCategory].answer,
-			type: this.categorizer[questionCategory].type,
+			answer: this.categorizer[questionCategory]?.answer,
+			type: this.categorizer[questionCategory]?.type,
 		};
 	}
 
 	addCategory(keywords, answer, type) {
 		if (!this.categorizer) {
 			throw Error("Categorizer was not instantiated", this.categorizer);
+		}
+
+		if (Object.keys(this.categorizer).length === 50) {
+			console.log("Categorizer reached length limit");
+			return;
+		}
+
+		if (keywords?.length > 7) {
+			keywords.length = 7;
 		}
 
 		const category = keywords.join(" ");

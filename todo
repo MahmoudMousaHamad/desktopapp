@@ -1,0 +1,9 @@
+- Add fallback, such that if we try an action twice and it doesn't work, stop the driver and start it again.
+- Inject "Please sign in" modal instead of alert
+- Inject a corner modal that tells the user not to interact with this chrome window
+- Add the following steps to user onboarding
+  - How does JobApplier work
+  - Download mobile app
+- Change icons
+- Add license text
+- Fix auto update
