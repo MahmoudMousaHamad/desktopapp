@@ -144,7 +144,7 @@ let categoriesQuestions = {
 		question: {
 			type: "radio",
 			text: "What is your gender?",
-			options: ["Male", "Female", "Prefere not to answer"],
+			options: ["Male", "Female", "Prefer not to answer"],
 		},
 	},
 	ethnicity: {

@@ -74,7 +74,7 @@ const steps = [
 				<br />
 				<Checkbox label="Upload your resume and make sure everything looks good" />
 				<br />
-				<Checkbox label="If you have never applied to a job on Ineed, submit one manually" />
+				<Checkbox label="If you have never applied to a job on Indeed, submit one manually" />
 			</Box>
 		),
 	},

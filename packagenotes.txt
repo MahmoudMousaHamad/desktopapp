@@ -1,0 +1,4 @@
+- Remember to:
+	- release/app/package.json: increment version
+	- release/app/package-lock.json: increment version
+	- package.json: increment version
