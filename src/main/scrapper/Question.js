@@ -152,6 +152,13 @@ class Question {
 					"Attempting to fillout checkboxes. Attempting answer of index ",
 					answer
 				);
+				// Uncheck any checked boxes
+				for (let i = 0; i < options.length; ++i) {
+					if (await options[i].isSelected()) {
+						await options[i].click();
+					}
+				}
+
 				if (options.length === 1) {
 					await options[0].click();
 					return;
