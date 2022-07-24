@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 require("chromedriver");
@@ -45,6 +46,11 @@ class Scraper {
 		await this.run();
 	}
 
+	async restart() {
+		this.pause();
+		await this.resume();
+	}
+
 	getStatus() {
 		return this.running;
 	}
@@ -52,59 +58,49 @@ class Scraper {
 	async run() {
 		while (this.running === "running") {
 			await this.driver.sleep(2000);
-			const pageTitle = await this.locator.getTitle();
-			const pageSource = await this.locator.getPageSource();
-			for (const key in this.locator.locationsAndActions) {
-				if (key in this.locator.locationsAndActions) {
-					const value = this.locator.locationsAndActions[key];
-					let string = "";
-					try {
-						string = value.type === TITLE ? pageTitle : pageSource;
-					} catch (e) {
-						console.error(
-							"Something went wrong while getting the title or source of the page, restarting applier engine."
-						);
-						this.pause();
-						await this.resume();
-					}
-
-					if (!string) {
-						await this.locator.goToJobsPage();
-						break;
-					}
-
-					if (
-						value.strings.some((s) =>
-							string.toLowerCase().includes(s.toLowerCase())
-						)
-					) {
-						try {
-							console.log("Running action for", key);
-							await value.action();
-							await this.locator.checkTabs();
-						} catch (e) {
-							console.error(
-								`Something went wrong while running action ${key}, trying again in 5 seconds`,
-								e
-							);
-							await new Promise((resolve) => {
-								setTimeout(async () => {
-									try {
-										await value.action();
-										await this.locator.checkTabs();
-									} catch (e2) {
-										console.error(e2);
-										await this.locator.goToJobsPage();
-									}
-									resolve();
-								}, 5000);
-							});
-						}
-						break;
-					}
-				}
+			let locatorResult;
+			try {
+				locatorResult = await this.locator.getAction();
+			} catch (e) {
+				continue;
 			}
-			// await this.locator.goToJobsPage();
+
+			const { action, fallbackAction, status, page } = locatorResult;
+
+			if (action === "restart") {
+				await this.restart();
+			} else if (status === "success") {
+				try {
+					console.log("Running action for", page);
+					await action();
+					await this.locator.checkTabs();
+				} catch (e) {
+					console.error(
+						`Something went wrong while running action ${page},
+						trying again in 5 seconds`,
+						e
+					);
+					await new Promise((resolve) => {
+						setTimeout(async () => {
+							try {
+								await action();
+								await this.locator.checkTabs();
+							} catch (e2) {
+								console.error(
+									`Something went wrong AGAIN while running action for ${page}, falling back`,
+									e
+								);
+								await fallbackAction();
+							}
+							resolve();
+						}, 5000);
+					});
+				}
+			} else if (status === "not-found") {
+				await action();
+			} else {
+				await fallbackAction();
+			}
 		}
 	}
 }

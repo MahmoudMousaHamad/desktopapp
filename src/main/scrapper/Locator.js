@@ -77,6 +77,55 @@ class Locator {
 		},
 	};
 
+	async getAction() {
+		const returnResult = {
+			fallbackAction: this.goToJobsPage.bind(this),
+			status: undefined,
+			action: undefined,
+			page: undefined,
+		};
+
+		const pageTitle = await this.getTitle();
+		const pageSource = await this.getPageSource();
+		for (const key in this.locationsAndActions) {
+			if (key in this.locationsAndActions) {
+				const value = this.locationsAndActions[key];
+				let string = "";
+				try {
+					string = value.type === TITLE ? pageTitle : pageSource;
+				} catch (e) {
+					console.error(
+						"Something went wrong while getting the title or source of the page."
+					);
+					return { ...returnResult, action: "restart", status: "failed" };
+				}
+
+				if (!string) {
+					await this.goToJobsPage();
+					break;
+				}
+
+				if (
+					value.strings.some((s) =>
+						string.toLowerCase().includes(s.toLowerCase())
+					)
+				) {
+					return {
+						...returnResult,
+						action: value.action,
+						page: key,
+						status: "success",
+					};
+				}
+			}
+		}
+		return {
+			...returnResult,
+			action: this.goToJobsPage.bind(this),
+			status: "not-found",
+		};
+	}
+
 	async getTitle() {
 		const title = await this.driver.getTitle();
 		return title;
@@ -171,7 +220,7 @@ class Locator {
 
 	async checkTabs() {
 		const tabs = await this.driver.getAllWindowHandles();
-		if (tabs.length === 2) {
+		if (tabs.length > 1) {
 			await this.driver.switchTo().window(tabs[0]);
 			await this.driver.close();
 			await this.driver.switchTo().window(tabs[1]);

@@ -135,9 +135,10 @@ class QAManager {
 
 			/**
 			 * Remember that answer from clients is expected to be:
+			 * - An array of integers if checkbox
 			 * - A string if text input
 			 * - An integer if select
-			 * - An array of integers if checkbox
+			 * - An integer if radio
 			 */
 			console.log("Answer as recieved from client: ", answer);
 

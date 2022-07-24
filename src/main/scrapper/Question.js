@@ -85,16 +85,24 @@ class Question {
 				text: ["legend"],
 				input: ["input[type=radio]"],
 				options: ["label"],
+				optionsXpath: "//label/input//..",
 			},
 			answer: async (_elements, answer) => {
-				const options = await this.element.findElements(By.css("label"));
+				/**
+				 * Expects a string literal
+				 * Falls back to the first option
+				 */
+				const options = await this.element.findElements(
+					By.xpath("//label/input//..")
+				);
 				for (let i = 0; i < options.length; ++i) {
-					if (i === answer) {
+					if (answer.includes(await options[i].getText())) {
 						await options[i].click();
 						return;
 					}
 				}
 				// Fallback
+				console.log("Radio question is falling back...");
 				await options[0].click();
 			},
 		},
@@ -103,6 +111,7 @@ class Question {
 				text: ["label"],
 				input: ["select"],
 				options: ["option"],
+				optionsXpath: "//select/option",
 			},
 			answer: async (_element, answer) => {
 				/**
@@ -130,12 +139,15 @@ class Question {
 				text: ["legend", "label"],
 				input: ["input[type=checkbox]"],
 				options: ["label"],
+				optionsXpath: "//label/input//..",
 			},
 			answer: async (_elements, answer) => {
 				/**
 				 * Expects answer to be an array of strings
 				 */
-				const options = await this.element.findElements(By.css("label"));
+				const options = await this.element.findElements(
+					By.xpath("//label/input//..")
+				);
 				console.log(
 					"Attempting to fillout checkboxes. Attempting answer of index ",
 					answer
@@ -282,24 +294,27 @@ class Question {
 					attemptedAnswer = temp;
 				} else {
 					// Go through options and see if the attempted answer makes sense
-					const attemptedAnswerMakesSense = this.options.some(
-						(option, index) => {
-							const distance = natural.JaroWinklerDistance(
-								option,
-								attemptedAnswer,
-								undefined,
-								true
-							);
-							if (
-								distance > 0.9 ||
-								option.toLowerCase().includes(attemptedAnswer.toLowerCase())
-							) {
-								attemptedAnswer = index;
-								return true;
-							}
+					let maxDistance = -100;
+					let maxOption = "";
+					this.options.forEach((option, index) => {
+						const distance = natural.JaroWinklerDistance(
+							option,
+							attemptedAnswer,
+							undefined,
+							true
+						);
+						if (
+							distance > maxDistance ||
+							option.toLowerCase().includes(attemptedAnswer.toLowerCase())
+						) {
+							maxDistance = distance;
+							maxOption = option;
 						}
-					);
-					if (!attemptedAnswerMakesSense) return false;
+					});
+					if (maxDistance < 0.9 || maxOption === "") {
+						return false;
+					}
+					attemptedAnswer = maxOption;
 				}
 			}
 
@@ -362,7 +377,7 @@ class Question {
 		let options = [];
 		try {
 			const {
-				selectors: { options: optionsSelectors },
+				selectors: { optionsXpath: optionsSelectors },
 			} = this.typesSelectors[this.type];
 
 			if (!optionsSelectors) {
@@ -370,7 +385,7 @@ class Question {
 			}
 
 			const optionsElements = await this.element.findElements(
-				By.css(optionsSelectors.join(","))
+				By.xpath(optionsSelectors)
 			);
 
 			options = promise.map(optionsElements, async (element) => {
