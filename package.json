@@ -1,7 +1,7 @@
 {
   "name": "desktopapp",
   "description": "Electron desktop app",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
@@ -73,7 +73,7 @@
     "chromedriver": "^103.0.0",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.7",
-    "electron-updater": "^5.0.1",
+    "electron-updater": "^5.0.5",
     "find-chrome-version": "^2.2.0",
     "find-process": "^1.4.7",
     "natural": "^5.2.2",
@@ -117,7 +117,7 @@
     "css-minimizer-webpack-plugin": "^3.4.1",
     "detect-port": "^1.3.0",
     "electron": "^18.2.3",
-    "electron-builder": "^22.11.5",
+    "electron-builder": "^23.1.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.2.1",
     "electron-rebuild": "^3.2.7",
@@ -183,7 +183,7 @@
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
-      "artifactName": "${productName}.${ext}",
+      "artifactName": "${productName}-v${version}.${ext}",
       "category": "public.app-category.productivity",
       "identity": "Mac Developer: username (XXXXXXXX)",
       "target": {
@@ -214,7 +214,7 @@
       ]
     },
     "win": {
-      "artifactName": "${productName}.${ext}",
+      "artifactName": "${productName}-v${version}.${ext}",
       "publisherName": "Mahmoud Mousa Hamad",
       "certificatePassword": "",
       "target": [

@@ -8,7 +8,14 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, shell, ipcMain, powerSaveBlocker } from "electron";
+import {
+	app,
+	BrowserWindow,
+	shell,
+	ipcMain,
+	powerSaveBlocker,
+	dialog,
+} from "electron";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import path from "path";
@@ -105,14 +112,40 @@ const createWindow = async () => {
 		return { action: "deny" };
 	});
 
-	// Remove this if your app does not use auto updates
 	// eslint-disable-next-line
-  new AppUpdater();
+	new AppUpdater();
+
+	setInterval(() => {
+		autoUpdater.checkForUpdates();
+	}, 60000);
 };
 
 /**
  * Add event listeners...
  */
+
+autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+	const dialogOpts = {
+		type: "info",
+		buttons: ["Restart", "Later"],
+		title: "Application Update",
+		message: process.platform === "win32" ? releaseNotes : releaseName,
+		detail:
+			"A new version has been downloaded. Restart the application to apply the updates.",
+	};
+
+	dialog
+		.showMessageBox(dialogOpts)
+		.then((returnValue) => {
+			if (returnValue.response === 0) autoUpdater.quitAndInstall();
+		})
+		.catch(console.log);
+});
+
+autoUpdater.on("error", (message) => {
+	console.error("There was a problem updating the application");
+	console.error(message);
+});
 
 app.on("window-all-closed", () => {
 	// Respect the OSX convention of having the application in memory even
