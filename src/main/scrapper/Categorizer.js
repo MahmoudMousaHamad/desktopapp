@@ -134,10 +134,10 @@ class Categorizer {
 			throw Error("Categorizer was not instantiated", this.categorizer);
 		}
 
-		if (Object.keys(this.categorizer).length === 50) {
-			console.log("Categorizer reached length limit");
-			return;
-		}
+		// if (Object.keys(this.categorizer).length === 50) {
+		// 	console.log("Categorizer reached length limit");
+		// 	return;
+		// }
 
 		if (keywords?.length > 7) {
 			keywords.length = 7;

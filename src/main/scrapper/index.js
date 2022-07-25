@@ -3,7 +3,11 @@
 /* eslint-disable no-restricted-syntax */
 require("chromedriver");
 
-const { openChromeSession, attachToSession } = require("./DriverManager");
+const {
+	openChromeSession,
+	attachToSession,
+	killDriverProcess,
+} = require("./DriverManager");
 const { SingletonClassifier } = require("./Classifier");
 const { Locator, TITLE } = require("./Locator");
 const { SingletonCategorizer } = require("./Categorizer");
@@ -33,6 +37,8 @@ class Scraper {
 		await this.driver.close();
 		SingletonClassifier.save();
 		SingletonCategorizer.save();
+
+		killDriverProcess();
 	}
 
 	pause() {
@@ -90,7 +96,8 @@ class Scraper {
 									`Something went wrong AGAIN while running action for ${page}, falling back`,
 									e
 								);
-								await fallbackAction();
+								await this.stop();
+								await this.start();
 							}
 							resolve();
 						}, 5000);
