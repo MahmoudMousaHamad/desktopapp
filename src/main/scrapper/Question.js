@@ -148,13 +148,17 @@ class Question {
 				const options = await this.element.findElements(
 					By.xpath(".//label/input//..")
 				);
+				const inputs = await this.element.findElements(
+					By.xpath(".//label/input")
+				);
+
 				console.log(
 					"Attempting to fillout checkboxes. Attempting answer of index ",
 					answer
 				);
 				// Uncheck any checked boxes
 				for (let i = 0; i < options.length; ++i) {
-					if (await options[i].isSelected()) {
+					if (await inputs[i].isSelected()) {
 						await options[i].click();
 					}
 				}
@@ -284,7 +288,7 @@ class Question {
 			if (this.options !== "None") {
 				if (this.type === "checkbox" && Array.isArray(attemptedAnswer)) {
 					const temp = [];
-					this.options.forEach((option, index) => {
+					this.options.forEach((option) => {
 						attemptedAnswer.some((a) => {
 							const distance = natural.JaroWinklerDistance(
 								option,
@@ -293,7 +297,7 @@ class Question {
 								true
 							);
 							if (distance > 0.9) {
-								temp.push(index);
+								temp.push(option);
 								return true;
 							}
 						});
@@ -304,7 +308,7 @@ class Question {
 					// Go through options and see if the attempted answer makes sense
 					let maxDistance = -100;
 					let maxOption = "";
-					this.options.forEach((option, index) => {
+					this.options.forEach((option) => {
 						const distance = natural.JaroWinklerDistance(
 							option,
 							attemptedAnswer,
