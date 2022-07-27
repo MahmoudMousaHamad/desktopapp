@@ -112,12 +112,14 @@ const createWindow = async () => {
 		return { action: "deny" };
 	});
 
-	// eslint-disable-next-line
-	new AppUpdater();
+	if (app.isPackaged) {
+		// eslint-disable-next-line
+		new AppUpdater();
 
-	setInterval(() => {
-		autoUpdater.checkForUpdates();
-	}, 60000);
+		setInterval(() => {
+			autoUpdater.checkForUpdates();
+		}, 60000);
+	}
 };
 
 /**

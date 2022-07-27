@@ -17,7 +17,6 @@ import { Work } from "@mui/icons-material";
 import { Box } from "@mui/joy";
 
 // custom
-import OnboardingModal from "./components/OnboardingModal";
 import Navigation from "./components/Navigation";
 import { joyTheme, muiTheme } from "./theme";
 import Layout from "./components/Layout";
@@ -108,8 +107,6 @@ const App = () => {
 					},
 				})}
 			/>
-
-			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
 
 			{drawerOpen && (
 				<Layout.SideDrawer onClose={() => setDrawerOpen(false)}>

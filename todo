@@ -1,6 +1,2 @@
-- Inject a corner modal that tells the user not to interact with this chrome window
-- Add the following steps to user onboarding
-  - How does JobApplier work
-  - Download mobile app
-- Change icons
+- Add icons
 - Add license text

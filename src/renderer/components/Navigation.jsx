@@ -10,6 +10,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import LogoutSharpIcon from "@mui/icons-material/LogoutSharp";
 import { DashboardRounded, LoginSharp } from "@mui/icons-material";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useDispatch, useSelector } from "react-redux";
 import ArticleIcon from "@mui/icons-material/Article";
 
@@ -40,7 +41,7 @@ export default function Nav() {
 		  ]
 		: [
 				{ name: "Login", to: "/login", icon: LoginSharp },
-				{ name: "Register", to: "/register", icon: null },
+				{ name: "Register", to: "/register", icon: PersonAddIcon },
 		  ];
 
 	return (

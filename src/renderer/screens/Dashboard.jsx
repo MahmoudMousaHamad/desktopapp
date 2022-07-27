@@ -1,11 +1,10 @@
 /* eslint-disable promise/always-return */
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
 import { useEffect, useReducer } from "react";
-import IconButton from "@mui/joy/IconButton";
-
 import { Navigate } from "react-router-dom";
+
+import OnboardingModal from "../components/OnboardingModal";
 import { getCounts } from "../actions/application";
 import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
@@ -107,123 +106,128 @@ export default () => {
 	};
 
 	return (
-		<Layout.SidePane>
-			<Box>
-				<Box
-					sx={{
-						p: 2,
-						mb: 1,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}
-				>
-					<Typography
-						textColor="neutral.500"
-						fontWeight={700}
+		<>
+			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
+			<Layout.SidePane>
+				<Box>
+					<Box
 						sx={{
-							fontSize: "10px",
-							textTransform: "uppercase",
-							letterSpacing: ".1rem",
+							p: 2,
+							mb: 1,
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
 						}}
 					>
-						Current Application
-					</Typography>
-				</Box>
-				<Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
-					<Box sx={{ p: 2 }}>
-						<Typography textColor="text.primary" level="body1">
-							Applications filled
-						</Typography>
 						<Typography
-							textColor={canSubmit ? "text.primary" : "red"}
-							level="h2"
+							textColor="neutral.500"
+							fontWeight={700}
+							sx={{
+								fontSize: "10px",
+								textTransform: "uppercase",
+								letterSpacing: ".1rem",
+							}}
 						>
-							{`${count} / ${countLimit}`}
+							Current Application
 						</Typography>
 					</Box>
-					<Box>
-						{/* <Typography textColor="text.tertiary" level="h3">
-              Job Title
-            </Typography>
-            <Typography textColor="text.tertiary" level="h6">
-              Company Name
-            </Typography>
-            <Typography textColor="text.tertiary" level="body1">
-              Location
-            </Typography> */}
+					<Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
+						<Box sx={{ p: 2 }}>
+							<Typography textColor="text.primary" level="body1">
+								Applications filled
+							</Typography>
+							<Typography
+								textColor={canSubmit ? "text.primary" : "red"}
+								level="h2"
+							>
+								{`${count} / ${countLimit}`}
+							</Typography>
+						</Box>
+						<Box>
+							{/* <Typography textColor="text.tertiary" level="h3">
+								Job Title
+								</Typography>
+								<Typography textColor="text.tertiary" level="h6">
+								Company Name
+								</Typography>
+								<Typography textColor="text.tertiary" level="body1">
+								Location
+								</Typography> */}
+						</Box>
 					</Box>
-				</Box>
-				<Box
-					sx={{
-						p: 2,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}
-				>
-					<Typography
-						textColor="neutral.500"
-						fontWeight={700}
+					<Box
 						sx={{
-							fontSize: "10px",
-							textTransform: "uppercase",
-							letterSpacing: ".1rem",
+							p: 2,
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
 						}}
 					>
-						Controls
-					</Typography>
-				</Box>
-				<Box sx={{ p: 10, textAlign: "center" }}>
-					{profileFilled() && canSubmit && (
-						<>
-							<Button
-								sx={{ mr: 2 }}
-								size="lg"
-								onClick={status?.running || status?.paused ? stop : start}
-								color={status?.running || status?.paused ? "danger" : "primary"}
-							>
-								{(status?.running || status?.paused
-									? "stop"
-									: "start"
-								).toUpperCase()}
-							</Button>
-							{status && !status?.stopped && (
+						<Typography
+							textColor="neutral.500"
+							fontWeight={700}
+							sx={{
+								fontSize: "10px",
+								textTransform: "uppercase",
+								letterSpacing: ".1rem",
+							}}
+						>
+							Controls
+						</Typography>
+					</Box>
+					<Box sx={{ p: 10, textAlign: "center" }}>
+						{profileFilled() && canSubmit && (
+							<>
 								<Button
+									sx={{ mr: 2 }}
 									size="lg"
-									onClick={status?.running ? pause : resume}
-									color="warning"
+									onClick={status?.running || status?.paused ? stop : start}
+									color={
+										status?.running || status?.paused ? "danger" : "primary"
+									}
 								>
-									{(status?.running ? "Pause" : "Resume").toUpperCase()}
+									{(status?.running || status?.paused
+										? "stop"
+										: "start"
+									).toUpperCase()}
 								</Button>
-							)}
-							{/* <Box sx={{ m: 2 }}>
+								{status && !status?.stopped && (
+									<Button
+										size="lg"
+										onClick={status?.running ? pause : resume}
+										color="warning"
+									>
+										{(status?.running ? "Pause" : "Resume").toUpperCase()}
+									</Button>
+								)}
+								{/* <Box sx={{ m: 2 }}>
                 <Button size="lg" onClick={sendQuestion} color="neutral">
                   SEND QUESTION TO PHONE
                 </Button>
               </Box> */}
-						</>
-					)}
-					{!canSubmit && (
-						<Typography textColor="" level="body2">
-							We thank you for using JobApplier! Unfotunately, you have reached
-							your limit. Please pay the fee ($99 for 500 submissions) to keep
-							using JobApplier. You can venmo $99 to @mahmoud-mousahamad. Please
-							include your JobApplier account email and your full name in the
-							payment note. Thank you!
-						</Typography>
-					)}
-					{!profileFilled() && (
-						<Typography textColor="text.warning" level="h4">
-							Before starting, please go to your profile and fill out all the
-							information there. Also, please fill out your cover letter.
-						</Typography>
-					)}
+							</>
+						)}
+						{!canSubmit && (
+							<Typography textColor="" level="body2">
+								We thank you for using JobApplier! Unfotunately, you have
+								reached your limit. Please pay the fee ($99 for 500 submissions)
+								to keep using JobApplier. You can venmo $99 to
+								@mahmoud-mousahamad. Please include your JobApplier account
+								email and your full name in the payment note. Thank you!
+							</Typography>
+						)}
+						{!profileFilled() && (
+							<Typography textColor="text.warning" level="h4">
+								Before starting, please go to your profile and fill out all the
+								information there. Also, please fill out your cover letter.
+							</Typography>
+						)}
+					</Box>
 				</Box>
-			</Box>
-			<Box sx={{ display: "flex", alignItems: "center" }}>
-				<QA />
-			</Box>
-		</Layout.SidePane>
+				<Box sx={{ display: "flex", alignItems: "center" }}>
+					<QA />
+				</Box>
+			</Layout.SidePane>
+		</>
 	);
 };
