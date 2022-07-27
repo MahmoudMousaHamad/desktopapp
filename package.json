@@ -1,7 +1,7 @@
 {
   "name": "desktopapp",
-  "description": "Electron desktop app",
-  "version": "0.1.4",
+  "description": "JobApplier desktop app",
+  "version": "0.1.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
