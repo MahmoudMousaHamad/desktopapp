@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import { Navigate } from "react-router-dom";
 
 import OnboardingModal from "../components/OnboardingModal";
@@ -10,7 +10,6 @@ import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
 import QA from "../components/QA";
 import Socket from "../Socket";
-import config from "../config";
 
 const initialState = null;
 
@@ -43,7 +42,6 @@ export default () => {
 	);
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
-	const store = useStore();
 
 	const start = () => {
 		window.electron.ipcRenderer.send("start-scraper", {
@@ -54,9 +52,8 @@ export default () => {
 			experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
 			coverLetter: localStorage.getItem("cover-letter"),
 		});
-		Socket.connect(
-			config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT,
-			store
+		dispatchRedux(
+			sendData("set-bot-status", { status: "start", source: "desktop" })
 		);
 	};
 
@@ -68,10 +65,12 @@ export default () => {
 		window.electron.ipcRenderer.send("resume-scraper");
 	};
 
-	const stop = () => {
+	const stop = useCallback(() => {
 		window.electron.ipcRenderer.send("stop-scraper");
-		Socket.disconnect();
-	};
+		dispatchRedux(
+			sendData("set-bot-status", { status: "stop", source: "desktop" })
+		);
+	}, [dispatchRedux]);
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
@@ -89,7 +88,7 @@ export default () => {
 		if (!canSubmit && status?.running) {
 			stop();
 		}
-	}, [canSubmit, status]);
+	}, [canSubmit, status, stop]);
 
 	if (!auth.isLoggedIn) {
 		return <Navigate to="/login" />;

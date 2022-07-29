@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { Route, Routes, HashRouter } from "react-router-dom";
 import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import { GlobalStyles } from "@mui/system";
@@ -32,6 +32,8 @@ import { endQuestions, setQuestion } from "./actions/qa";
 import { updateCount } from "./actions/application";
 import CoverLetter from "./screens/CoverLetter";
 import { sendData } from "./actions/socket";
+import Socket from "./Socket";
+import config from "./config";
 
 const ColorSchemeToggle = () => {
 	const { mode, setMode } = useColorScheme("dark");
@@ -64,6 +66,7 @@ const App = () => {
 	const { question } = useSelector((state) => state.qa);
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
+	const store = useStore();
 
 	const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -81,6 +84,13 @@ const App = () => {
 					);
 				dispatch(updateCount(auth.user.id));
 			});
+
+			if (!Socket.isConnected) {
+				Socket.connect(
+					config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT,
+					store
+				);
+			}
 		}
 
 		window.electron.ipcRenderer.on("questions-ended", () => {
@@ -88,11 +98,14 @@ const App = () => {
 		});
 
 		return () => {
+			if (Socket.isConnected) {
+				Socket.disconnect();
+			}
 			window.electron.ipcRenderer.removeAllListeners("question");
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("application-submitted");
 		};
-	}, [dispatch, question, auth]);
+	}, [dispatch, question, auth, store]);
 
 	return (
 		<CssVarsProvider
