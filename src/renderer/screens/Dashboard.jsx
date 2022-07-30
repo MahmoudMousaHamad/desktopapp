@@ -35,7 +35,18 @@ function profileFilled() {
 	return titles?.length > 0 && locations?.length > 0 && type && experience;
 }
 
+const pause = () => {
+	window.electron.ipcRenderer.send("pause-scraper");
+};
+
+const resume = () => {
+	window.electron.ipcRenderer.send("resume-scraper");
+};
+
 export default () => {
+	const { "bot-status-change": botStatus } = useSelector(
+		(state) => state.socket
+	);
 	const [status, dispatch] = useReducer(reducer, initialState);
 	const { count, countLimit, canSubmit } = useSelector(
 		(state) => state.application
@@ -43,7 +54,7 @@ export default () => {
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
 
-	const start = () => {
+	const start = useCallback(() => {
 		window.electron.ipcRenderer.send("start-scraper", {
 			answers: JSON.parse(localStorage.getItem("user-answers")),
 			titles: JSON.parse(localStorage.getItem("titles")),
@@ -52,25 +63,20 @@ export default () => {
 			experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
 			coverLetter: localStorage.getItem("cover-letter"),
 		});
-		dispatchRedux(
-			sendData("set-bot-status", { status: "start", source: "desktop" })
-		);
-	};
-
-	const pause = () => {
-		window.electron.ipcRenderer.send("pause-scraper");
-	};
-
-	const resume = () => {
-		window.electron.ipcRenderer.send("resume-scraper");
-	};
+	}, []);
 
 	const stop = useCallback(() => {
 		window.electron.ipcRenderer.send("stop-scraper");
-		dispatchRedux(
-			sendData("set-bot-status", { status: "stop", source: "desktop" })
-		);
-	}, [dispatchRedux]);
+	}, []);
+
+	useEffect(() => {
+		console.log("Bot status", botStatus);
+		if (botStatus === "start") {
+			start();
+		} else if (botStatus === "stop") {
+			stop();
+		}
+	}, [botStatus, start, stop]);
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
@@ -180,7 +186,23 @@ export default () => {
 								<Button
 									sx={{ mr: 2 }}
 									size="lg"
-									onClick={status?.running || status?.paused ? stop : start}
+									onClick={
+										status?.running || status?.paused
+											? () =>
+													dispatchRedux(
+														sendData("set-bot-status", {
+															status: "stop",
+															source: "desktop",
+														})
+													)
+											: () =>
+													dispatchRedux(
+														sendData("set-bot-status", {
+															status: "start",
+															source: "desktop",
+														})
+													)
+									}
 									color={
 										status?.running || status?.paused ? "danger" : "primary"
 									}
