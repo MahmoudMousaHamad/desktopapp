@@ -1,15 +1,13 @@
 /* eslint-disable promise/always-return */
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
-import { useCallback, useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { Navigate } from "react-router-dom";
 
 import OnboardingModal from "../components/OnboardingModal";
-import { getCounts } from "../actions/application";
 import { sendData } from "../actions/socket";
 import Layout from "../components/Layout";
 import QA from "../components/QA";
-import Socket from "../Socket";
 
 const initialState = null;
 
@@ -43,40 +41,31 @@ const resume = () => {
 	window.electron.ipcRenderer.send("resume-scraper");
 };
 
+const start = () => {
+	window.electron.ipcRenderer.send("start-scraper", {
+		answers: JSON.parse(localStorage.getItem("user-answers")),
+		titles: JSON.parse(localStorage.getItem("titles")),
+		locations: JSON.parse(localStorage.getItem("locations")),
+		jobType: JSON.parse(localStorage.getItem("job-type")),
+		experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
+		coverLetter: localStorage.getItem("cover-letter"),
+	});
+};
+
+const stop = () => {
+	window.electron.ipcRenderer.send("stop-scraper");
+};
+
 export default () => {
-	const { "bot-status-change": botStatus } = useSelector(
-		(state) => state.socket
-	);
-	const [status, dispatch] = useReducer(reducer, initialState);
-	const { count, countLimit, canSubmit } = useSelector(
-		(state) => state.application
-	);
+	const { "bot-status-change": botStatus, "application-counts": counts } =
+		useSelector((state) => state.socket);
+	const [status, dispatch] = useReducer(reducer, {
+		running: botStatus === "start",
+	});
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
 
-	const start = useCallback(() => {
-		window.electron.ipcRenderer.send("start-scraper", {
-			answers: JSON.parse(localStorage.getItem("user-answers")),
-			titles: JSON.parse(localStorage.getItem("titles")),
-			locations: JSON.parse(localStorage.getItem("locations")),
-			jobType: JSON.parse(localStorage.getItem("job-type")),
-			experienceLevel: JSON.parse(localStorage.getItem("experience-level")),
-			coverLetter: localStorage.getItem("cover-letter"),
-		});
-	}, []);
-
-	const stop = useCallback(() => {
-		window.electron.ipcRenderer.send("stop-scraper");
-	}, []);
-
-	useEffect(() => {
-		console.log("Bot status", botStatus);
-		if (botStatus === "start") {
-			start();
-		} else if (botStatus === "stop") {
-			stop();
-		}
-	}, [botStatus, start, stop]);
+	const canSubmit = counts.count < counts.limit;
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
@@ -85,30 +74,32 @@ export default () => {
 			if (state) dispatch({ type: state });
 		});
 
-		dispatchRedux(getCounts(auth.user.id));
+		console.log("Getting application counts");
+		dispatchRedux(sendData("get-application-counts"));
 
 		window.electron.ipcRenderer.send("scraper-status");
 	}, [dispatchRedux, auth]);
 
 	useEffect(() => {
-		if (!canSubmit && status?.running) {
+		window.electron.ipcRenderer.send("scraper-status");
+		console.log("Status:", status);
+		console.log("Bot status", botStatus);
+		if (botStatus === "start" && !status?.running) {
+			start();
+		} else if (botStatus === "stop" && status?.running) {
 			stop();
 		}
-	}, [canSubmit, status, stop]);
+	}, [botStatus]);
+
+	useEffect(() => {
+		if (counts.count >= counts.limit && status?.running) {
+			stop();
+		}
+	}, [counts, status, status?.running]);
 
 	if (!auth.isLoggedIn) {
 		return <Navigate to="/login" />;
 	}
-
-	const sendQuestion = () => {
-		dispatchRedux(
-			sendData("question", {
-				text: "Test Question",
-				type: "checkbox",
-				options: ["Test1", "Test2", "Test3"],
-			})
-		);
-	};
 
 	return (
 		<>
@@ -141,23 +132,14 @@ export default () => {
 							<Typography textColor="text.primary" level="body1">
 								Applications filled
 							</Typography>
-							<Typography
-								textColor={canSubmit ? "text.primary" : "red"}
-								level="h2"
-							>
-								{`${count} / ${countLimit}`}
-							</Typography>
-						</Box>
-						<Box>
-							{/* <Typography textColor="text.tertiary" level="h3">
-								Job Title
+							{counts && (
+								<Typography
+									textColor={canSubmit ? "text.primary" : "red"}
+									level="h2"
+								>
+									{`${counts.count} / ${counts.limit}`}
 								</Typography>
-								<Typography textColor="text.tertiary" level="h6">
-								Company Name
-								</Typography>
-								<Typography textColor="text.tertiary" level="body1">
-								Location
-								</Typography> */}
+							)}
 						</Box>
 					</Box>
 					<Box
@@ -221,11 +203,6 @@ export default () => {
 										{(status?.running ? "Pause" : "Resume").toUpperCase()}
 									</Button>
 								)}
-								{/* <Box sx={{ m: 2 }}>
-                <Button size="lg" onClick={sendQuestion} color="neutral">
-                  SEND QUESTION TO PHONE
-                </Button>
-              </Box> */}
 							</>
 						)}
 						{!canSubmit && (

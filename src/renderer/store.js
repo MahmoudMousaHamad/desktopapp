@@ -20,31 +20,31 @@ import Socket from "./Socket";
 // }
 
 const SocketMiddleware = (store) => (next) => (action) => {
-  switch (action.type) {
-    case SOCKET_SEND_DATA:
-      if (Socket.socket) {
-        if (action.channel && action.payload) {
-          Socket.socket.emit(action.channel, action.payload);
-        } else {
-          console.error("Action channel and/or payload are missing:", action);
-        }
-      } else {
-        console.log("Socket is null");
-      }
-      break;
-    case SOCKET_GOT_DATA:
-      if (action.name === "answer") {
-        store.dispatch(questionAnswered());
-      }
-      window.electron.ipcRenderer.send(action.name, {
-        [action.name]: action[action.name],
-      });
-      break;
-    default:
-      break;
-  }
+	switch (action.type) {
+		case SOCKET_SEND_DATA:
+			if (Socket.socket) {
+				if (action.channel && action.payload) {
+					Socket.socket.emit(action.channel, action.payload);
+				} else {
+					Socket.socket.emit(action.channel);
+				}
+			} else {
+				console.log("Socket is null");
+			}
+			break;
+		case SOCKET_GOT_DATA:
+			if (action.name === "answer") {
+				store.dispatch(questionAnswered());
+			}
+			window.electron.ipcRenderer.send(action.name, {
+				[action.name]: action[action.name],
+			});
+			break;
+		default:
+			break;
+	}
 
-  return next(action);
+	return next(action);
 };
 
 // const middleware = [thunk, SocketMiddleware];

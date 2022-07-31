@@ -49,17 +49,19 @@ export default {
 
 			// this.socket.on('authenticated', function() {});
 
-			["answer", "bot-status-change"].forEach((channel) => {
-				this.socket.on(channel, (data) => {
-					console.log(
-						"Got data from server on channel:",
-						channel,
-						", and data:",
-						data
-					);
-					store.dispatch(Actions.gotData(data, channel));
-				});
-			});
+			["answer", "bot-status-change", "application-counts"].forEach(
+				(channel) => {
+					this.socket.on(channel, (data) => {
+						console.log(
+							"Got data from server on channel:",
+							channel,
+							", and data:",
+							data
+						);
+						store.dispatch(Actions.gotData(data, channel));
+					});
+				}
+			);
 		});
 
 		this.socket.on("disconnect", () => {

@@ -82,7 +82,7 @@ const App = () => {
 					throw Error(
 						"User id is not defined, unable to send application update count"
 					);
-				dispatch(updateCount(auth.user.id));
+				dispatch(sendData("application-submit"));
 			});
 
 			if (!Socket.isConnected) {
@@ -98,9 +98,6 @@ const App = () => {
 		});
 
 		return () => {
-			if (Socket.isConnected) {
-				Socket.disconnect();
-			}
 			window.electron.ipcRenderer.removeAllListeners("question");
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("application-submitted");
