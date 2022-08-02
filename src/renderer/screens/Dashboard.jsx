@@ -65,7 +65,7 @@ export default () => {
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
 
-	const canSubmit = counts.count < counts.limit;
+	const canSubmit = counts?.count < counts?.limit;
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
@@ -92,7 +92,7 @@ export default () => {
 	}, [botStatus]);
 
 	useEffect(() => {
-		if (counts.count >= counts.limit && status?.running) {
+		if (counts?.count >= counts?.limit && status?.running) {
 			stop();
 		}
 	}, [counts, status, status?.running]);

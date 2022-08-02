@@ -116,9 +116,9 @@ const createWindow = async () => {
 		// eslint-disable-next-line
 		new AppUpdater();
 
-		setInterval(() => {
-			autoUpdater.checkForUpdates();
-		}, 60000);
+		// setInterval(() => {
+		// 	autoUpdater.checkForUpdates();
+		// }, 60000);
 	}
 };
 
