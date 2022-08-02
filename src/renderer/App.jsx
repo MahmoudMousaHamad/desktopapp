@@ -91,6 +91,8 @@ const App = () => {
 					store
 				);
 			}
+			console.log("Getting application counts");
+			dispatch(sendData("get-application-counts"));
 		}
 
 		window.electron.ipcRenderer.on("questions-ended", () => {

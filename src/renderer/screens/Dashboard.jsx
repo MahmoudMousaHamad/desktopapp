@@ -194,7 +194,7 @@ export default () => {
 										: "start"
 									).toUpperCase()}
 								</Button>
-								{status && !status?.stopped && (
+								{status && status?.running && (
 									<Button
 										size="lg"
 										onClick={status?.running ? pause : resume}
