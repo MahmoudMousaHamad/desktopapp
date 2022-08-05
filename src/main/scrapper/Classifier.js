@@ -5,6 +5,7 @@ const pos = require("pos");
 const fs = require("fs");
 
 const { appDatatDirPath } = require("./OSHelper");
+const { default: Logger } = require("./Logger");
 
 const CLASSIFIER_PATH = path.resolve(appDatatDirPath, "./classifier.json");
 const CONDIFENCE_THRESHOLD = 0.33;
@@ -38,7 +39,7 @@ class Classifier {
 					throw Error(err);
 				}
 				this.classifier = c;
-				console.log("Classifier loaded successfully");
+				Logger.info("Classifier loaded successfully");
 			});
 		} else {
 			this.classifier = new natural.BayesClassifier();
@@ -58,7 +59,7 @@ class Classifier {
 			if (err) {
 				throw Error(err);
 			} else {
-				console.log("Classifier saved successfully.");
+				Logger.info("Classifier saved successfully.");
 			}
 		});
 	}

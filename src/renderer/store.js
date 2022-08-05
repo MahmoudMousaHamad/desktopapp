@@ -6,19 +6,6 @@ import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./actions/types";
 import reducer from "./reducers";
 import Socket from "./Socket";
 
-// let socket;
-
-// function setupStartup(store) {
-//   console.log("Starting up...");
-//   console.log("Setting up socket...");
-//   socket = Socket.connect(
-//     config.endpoints(window.electron.NODE_ENV).SERVER_ENDPOINT,
-//     store
-//   );
-//   console.log("Getting updates from server...");
-//   store.dispatch(getCounts(store.getState().auth.user.id));
-// }
-
 const SocketMiddleware = (store) => (next) => (action) => {
 	switch (action.type) {
 		case SOCKET_SEND_DATA:
@@ -29,7 +16,7 @@ const SocketMiddleware = (store) => (next) => (action) => {
 					Socket.socket.emit(action.channel);
 				}
 			} else {
-				console.log("Socket is null");
+				console.error("Socket is null");
 			}
 			break;
 		case SOCKET_GOT_DATA:

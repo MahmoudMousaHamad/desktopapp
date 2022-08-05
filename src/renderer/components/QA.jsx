@@ -55,6 +55,11 @@ export default function QA() {
 							onKeyDown={handleKeyDown}
 						/>
 					</Box>
+					{error && (
+						<Typography textColor="red" level="body3">
+							Please answer the question
+						</Typography>
+					)}
 					<Box sx={{ paddingRight: 5, marginTop: 5 }}>
 						<IconButton
 							size="lg"
@@ -66,11 +71,6 @@ export default function QA() {
 							<ArrowForwardIosIcon />
 						</IconButton>
 					</Box>
-					{error && (
-						<Typography textColor="red" level="body3">
-							If a question needs your attention, it will show up here.
-						</Typography>
-					)}
 				</>
 			) : (
 				<Typography textColor="text.tertiary" level="body2">

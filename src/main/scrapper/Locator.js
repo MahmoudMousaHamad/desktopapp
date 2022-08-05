@@ -12,6 +12,8 @@ const window = require("electron").BrowserWindow;
 const Preferences = require("./UserPrefernces");
 const Classifier = require("./Classifier");
 const QAManager = require("./QAManager");
+const Scripts = require("./DriverScripts");
+const { default: Logger } = require("./Logger");
 
 const TITLE = "TITLE";
 const SOURCE = "SOURCE";
@@ -73,6 +75,7 @@ class Locator {
 			action: async () => {
 				window.getAllWindows()[0].webContents.send("application-submitted");
 				await this.goToJobsPage();
+				this.submittedDate = new Date();
 			},
 		},
 	};
@@ -85,6 +88,10 @@ class Locator {
 			page: undefined,
 		};
 
+		// if (new Date() - this.submittedDate >= 60000) {
+		// 	return { ...returnResult, action: "restart", status: "failed" };
+		// }
+
 		const pageTitle = await this.getTitle();
 		const pageSource = await this.getPageSource();
 		for (const key in this.locationsAndActions) {
@@ -94,7 +101,7 @@ class Locator {
 				try {
 					string = value.type === TITLE ? pageTitle : pageSource;
 				} catch (e) {
-					console.error(
+					Logger.error(
 						"Something went wrong while getting the title or source of the page."
 					);
 					return { ...returnResult, action: "restart", status: "failed" };
@@ -138,8 +145,6 @@ class Locator {
 			source = await this.driver.getPageSource();
 		} catch (e) {
 			await this.goToJobsPage();
-			// console.error(e);
-			// return null;
 		}
 
 		return source;
@@ -150,66 +155,13 @@ class Locator {
 	}
 
 	async waitUntilSignIn() {
-		console.log("User signed in:", await this.signedIn());
+		Logger.info("User signed in:", await this.signedIn());
 		if (!(await this.signedIn())) {
-			// await this.driver.executeScript(
-			// 	"alert('Please sign into Indeed to get started.')"
-			// );
-			await this.driver.executeScript(
-				`
-				function htmlToElement(html) {
-					var template = document.createElement('template');
-					html = html.trim();
-					template.innerHTML = html;
-					return template.content.firstChild;
-				}
-				document.body.prepend(htmlToElement(
-					\`
-					<div id="jobapplier-modal" class="jobapplier-modal">
-						<div id="jobapplier-modal-content">
-							<span class="jobapplier-close">&times;</span>
-							<p style="font-size: 20px;">Message from JobApplier</p>
-							<p style="font-size: 15px;">Please sign into Indeed to get started</p>
-						</div>
-					</div>
-					\`
-				));
-				var modal = document.getElementById("jobapplier-modal");
-				modal.style = \`
-					position: fixed;
-					z-index: 1000;
-					left: 0;
-					top: 0;
-					width: 100%;
-					height: 100%;
-					overflow: auto;
-					background-color: rgb(0,0,0);
-					background-color: rgba(0,0,0,0.4);
-				\`
-				document.getElementById("jobapplier-modal-content").style = \`
-					background-color: #fefefe;
-					margin: 15% auto;
-					padding: 20px;
-					border: 1px solid #888;
-					width: 30%;
-				\`
-				var span = document.getElementsByClassName("jobapplier-close")[0];
-				span.style = \`
-					color: #aaa;
-					float: right;
-					font-size: 28px;
-					font-weight: bold;
-					cursor: pointer;
-				\`
-				span.onclick = function() {
-					modal.style.display = "none";
-				}
-				`
-			);
+			await this.driver.executeScript(Scripts.PleaseSignIn);
 			await new Promise((resolve) => {
 				this.interval = setInterval(async () => {
 					if (await this.signedIn()) {
-						console.log("User is signed in.");
+						Logger.info("User is signed in.");
 						clearInterval(this.interval);
 						resolve();
 					}
@@ -292,35 +244,31 @@ class Locator {
 		);
 	}
 
+	async acceptAlert() {
+		const alert = await this.driver.wait(until.alertIsPresent(), 2000);
+		await alert?.accept();
+	}
+
+	async exitApplication() {
+		await this.goToJobsPage();
+		await this.driver.sleep(1000);
+		await this.acceptAlert();
+	}
+
 	async answerQuestions() {
 		const qaManager = new QAManager(
 			this.driver,
-			this.handleDoneAnsweringQuestions.bind(this)
+			this.handleDoneAnsweringQuestions.bind(this),
+			this.exitApplication.bind(this)
 		);
 
-		await qaManager.startWorkflow(async () => {
-			await this.goToJobsPage();
-			await this.driver.sleep(2000);
-			const alert = await this.driver.wait(until.alertIsPresent(), 2000);
-			await alert?.accept();
-		});
+		await qaManager.startWorkflow();
 	}
 
 	async handleDoneAnsweringQuestions() {
 		await this.continue();
 		// Retrain classifier after we finish answering the questions
 		Classifier.SingletonClassifier.retrain();
-
-		// await this.driver.sleep(1000);
-		// if (
-		//   await this.driver
-		//     .getPageSource()
-		//     .toLowerCase()
-		//     .includes("answer this question to continue")
-		// ) {
-		//   await this.goToJobsPage();
-		// } else {
-		// }
 	}
 
 	async chooseExperience() {
@@ -334,7 +282,7 @@ class Locator {
 				await this.driver.findElements(By.css("div.css-kyg8or"))
 			)[3].click();
 		} catch (e) {
-			console.error(e);
+			Logger.error(e);
 		}
 		await this.driver.sleep(1000);
 		if (Preferences?.coverLetter && Preferences?.coverLetter !== "") {
@@ -364,7 +312,7 @@ class Locator {
 				`Couldn't find ${locator}`
 			);
 		} catch (e) {
-			console.log(`Could not find element ${locator}`);
+			Logger.error(`Could not find element ${locator}`);
 			return false;
 		}
 

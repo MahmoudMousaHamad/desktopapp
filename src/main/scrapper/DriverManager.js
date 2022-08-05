@@ -17,184 +17,169 @@ const path = require("path");
 const fs = require("fs");
 
 const { appDatatDirPath, targetPlatform, isWindows } = require("./OSHelper");
+const { default: Logger } = require("./Logger");
 
 const versionIndex = {
-  104: "104.0.5112.29",
-  103: "103.0.5060.53",
-  102: "102.0.5005.61",
-  101: "101.0.4951.41",
-  100: "100.0.4896.60",
+	104: "104.0.5112.29",
+	103: "103.0.5060.53",
+	102: "102.0.5005.61",
+	101: "101.0.4951.41",
+	100: "100.0.4896.60",
 };
 
 const chromeRemoteDebugPort = 9222;
 
 async function getChromeMajorVersion() {
-  const chromeVersion = await require("find-chrome-version")();
-  const chromeMajorVersion = chromeVersion.split(".")[0];
+	const chromeVersion = await require("find-chrome-version")();
+	const chromeMajorVersion = chromeVersion.split(".")[0];
 
-  console.log("Chrome major version", chromeMajorVersion);
+	Logger.info("Chrome major version", chromeMajorVersion);
 
-  if (Number(chromeMajorVersion) < 100) {
-    dialog.showErrorBox(
-      "Google Chrome Version Error",
-      `Unfortunately, we don't support your current version of Chrome (${chromeMajorVersion}).
+	if (Number(chromeMajorVersion) < 100) {
+		dialog.showErrorBox(
+			"Google Chrome Version Error",
+			`Unfortunately, we don't support your current version of Chrome (${chromeMajorVersion}).
           As of now, we only support Chrome versions 100 and above. Please consider updating your
           Google Chrome browser.`
-    );
+		);
 
-    setTimeout(() => {
-      app.exit(1);
-    }, 5000);
+		setTimeout(() => {
+			app.exit(1);
+		}, 5000);
 
-    return false;
-  }
+		return false;
+	}
 
-  return chromeMajorVersion;
+	return chromeMajorVersion;
 }
 
 async function downloadChromeDriver() {
-  const chromeMajorVersion = await getChromeMajorVersion();
+	const chromeMajorVersion = await getChromeMajorVersion();
 
-  if (!chromeMajorVersion)
-    throw Error("Chrome version is not compatibale with this application.");
+	if (!chromeMajorVersion)
+		throw Error("Chrome version is not compatibale with this application.");
 
-  if (!fs.existsSync(appDatatDirPath)) {
-    fs.mkdirSync(appDatatDirPath);
-  }
+	if (!fs.existsSync(appDatatDirPath)) {
+		fs.mkdirSync(appDatatDirPath);
+	}
 
-  const fileUrl = `https://chromedriver.storage.googleapis.com/${versionIndex[chromeMajorVersion]}/chromedriver_${targetPlatform}.zip`;
+	const fileUrl = `https://chromedriver.storage.googleapis.com/${versionIndex[chromeMajorVersion]}/chromedriver_${targetPlatform}.zip`;
 
-  console.log("Zip file url", fileUrl);
+	Logger.info("Zip file url", fileUrl);
 
-  const file = fs.createWriteStream(
-    path.join(appDatatDirPath, "chromedriver.zip")
-  );
-  const request = https.get(fileUrl, (response) => {
-    response.pipe(file);
+	const file = fs.createWriteStream(
+		path.join(appDatatDirPath, "chromedriver.zip")
+	);
+	const request = https.get(fileUrl, (response) => {
+		response.pipe(file);
 
-    console.log("Downloading chrome driver...");
+		Logger.info("Downloading chrome driver...");
 
-    // after download completed close filestream
-    file.on("finish", async () => {
-      file.close();
-      console.log("Download of chrome driver file ended, unzipping...");
+		// after download completed close filestream
+		file.on("finish", async () => {
+			file.close();
+			Logger.info("Download of chrome driver file ended, unzipping...");
 
-      fs.createReadStream(path.join(appDatatDirPath, "chromedriver.zip")).pipe(
-        unzipper.Extract({ path: path.join(appDatatDirPath, "chromedriver") })
-      );
+			fs.createReadStream(path.join(appDatatDirPath, "chromedriver.zip")).pipe(
+				unzipper.Extract({ path: path.join(appDatatDirPath, "chromedriver") })
+			);
 
-      fs.chmodSync(
-        path.join(
-          appDatatDirPath,
-          "chromedriver",
-          `chromedriver${isWindows ? ".exe" : ""}`
-        ),
-        "755"
-      );
-
-      // const zip = new StreamZip.async({
-      //   file: path.join(appDatatDirPath, "chromedriver.zip"),
-      // });
-      // await zip
-      //   .extract("chromedriver", path.join(appDatatDirPath, "chromedriver"))
-      //   .then(() => {
-      //     zip.close().then(() => {
-      //       fs.chmodSync(path.join(appDatatDirPath, "chromedriver"), "755");
-      //     });
-      //   });
-    });
-  });
+			fs.chmodSync(
+				path.join(
+					appDatatDirPath,
+					"chromedriver",
+					`chromedriver${isWindows ? ".exe" : ""}`
+				),
+				"755"
+			);
+		});
+	});
 }
 
 function openChromeSession() {
-  const userChromeDataDir = `${appDatatDirPath}/userchromedata`;
-  if (!fs.existsSync(userChromeDataDir)) {
-    fs.mkdirSync(userChromeDataDir);
-  }
+	const userChromeDataDir = `${appDatatDirPath}/userchromedata`;
+	if (!fs.existsSync(userChromeDataDir)) {
+		fs.mkdirSync(userChromeDataDir);
+	}
 
-  let chromeCommand;
+	let chromeCommand;
 
-  if (isWindows) {
-    const chrome86Path =
-      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-    const chromePath =
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-    if (!(fs.existsSync(chrome86Path) || fs.existsSync(chromePath))) {
-      throw Error(`
+	if (isWindows) {
+		const chrome86Path =
+			"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+		const chromePath =
+			"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+		if (!(fs.existsSync(chrome86Path) || fs.existsSync(chromePath))) {
+			throw Error(`
         It looks like Chrome is not installed. Please make sure that Chrome
         is installed correctly in ${chrome86Path} or ${chromePath}.
         `);
-    }
-    chromeCommand = fs.existsSync(chrome86Path)
-      ? `"${chrome86Path}"`
-      : `"${chromePath}"`;
-  } else {
-    chromeCommand = "google-chrome";
-  }
+		}
+		chromeCommand = fs.existsSync(chrome86Path)
+			? `"${chrome86Path}"`
+			: `"${chromePath}"`;
+	} else {
+		chromeCommand = "google-chrome";
+	}
 
-  exec(
-    `${chromeCommand} --remote-debugging-port=${chromeRemoteDebugPort} --user-data-dir="${userChromeDataDir}"`,
-    (error, stdout, stderr) => {
-      if (stdout) {
-        console.log(`stdout: ${stdout}`);
+	exec(
+		`${chromeCommand} --remote-debugging-port=${chromeRemoteDebugPort} --user-data-dir="${userChromeDataDir}"`,
+		(error, stdout, stderr) => {
+			if (stdout) {
+				Logger.info(`stdout: ${stdout}`);
+			}
 
-        // if (
-        //   stdout &&
-        //   stdout.toLowerCase().includes("existing browser session")
-        // ) {
-        //   this.sessionAlreadyOpen = true;
-        // }
-      }
+			if (stderr) {
+				Logger.error(`stderr: ${stderr}`);
+			}
 
-      if (stderr) console.log(`stderr: ${stderr}`);
-
-      if (error !== null) {
-        console.log(`exec error: ${error}`);
-      }
-    }
-  );
+			if (error) {
+				Logger.error(`exec error: ${error}`);
+			}
+		}
+	);
 }
 
 async function attachToSession() {
-  const myChromePath = path.join(
-    appDatatDirPath,
-    "chromedriver",
-    `chromedriver${isWindows ? ".exe" : ""}`
-  );
-  console.log("Chrome driver path:", myChromePath);
+	const myChromePath = path.join(
+		appDatatDirPath,
+		"chromedriver",
+		`chromedriver${isWindows ? ".exe" : ""}`
+	);
+	Logger.info("Chrome driver path:", myChromePath);
 
-  const service = new chrome.ServiceBuilder(myChromePath)
-    .enableVerboseLogging()
-    .build();
+	const service = new chrome.ServiceBuilder(myChromePath)
+		.enableVerboseLogging()
+		.build();
 
-  const options = new chrome.Options();
-  options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
+	const options = new chrome.Options();
+	options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
 
-  const driver = chrome.Driver.createSession(options, service);
+	const driver = chrome.Driver.createSession(options, service);
 
-  return driver;
+	return driver;
 }
 
 function killDriverProcess() {
-  const find = require("find-process");
+	const find = require("find-process");
 
-  find("name", "chromedriver")
-    .then((list) => {
-      list.forEach((p) => {
-        ps.kill(p.pid, (e) => {
-          if (e) throw e;
-          console.log(`The ${p.name} process has been killed`);
-        });
-      });
-    })
-    .catch((e) => {
-      throw e;
-    });
+	find("name", "chromedriver")
+		.then((list) => {
+			list.forEach((p) => {
+				ps.kill(p.pid, (e) => {
+					if (e) throw e;
+					Logger.info(`The ${p.name} process has been killed`);
+				});
+			});
+		})
+		.catch((e) => {
+			throw e;
+		});
 }
 
 module.exports = {
-  downloadChromeDriver,
-  openChromeSession,
-  killDriverProcess,
-  attachToSession,
+	downloadChromeDriver,
+	openChromeSession,
+	killDriverProcess,
+	attachToSession,
 };

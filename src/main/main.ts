@@ -29,6 +29,7 @@ import { resolveHtmlPath } from "./util";
 import MenuBuilder from "./menu";
 import Scraper from "./scrapper";
 import { SingletonCategorizer } from "./scrapper/Categorizer";
+import Logger from "./scrapper/Logger";
 
 export default class AppUpdater {
 	constructor() {
@@ -64,7 +65,7 @@ const installExtensions = async () => {
 			extensions.map((name) => installer[name]),
 			forceDownload
 		)
-		.catch(console.log);
+		.catch(Logger.info);
 };
 
 const createWindow = async () => {
@@ -116,9 +117,9 @@ const createWindow = async () => {
 		// eslint-disable-next-line
 		new AppUpdater();
 
-		// setInterval(() => {
-		// 	autoUpdater.checkForUpdates();
-		// }, 60000);
+		setInterval(() => {
+			autoUpdater.checkForUpdates();
+		}, 60000);
 	}
 };
 
@@ -141,12 +142,12 @@ autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
 		.then((returnValue) => {
 			if (returnValue.response === 0) autoUpdater.quitAndInstall();
 		})
-		.catch(console.log);
+		.catch(Logger.info);
 });
 
 autoUpdater.on("error", (message) => {
-	console.error("There was a problem updating the application");
-	console.error(message);
+	Logger.error("There was a problem updating the application");
+	Logger.error(message);
 });
 
 app.on("window-all-closed", () => {
@@ -173,7 +174,7 @@ app
 			if (mainWindow === null) createWindow();
 		});
 	})
-	.catch(console.log);
+	.catch(Logger.info);
 
 let blockerId = 0;
 const scraper = new Scraper.Scraper();

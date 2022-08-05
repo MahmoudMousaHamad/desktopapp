@@ -9,6 +9,7 @@ const path = require("path");
 const fs = require("fs");
 
 const { appDatatDirPath } = require("./OSHelper");
+const { default: Logger } = require("./Logger");
 
 const categories = {
 	sponsorship: [
@@ -56,8 +57,8 @@ const CATEGORIZER_PATH = path.resolve(appDatatDirPath, "./categorizer.json");
 // Saved to file when driver is closed
 class Categorizer {
 	load(userAnswers) {
-		console.log("Loading categorizer");
-		console.log("Categorizer file exists:", fs.existsSync(CATEGORIZER_PATH));
+		Logger.info("Loading categorizer");
+		Logger.info("Categorizer file exists:", fs.existsSync(CATEGORIZER_PATH));
 		if (fs.existsSync(CATEGORIZER_PATH)) {
 			this.categorizer = JSON.parse(
 				fs.readFileSync(CATEGORIZER_PATH, {
@@ -68,29 +69,18 @@ class Categorizer {
 			for (const category in userAnswers) {
 				this.categorizer[category].answer = userAnswers[category].answer;
 			}
-			// fs.readFileSync(CATEGORIZER_PATH, null, (err, categorizer) => {
-			// 	if (err) throw Error(err);
-			// 	console.log("Categorizer 2:", categorizer);
-			// 	this.categorizer = JSON.parse(categorizer);
-			// 	for (const category in answers) {
-			// 		this.categorizer[category].answer = answers[category].answer;
-			// 	}
-			// 	console.log("Categorizer loaded successfully", this.categorizer);
-			// });
 		} else {
 			this.categorizer = userAnswers;
 		}
-
-		console.log("Categorizer:", this.categorizer);
 	}
 
 	save() {
 		fs.writeFileSync(CATEGORIZER_PATH, JSON.stringify(this.categorizer));
-		console.log("Categorizer saved successfully.");
+		Logger.info("Categorizer saved successfully.");
 	}
 
 	categorize(questionTokens, type) {
-		console.log("Categorizing question with tokens", questionTokens);
+		Logger.info("Categorizing question with tokens", questionTokens);
 
 		let maxScore = -1;
 		let questionCategory;
@@ -134,11 +124,6 @@ class Categorizer {
 			throw Error("Categorizer was not instantiated", this.categorizer);
 		}
 
-		// if (Object.keys(this.categorizer).length === 50) {
-		// 	console.log("Categorizer reached length limit");
-		// 	return;
-		// }
-
 		if (keywords?.length > 7) {
 			keywords.length = 7;
 		}
@@ -146,12 +131,10 @@ class Categorizer {
 		const category = keywords.join(" ");
 
 		if (this.categorizer[category]) {
-			console.error(
-				`Category exists ${category} ${this.categorizer[category]}`
-			);
+			Logger.error(`Category exists ${category} ${this.categorizer[category]}`);
 		}
 
-		console.log("Adding category:", keywords, answer, type);
+		Logger.info("Adding category:", keywords, answer, type);
 
 		this.categorizer[category] = {
 			keywords,

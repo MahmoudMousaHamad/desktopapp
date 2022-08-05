@@ -9,9 +9,9 @@ require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
 const natural = require("natural");
 
+const { SingletonCategorizer } = require("./Categorizer");
 const Classifier = require("./Classifier");
-const { categorize, SingletonCategorizer } = require("./Categorizer");
-const Preferences = require("./UserPrefernces");
+const { default: Logger } = require("./Logger");
 
 class Question {
 	constructor(element) {
@@ -102,7 +102,7 @@ class Question {
 					}
 				}
 				// Fallback
-				console.log("Radio question is falling back...");
+				Logger.info("Radio question is falling back...");
 				await options[0].click();
 			},
 		},
@@ -125,12 +125,12 @@ class Question {
 				// for (let i = 0; i < options.length; ++i) {
 				// 	if (answer.includes(await options[i].getText())) {
 				// 		await options[i].click();
-				// 		console.log("Clicked correct option");
+				// 		Logger.info("Clicked correct option");
 				// 		return;
 				// 	}
 				// }
 				// // Fallback
-				// console.log("Checkbox falling back and answer was:", answer);
+				// Logger.info("Checkbox falling back and answer was:", answer);
 				// await options[0].click();
 			},
 		},
@@ -152,7 +152,7 @@ class Question {
 					By.xpath(".//label/input")
 				);
 
-				console.log(
+				Logger.info(
 					"Attempting to fillout checkboxes. Attempting answer of index ",
 					answer
 				);
@@ -207,7 +207,7 @@ class Question {
 		this.text = await this.getQuestionText();
 		this.options = await this.getQuestionOptions();
 		if (!(this.type && this.text && this.options)) {
-			console.log(
+			Logger.info(
 				"Question type, text, and/or options is/are not defined.",
 				this.type,
 				this.text,
@@ -249,26 +249,26 @@ class Question {
 
 	async answer(answer) {
 		// Questions that have options will expect an index number
-		console.log("Question type: ", this.type);
+		Logger.info("Question type: ", this.type);
 		await this.typesSelectors[this.type].answer(this.inputElement, answer);
 	}
 
 	async attemptToAnswer() {
-		console.log("Attempting to answer question: ", this.text);
+		Logger.info("Attempting to answer question: ", this.text);
 
 		let attemptedAnswer = null;
 
-		console.log("Attempting to categorize question and answer it.");
+		Logger.info("Attempting to categorize question and answer it.");
 		const { category, score, answer } = SingletonCategorizer.categorize(
 			this.questionTokens,
 			this.type
 		);
-		console.log("Question category:", category, "Score:", score);
+		Logger.info("Question category:", category, "Score:", score);
 		if (score > 0) {
-			console.log("Answering question using category", answer);
+			Logger.info("Answering question using category", answer);
 			attemptedAnswer = answer;
 		} else {
-			console.log(
+			Logger.info(
 				"Attempting to answer question using classifier with tokens: ",
 				this.questionTokens
 			);
@@ -276,11 +276,11 @@ class Question {
 				this.questionTokens
 			);
 			if (classifications.length === 0) {
-				console.log("No classification");
+				Logger.info("No classification");
 				return false;
 			}
 			const { label, value } = classifications[0];
-			console.log("Highest confidence value: ", classifications[0]);
+			Logger.info("Highest confidence value: ", classifications[0]);
 			attemptedAnswer = value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
 		}
 
@@ -330,10 +330,10 @@ class Question {
 				}
 			}
 
-			console.log("Attempted answer: ", attemptedAnswer);
+			Logger.info("Attempted answer: ", attemptedAnswer);
 
 			await this.answer(attemptedAnswer);
-			console.log("Question answered automatically");
+			Logger.info("Question answered automatically");
 
 			return true;
 		}
@@ -405,7 +405,7 @@ class Question {
 				return text;
 			});
 		} catch (e) {
-			console.log("ERROR: Couldn't get question options", this);
+			Logger.info("ERROR: Couldn't get question options", this);
 			return null;
 		}
 

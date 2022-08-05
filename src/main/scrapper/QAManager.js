@@ -8,26 +8,28 @@ const window = require("electron").BrowserWindow;
 const { By } = require("selenium-webdriver");
 const { ipcMain } = require("electron");
 
-const { SingletonClassifier } = require("./Classifier");
-const { Question } = require("./Question");
 const { SingletonCategorizer } = require("./Categorizer");
+const { Question } = require("./Question");
+const { default: Logger } = require("./Logger");
 
 class QAManager {
-	constructor(driver, handleDone) {
+	constructor(driver, handleDone, fallback) {
 		this.channels = { question: "question" };
 		this.listeners = { answer: "answer" };
 		[this.win] = window.getAllWindows();
 		this.handleDone = handleDone;
+		this.fallback = fallback;
 		this.driver = driver;
 		this.questions = [];
 	}
 
-	async startWorkflow(fallback) {
+	async startWorkflow() {
 		this.setupIPCListeners();
 
 		const allQuestionsCool = await this.gatherQuestions();
+
 		if (!allQuestionsCool) {
-			await fallback();
+			await this.fallback();
 			return;
 		}
 
@@ -53,6 +55,11 @@ class QAManager {
 				if (this.lastQuestionAnswered) {
 					clearInterval(this.interval);
 					resolve();
+				} else if (new Date() - this.questionSentDate >= 60000) {
+					Logger.info("Waiting for answer timed out, exiting application...");
+					clearInterval(this.interval);
+					resolve();
+					await this.forceQuit();
 				}
 			}, 1000);
 		});
@@ -66,7 +73,7 @@ class QAManager {
 			if (!questionPrepared) continue;
 			const answered = await question.attemptToAnswer();
 			if (answered) {
-				console.log("Question answering attempt successful.");
+				Logger.info("Question answering attempt successful.");
 				await this.driver.sleep(500);
 			} else {
 				this.clientQuestions.push(question);
@@ -79,9 +86,14 @@ class QAManager {
 			throw Error("No more questions to send");
 		}
 
-		await this.getNextQuestion();
+		this.questionSentDate = new Date();
 
-		console.log("Sending question to client", this.currentQuestion.abstract());
+		if (!(await this.getNextQuestion())) {
+			await this.forceQuit();
+			return;
+		}
+
+		Logger.info("Sending question to client", this.currentQuestion.abstract());
 
 		this.win.webContents.send(this.channels.question, {
 			question: this.currentQuestion.abstract(),
@@ -89,7 +101,7 @@ class QAManager {
 		});
 
 		if (this.qnaOver()) {
-			console.log("Done: cleaning");
+			Logger.info("Done: cleaning");
 			await this.clean();
 		}
 	}
@@ -118,7 +130,7 @@ class QAManager {
 				const question = new Question(qe);
 				const coolQuestion = await question.prepare();
 				if (!coolQuestion) {
-					console.log("Question could not be prepared", await qe.getText());
+					Logger.info("Question could not be prepared", await qe.getText());
 					return false;
 				}
 				this.questions.push(question);
@@ -140,7 +152,7 @@ class QAManager {
 			 * - An integer if select
 			 * - An integer if radio
 			 */
-			console.log("Answer as recieved from client: ", answer);
+			Logger.info("Answer as recieved from client: ", answer);
 
 			const { type, options } = this.currentQuestion.abstract();
 
@@ -154,15 +166,15 @@ class QAManager {
 						: options[answer];
 			}
 
-			console.log(
+			Logger.info(
 				"Answer as input to classifier/categorizer: ",
 				classifierAnswer
 			);
 
-			SingletonClassifier.addDocument(
-				this.currentQuestion.questionTokens,
-				classifierAnswer
-			);
+			// SingletonClassifier.addDocument(
+			// 	this.currentQuestion.questionTokens,
+			// 	classifierAnswer
+			// );
 
 			SingletonCategorizer.addCategory(
 				this.currentQuestion.questionTokens,
@@ -189,9 +201,12 @@ class QAManager {
 		this.currentQuestion = this.clientQuestions.at(this.currentIndex);
 		this.currentIndex += 1;
 
-		if (!(await this.currentQuestion.prepare()) && !this.qnaOver()) {
-			await this.getNextQuestion();
+		if (!(await this.currentQuestion?.prepare()) && !this.qnaOver()) {
+			// await this.getNextQuestion();
+			return false;
 		}
+
+		return true;
 	}
 
 	qnaOver() {
@@ -208,6 +223,12 @@ class QAManager {
 	async clean() {
 		this.internalClean();
 		await this.handleDone();
+	}
+
+	async forceQuit() {
+		this.lastQuestionAnswered = true;
+		await this.fallback();
+		this.internalClean();
 	}
 }
 

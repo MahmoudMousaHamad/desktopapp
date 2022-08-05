@@ -5,7 +5,7 @@ import axios from "axios";
 import config from "../config";
 
 const getCounts = (userId) => {
-  console.log("Get counts user id:", userId);
+  Logger.info("Get counts user id:", userId);
   return axios.get(
     `${
       config.endpoints(window.electron.NODE_ENV).APPLICATIONS_API_URL
