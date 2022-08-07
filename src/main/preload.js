@@ -27,5 +27,8 @@ contextBridge.exposeInMainWorld("electron", {
 		removeAllListeners(channel) {
 			ipcRenderer.removeAllListeners(channel);
 		},
+		eventNames() {
+			return ipcRenderer.eventNames();
+		}
 	},
 });

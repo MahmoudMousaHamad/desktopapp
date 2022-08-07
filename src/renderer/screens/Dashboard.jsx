@@ -1,7 +1,8 @@
 /* eslint-disable promise/always-return */
+import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
-import { useEffect, useReducer } from "react";
+import { CircularProgress } from "@mui/material";
 import { Navigate } from "react-router-dom";
 
 import OnboardingModal from "../components/OnboardingModal";
@@ -64,26 +65,33 @@ export default () => {
 	});
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
+	const [loading, setLoading] = useState();
 
 	const canSubmit = counts?.count < counts?.limit;
+	const showControl = profileFilled() && canSubmit && !loading;
+
+	useEffect(() => {
+		window.electron.ipcRenderer.on("scraper-status", (state) => {
+			console.log("Scraper status", state);
+			if (state) {
+				dispatch({ type: state });
+				setLoading(false);
+			}
+		});
+
+		window.electron.ipcRenderer.send("scraper-status");
+
+		return () => {
+			window.electron.ipcRenderer.removeAllListeners("scraper-status");
+		}
+	}, []);
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
-
-		window.electron.ipcRenderer.on("scraper-status", (state) => {
-			if (state) dispatch({ type: state });
-		});
-
-		console.log("Getting application counts");
 		dispatchRedux(sendData("get-application-counts"));
-
-		window.electron.ipcRenderer.send("scraper-status");
 	}, [dispatchRedux, auth]);
 
 	useEffect(() => {
-		window.electron.ipcRenderer.send("scraper-status");
-		console.log("Status:", status);
-		console.log("Bot status", botStatus);
 		if (botStatus === "start" && !status?.running) {
 			start();
 		} else if (botStatus === "stop" && status?.running) {
@@ -101,32 +109,21 @@ export default () => {
 		return <Navigate to="/login" />;
 	}
 
+	if (!counts) {
+		return (
+			<Box sx={{ display: 'flex', justifyContent: "center", height: "100vh", flexDirection: "column", alignItems: "center" }}>
+				<CircularProgress />
+			</Box>
+		);
+	}
+
+	console.log("Status:", status);
+
 	return (
 		<>
 			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
 			<Layout.SidePane>
 				<Box>
-					<Box
-						sx={{
-							p: 2,
-							mb: 1,
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "space-between",
-						}}
-					>
-						<Typography
-							textColor="neutral.500"
-							fontWeight={700}
-							sx={{
-								fontSize: "10px",
-								textTransform: "uppercase",
-								letterSpacing: ".1rem",
-							}}
-						>
-							Current Application
-						</Typography>
-					</Box>
 					<Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
 						<Box sx={{ p: 2 }}>
 							<Typography textColor="text.primary" level="body1">
@@ -142,48 +139,33 @@ export default () => {
 							)}
 						</Box>
 					</Box>
-					<Box
-						sx={{
-							p: 2,
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "space-between",
-						}}
-					>
-						<Typography
-							textColor="neutral.500"
-							fontWeight={700}
-							sx={{
-								fontSize: "10px",
-								textTransform: "uppercase",
-								letterSpacing: ".1rem",
-							}}
-						>
-							Controls
-						</Typography>
-					</Box>
 					<Box sx={{ p: 10, textAlign: "center" }}>
-						{profileFilled() && canSubmit && (
+						{ loading && <CircularProgress /> }
+						{ showControl && (
 							<>
 								<Button
 									sx={{ mr: 2 }}
 									size="lg"
 									onClick={
 										status?.running || status?.paused
-											? () =>
-													dispatchRedux(
-														sendData("set-bot-status", {
-															status: "stop",
-															source: "desktop",
-														})
-													)
-											: () =>
-													dispatchRedux(
-														sendData("set-bot-status", {
-															status: "start",
-															source: "desktop",
-														})
-													)
+											? () => {
+												setLoading(true);
+												dispatchRedux(
+													sendData("set-bot-status", {
+														status: "stop",
+														source: "desktop",
+													})
+												);
+											}
+											: () => {
+												setLoading(true);
+												dispatchRedux(
+													sendData("set-bot-status", {
+														status: "start",
+														source: "desktop",
+													})
+												);
+											}
 									}
 									color={
 										status?.running || status?.paused ? "danger" : "primary"

@@ -9,8 +9,6 @@ import Router from "./components/Router";
 
 const App = () => {
 	const { "server-error": serverError } = useSelector((state) => state.socket);
-	console.log("Server error", serverError);
-
 	return (
 		<CssVarsProvider
 			disableTransitionOnChange

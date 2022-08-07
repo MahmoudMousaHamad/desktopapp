@@ -2,7 +2,7 @@
   "name": "desktopapp",
 	"displayName": "JobApplier",
   "description": "JobApplier desktop app",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",

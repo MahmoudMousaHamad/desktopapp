@@ -64,9 +64,9 @@ export default () => {
 		});
 
 		return () => {
-			window.electron.ipcRenderer.removeAllListeners("question");
-			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("application-submitted");
+			window.electron.ipcRenderer.removeAllListeners("questions-ended");
+			window.electron.ipcRenderer.removeAllListeners("question");
 		};
 	}, [dispatch, question, auth, store]);
 
@@ -92,7 +92,7 @@ export default () => {
 						<Typography level="h2" fontWeight={700}>
 							JobApplier
 						</Typography>
-						v0.1.9
+						v0.1.10
 					</Box>
 					<Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>
 						<IconButton
