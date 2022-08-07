@@ -1,9 +1,12 @@
 /* eslint-disable promise/always-return */
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
 import { CircularProgress } from "@mui/material";
 import { Navigate } from "react-router-dom";
+
+import 'react-circular-progressbar/dist/styles.css';
 
 import OnboardingModal from "../components/OnboardingModal";
 import { sendData } from "../actions/socket";
@@ -123,23 +126,33 @@ export default () => {
 		<>
 			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
 			<Layout.SidePane>
-				<Box>
-					<Box sx={{ p: 5, margin: "auto", width: "fit-content" }}>
+				<Box sx={{ display: "flex",
+							flexDirection: "column",
+							justifyContent: "space-between",
+							alignItems: "center"
+						}}>
+					<Box sx={{ mt: 10 }}>
 						<Box sx={{ p: 2 }}>
-							<Typography textColor="text.primary" level="body1">
-								Applications filled
-							</Typography>
 							{counts && (
-								<Typography
-									textColor={canSubmit ? "text.primary" : "red"}
-									level="h2"
-								>
-									{`${counts.count} / ${counts.limit}`}
-								</Typography>
+								<Box sx={{ width: "175px" }}>
+									<CircularProgressbar
+										text={`${counts.count} / ${counts.limit}`}
+										strokeWidth={5}
+										styles={buildStyles({
+											textSize: '12px',
+											strokeLinecap: "butt",
+											textColor: "white",
+											trailColor: "white",
+											pathColor: "#1e88e5"
+										})}
+										maxValue={counts.limit}
+										value={counts.count}
+									/>
+								</Box>
 							)}
 						</Box>
 					</Box>
-					<Box sx={{ p: 10, textAlign: "center" }}>
+					<Box sx={{ mb: 20 }}>
 						{ loading && <CircularProgress /> }
 						{ showControl && (
 							<>

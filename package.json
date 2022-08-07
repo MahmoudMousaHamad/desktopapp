@@ -1,6 +1,6 @@
 {
   "name": "desktopapp",
-	"displayName": "JobApplier",
+  "displayName": "JobApplier",
   "description": "JobApplier desktop app",
   "version": "0.1.10",
   "repository": {
@@ -82,6 +82,7 @@
     "pos": "^0.4.2",
     "ps-node": "^0.1.6",
     "react": "^18.1.0",
+    "react-circular-progressbar": "^2.1.0",
     "react-dom": "^18.1.0",
     "react-multi-select-component": "^4.2.9",
     "react-redux": "^8.0.2",
