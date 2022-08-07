@@ -69,6 +69,11 @@ export default {
 			this.isConnected = false;
 		});
 
+		this.socket.on("connect_error", () => {
+			store.dispatch(gotData("Server error", "server-error"));
+			this.disconnect();
+		});
+
 		return this.socket;
 	},
 	disconnect() {

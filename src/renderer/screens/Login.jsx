@@ -7,10 +7,13 @@ import { Navigate } from "react-router-dom";
 import { login } from "../actions/auth";
 
 const Login = () => {
-	const [email, setemail] = useState("");
-	const [password, setPassword] = useState("");
 	const { isLoggedIn } = useSelector((state) => state.auth);
+	const { message } = useSelector((state) => state.message);
 	const dispatch = useDispatch();
+
+	const [password, setPassword] = useState("");
+	const [email, setemail] = useState("");
+
 	const onChangeEmail = (e) => {
 		setemail(e.target.value);
 	};
@@ -56,6 +59,11 @@ const Login = () => {
 				/>
 				<Button type="submit">Login</Button>
 			</form>
+			<Box sx={{ mt: 3 }}>
+				<Typography level="body1" textColor="text.secondary">
+					{message}
+				</Typography>
+			</Box>
 		</Box>
 	);
 };

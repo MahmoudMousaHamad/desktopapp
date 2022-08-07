@@ -1,6 +1,7 @@
 import { applyMiddleware, createStore } from "redux";
 import thunk from "redux-thunk";
 import { questionAnswered } from "./actions/qa";
+import { gotData } from "./actions/socket";
 
 import { SOCKET_GOT_DATA, SOCKET_SEND_DATA } from "./actions/types";
 import reducer from "./reducers";

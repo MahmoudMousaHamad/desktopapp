@@ -40,6 +40,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let splash: BrowserWindow | null = null;
 
 // app.commandLine.appendSwitch("ignore-certificate-errors");
 
@@ -52,7 +53,7 @@ const isDebug =
 	process.env.NODE_ENV === "development" || process.env.DEBUG_PROD === "true";
 
 if (isDebug) {
-	require("electron-debug")();
+	require("electron-debug")({ showDevTools: false });
 }
 
 const installExtensions = async () => {
@@ -82,14 +83,33 @@ const createWindow = async () => {
 	};
 
 	mainWindow = new BrowserWindow({
-		show: false,
-		icon: getAssetPath("icon.png"),
 		webPreferences: {
 			preload: app.isPackaged
 				? path.join(__dirname, "preload.js")
 				: path.join(__dirname, "../../.erb/dll/preload.js"),
 		},
+		icon: getAssetPath("icon.png"),
+		titleBarStyle: "hidden",
+		titleBarOverlay: true,
+		frame: false,
+		show: false,
 	});
+
+	splash = new BrowserWindow({
+		icon: getAssetPath("icon.png"),
+		transparent: true,
+		alwaysOnTop: true,
+		resizable: false,
+		frame: false,
+		height: 400,
+		width: 400,
+	});
+
+	const splashScreenSrc = app.isPackaged
+	? path.join(process.resourcesPath, 'assets', 'splash.html')
+	: path.join(__dirname, '../../assets', 'splash.html');
+
+	splash.loadFile(splashScreenSrc);
 
 	mainWindow.loadURL(resolveHtmlPath("index.html"));
 
@@ -97,6 +117,7 @@ const createWindow = async () => {
 		if (!mainWindow) {
 			throw new Error('"mainWindow" is not defined');
 		}
+		splash?.destroy();
 		mainWindow.maximize();
 	});
 
@@ -104,8 +125,8 @@ const createWindow = async () => {
 		mainWindow = null;
 	});
 
-	const menuBuilder = new MenuBuilder(mainWindow);
-	menuBuilder.buildMenu();
+	// const menuBuilder = new MenuBuilder(mainWindow);
+	// menuBuilder.buildMenu();
 
 	// Open urls in the user's browser
 	mainWindow.webContents.setWindowOpenHandler((edata) => {
@@ -158,7 +179,6 @@ app.on("window-all-closed", () => {
 		app.quit();
 	}
 
-	// exec("pkill -9 -f chromedriver");
 	killDriverProcess();
 });
 

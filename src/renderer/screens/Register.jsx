@@ -1,18 +1,19 @@
 /* eslint-disable promise/always-return */
 import { Box, Button, Input, Typography } from "@mui/joy";
-import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessage } from "../actions/message";
+import React, { useState } from "react";
 
+import { setMessage } from "../actions/message";
 import { register } from "../actions/auth";
 
 const Register = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
 	const { message } = useSelector((state) => state.message);
 	const dispatch = useDispatch();
+
+	const [firstName, setFirstName] = useState("");
+	const [password, setPassword] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [email, setEmail] = useState("");
 
 	const onChangeEmail = (e) => {
 		setEmail(e.target.value);

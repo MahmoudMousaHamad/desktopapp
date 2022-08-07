@@ -2,3 +2,9 @@
 	- release/app/package.json: increment version
 	- release/app/package-lock.json: increment version
 	- package.json: increment version
+
+- Note: if you install a new package, then you will have to open the shell of the docker
+	container and package manually.
+	- Once you are in the container shell, run npm install
+	- Then, run npx cross-env DEBUG_PROD=true npm run publish:all
+
