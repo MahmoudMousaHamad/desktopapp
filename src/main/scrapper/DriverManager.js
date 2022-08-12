@@ -6,8 +6,6 @@
 /* eslint-disable new-cap */
 /* eslint-disable global-require */
 const chrome = require("selenium-webdriver/chrome");
-const { Builder, Capabilities } = require("selenium-webdriver");
-const StreamZip = require("node-stream-zip");
 const unzipper = require("unzipper");
 const { app, dialog } = require("electron");
 const { exec } = require("child_process");

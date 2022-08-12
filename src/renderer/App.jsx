@@ -1,4 +1,4 @@
-import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
+import { CssVarsProvider } from "@mui/joy/styles";
 import { Box, Typography } from "@mui/joy";
 import { GlobalStyles } from "@mui/system";
 import { useSelector } from "react-redux";
@@ -22,10 +22,22 @@ const App = () => {
 					},
 				})}
 			/>
-			{serverError ?
-			<Box sx={{ display: "flex", justifyContent: "center", height: "100vh", flexDirection: "column" }}>
-				<Typography sx={{ textAlign: "center" }}>Sorry, something went wrong on our end :(</Typography>
-			</Box> : <Router />}
+			{serverError ? (
+				<Box
+					sx={{
+						display: "flex",
+						justifyContent: "center",
+						height: "100vh",
+						flexDirection: "column",
+					}}
+				>
+					<Typography sx={{ textAlign: "center" }}>
+						Sorry, something went wrong on our end :(
+					</Typography>
+				</Box>
+			) : (
+				<Router />
+			)}
 		</CssVarsProvider>
 	);
 };

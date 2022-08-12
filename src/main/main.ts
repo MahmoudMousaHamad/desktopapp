@@ -106,8 +106,8 @@ const createWindow = async () => {
 	});
 
 	const splashScreenSrc = app.isPackaged
-	? path.join(process.resourcesPath, 'assets', 'splash.html')
-	: path.join(__dirname, '../../assets', 'splash.html');
+		? path.join(process.resourcesPath, "assets", "splash.html")
+		: path.join(__dirname, "../../assets", "splash.html");
 
 	splash.loadFile(splashScreenSrc);
 

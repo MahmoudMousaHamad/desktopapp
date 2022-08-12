@@ -8,6 +8,8 @@ const htmlToElement = `
 	}
 `;
 
+export const ScrollDown = "window.scrollTo(0, document.body.scrollHeight);";
+
 export const PleaseSignIn = `
 ${htmlToElement}
 document.body.prepend(htmlToElement(

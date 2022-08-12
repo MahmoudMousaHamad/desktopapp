@@ -14,6 +14,7 @@ const Classifier = require("./Classifier");
 const QAManager = require("./QAManager");
 const Scripts = require("./DriverScripts");
 const { default: Logger } = require("./Logger");
+const { default: Indeed } = require("./Indeed");
 
 const TITLE = "TITLE";
 const SOURCE = "SOURCE";
@@ -151,7 +152,9 @@ class Locator {
 	}
 
 	async signedIn() {
-		return (await this.driver.findElements(By.css("#AccountMenu"))).length >= 1;
+		return (
+			(await this.driver.findElements(By.css(Indeed.signedIn))).length >= 1
+		);
 	}
 
 	async waitUntilSignIn() {
@@ -179,11 +182,11 @@ class Locator {
 	async goToNextAvailableJob() {
 		let applyNowPressed = false;
 
-		if (!(await this.waitFor(By.css("#vjs-container-iframe"), 10))) {
+		if (!(await this.waitFor(By.css(Indeed.bigJobCard), 10))) {
 			this.goToJobsPage();
 		}
 
-		const cards = await this.driver.findElements(By.className("cardOutline"));
+		const cards = await this.driver.findElements(By.css(Indeed.smallJobCard));
 
 		for (const card of cards) {
 			await this.driver.switchTo().defaultContent();
@@ -200,12 +203,12 @@ class Locator {
 
 			await this.driver
 				.switchTo()
-				.frame(await this.driver.findElement(By.css("#vjs-container-iframe")));
+				.frame(await this.driver.findElement(By.css(Indeed.bigJobCard)));
 			if (
-				(await this.driver.findElements(By.id("indeedApplyButton"))).length > 0
+				(await this.driver.findElements(By.css(Indeed.applyButton))).length > 0
 			) {
 				try {
-					await this.driver.findElement(By.id("indeedApplyButton")).click();
+					await this.driver.findElement(By.css(Indeed.applyButton)).click();
 					await this.checkTabs();
 				} catch (e) {
 					await this.driver.switchTo().defaultContent();
@@ -279,14 +282,14 @@ class Locator {
 	async chooseLetter() {
 		try {
 			await (
-				await this.driver.findElements(By.css("div.css-kyg8or"))
+				await this.driver.findElements(By.css(Indeed.coverLetter))
 			)[3].click();
 		} catch (e) {
 			Logger.error(e);
 		}
 		await this.driver.sleep(1000);
 		if (Preferences?.coverLetter && Preferences?.coverLetter !== "") {
-			const textarea = await this.driver.findElement(By.css("textarea"));
+			const textarea = await this.driver.findElement(By.css(Indeed.textarea));
 			await this.driver.executeScript((element) => element.select(), textarea);
 			await textarea.sendKeys(Key.BACK_SPACE);
 			await textarea.sendKeys(Preferences.coverLetter);
@@ -320,15 +323,11 @@ class Locator {
 	}
 
 	async scroll() {
-		await this.driver.executeScript(
-			"window.scrollTo(0, document.body.scrollHeight);"
-		);
+		await this.driver.executeScript(Scripts.ScrollDown);
 	}
 
 	async continue() {
-		await (
-			await this.driver.findElement(By.className("ia-continueButton"))
-		).click();
+		await (await this.driver.findElement(By.css(Indeed.nextButton))).click();
 	}
 }
 
