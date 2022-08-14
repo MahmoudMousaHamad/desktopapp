@@ -1,40 +1,44 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-no-bind */
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { Box, Typography } from "@mui/joy";
-import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Box, Button, Typography } from "@mui/joy";
+import { useEffect, useState } from "react";
 
-import IconButton from "@mui/joy/IconButton";
 import { questionAnswered } from "../actions/qa";
 import Question from "./Question";
 
 export default function QA() {
-	const { question } = useSelector((state) => state.qa);
+	const { questions } = useSelector((state) => state.qa);
+	const [answers, setAnswers] = useState(
+		Array(questions?.length).fill(undefined)
+	);
+	const [errors, setErrors] = useState();
 	const dispatch = useDispatch();
-	const [answer, setAnswer] = useState();
-	const [error, setError] = useState();
 
 	useEffect(() => {
-		setAnswer();
-		setError();
-	}, [question]);
+		setAnswers(Array(questions?.length).fill(undefined));
+		setErrors();
+	}, [questions]);
 
 	function handleSubmit() {
-		if (answer || answer === 0) {
-			console.log("Sending answer to main...", answer);
-			window.electron.ipcRenderer.send("answer", {
-				answer,
-				question,
+		const err = answers
+			? answers?.map((answer) => !(answer || answer === 0))
+			: Array(questions?.length).fill(true);
+		if (err?.every((error) => !error)) {
+			setErrors(err);
+			console.log("Sending answers to main...", answers);
+			window.electron.ipcRenderer.send("answers", {
+				questions,
+				answers,
 			});
-			setAnswer(undefined);
+			setAnswers(null);
 			dispatch(questionAnswered());
-		} else {
-			setError("Please answer the question.");
 		}
 	}
 
-	function handleChange(value) {
-		setAnswer(value);
+	function handleChange(value, index) {
+		answers[index] = value;
+		setAnswers([...answers]);
 	}
 
 	function handleKeyDown(e) {
@@ -45,31 +49,35 @@ export default function QA() {
 
 	return (
 		<Box sx={{ margin: "auto", width: "fit-content" }}>
-			{question ? (
+			{questions ? (
 				<>
-					<Box>
-						<Question
-							question={question}
-							handleChange={handleChange}
-							answer={answer}
-							onKeyDown={handleKeyDown}
-						/>
-					</Box>
-					{error && (
-						<Typography textColor="red" level="body3">
-							Please answer the question
-						</Typography>
-					)}
-					<Box sx={{ paddingRight: 5, marginTop: 5 }}>
-						<IconButton
+					{questions?.map((question, index) => (
+						<Box key={index}>
+							<Box>
+								<Question
+									handleChange={(value) => handleChange(value, index)}
+									answer={answers?.[index]}
+									onKeyDown={handleKeyDown}
+									question={question}
+								/>
+							</Box>
+							{errors?.[index] && (
+								<Typography textColor="red" level="body3">
+									Please answer the question
+								</Typography>
+							)}
+						</Box>
+					))}
+					<Box sx={{ paddingRight: 5, marginTop: 5, mb: 5, float: "right" }}>
+						<Button
 							size="lg"
 							variant="solid"
 							color="primary"
 							onClick={handleSubmit}
-							sx={{ borderRadius: "50%" }}
+							sx={{ borderRadius: "5px" }}
 						>
-							<ArrowForwardIosIcon />
-						</IconButton>
+							Submit
+						</Button>
 					</Box>
 				</>
 			) : (

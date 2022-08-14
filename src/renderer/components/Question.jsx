@@ -6,10 +6,11 @@ import { FormControl, InputLabel, Select } from "@mui/material";
 
 const questionTypeInput = {
 	text: {
-		element: (handleChange, value = "") => (
+		element: (handleChange, value = "", onKeyDown) => (
 			<Input
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder="Your answer..."
+				onKeyDown={onKeyDown}
 				type="text"
 				value={value}
 			/>
@@ -25,10 +26,11 @@ const questionTypeInput = {
 		),
 	},
 	number: {
-		element: (handleChange, value = "") => (
+		element: (handleChange, value = "", onKeyDown) => (
 			<Input
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder="Your answer..."
+				onKeyDown={onKeyDown}
 				type="number"
 				value={value}
 			/>
@@ -111,9 +113,21 @@ const questionTypeInput = {
 	},
 };
 
-function constructInput(type, options, handleChange, answer, ...args) {
+function constructInput(
+	type,
+	options,
+	handleChange,
+	answer,
+	onKeyDown,
+	...args
+) {
 	if (options === "None") {
-		return questionTypeInput[type].element(handleChange, answer, ...args);
+		return questionTypeInput[type].element(
+			handleChange,
+			answer,
+			onKeyDown,
+			...args
+		);
 	}
 	return questionTypeInput[type].element(
 		options,
@@ -123,10 +137,10 @@ function constructInput(type, options, handleChange, answer, ...args) {
 	);
 }
 
-export default ({ question, handleChange, answer, ...params }) => {
+export default ({ question, handleChange, answer, onKeyDown, ...params }) => {
 	const { text, type, options } = question;
 
-	const input = constructInput(type, options, handleChange, answer);
+	const input = constructInput(type, options, handleChange, answer, onKeyDown);
 
 	return (
 		<Box

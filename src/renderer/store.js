@@ -21,7 +21,7 @@ const SocketMiddleware = (store) => (next) => (action) => {
 			}
 			break;
 		case SOCKET_GOT_DATA:
-			if (action.name === "answer") {
+			if (action.name === "answer" || action.name === "answers") {
 				store.dispatch(questionAnswered());
 			}
 			window.electron.ipcRenderer.send(action.name, {

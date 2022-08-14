@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/return-await */
 /* eslint-disable no-continue */
@@ -9,13 +10,13 @@ const { By } = require("selenium-webdriver");
 const { ipcMain } = require("electron");
 
 const { SingletonCategorizer } = require("./Categorizer");
-const { Question } = require("./Question");
 const { default: Logger } = require("./Logger");
+const { Question } = require("./Question");
 
 class QAManager {
 	constructor(driver, handleDone, fallback) {
-		this.channels = { question: "question" };
-		this.listeners = { answer: "answer" };
+		this.channels = { question: "question", questions: "questions" };
+		this.listeners = { answer: "answer", answers: "answers" };
 		[this.win] = window.getAllWindows();
 		this.handleDone = handleDone;
 		this.fallback = fallback;
@@ -36,7 +37,8 @@ class QAManager {
 		await this.attemptToAnswerQuestions();
 
 		if (this.clientQuestions.length > 0) {
-			await this.sendNextQuestion();
+			// await this.sendNextQuestion();
+			await this.sendQuestions();
 			await this.waitUntilDone();
 		} else {
 			await this.handleDone();
@@ -79,6 +81,13 @@ class QAManager {
 				this.clientQuestions.push(question);
 			}
 		}
+	}
+
+	async sendQuestions() {
+		this.questionsSentDate = new Date();
+		this.win.webContents.send(this.channels.questions, {
+			questions: this.clientQuestions.map((question) => question.abstract()),
+		});
 	}
 
 	async sendNextQuestion() {
@@ -142,6 +151,41 @@ class QAManager {
 	}
 
 	setupIPCListeners() {
+		ipcMain.on(this.listeners.answers, async (event, { answers }) => {
+			if (!this.clientQuestions) {
+				return;
+			}
+			for (let i = 0; i < answers.length; i++) {
+				const question = this.clientQuestions[i];
+				const answer = answers[i];
+				const { options, type } = question.abstract();
+				let clientAnswer = answer;
+
+				if (options !== "None") {
+					clientAnswer =
+						type === "checkbox"
+							? options.filter((option, index) => answer.includes(index))
+							: options[answer];
+				}
+
+				Logger.info(
+					"Answer as input to classifier/categorizer: ",
+					clientAnswer
+				);
+
+				SingletonCategorizer.addCategory(
+					question.questionTokens,
+					clientAnswer,
+					type
+				);
+
+				await question.answer(clientAnswer);
+			}
+
+			this.lastQuestionAnswered = true;
+			await this.clean();
+		});
+
 		ipcMain.on(this.listeners.answer, async (event, { answer }) => {
 			if (!this.currentQuestion) return;
 

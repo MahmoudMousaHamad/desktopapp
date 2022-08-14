@@ -47,9 +47,7 @@ export default {
 				})
 			);
 
-			// this.socket.on('authenticated', function() {});
-
-			["answer", "bot-status-change", "application-counts"].forEach(
+			["answer", "bot-status-change", "application-counts", "answers"].forEach(
 				(channel) => {
 					this.socket.on(channel, (data) => {
 						console.log(
@@ -70,7 +68,7 @@ export default {
 		});
 
 		this.socket.on("connect_error", () => {
-			store.dispatch(gotData("Server error", "server-error"));
+			store.dispatch(Actions.gotData("Server error", "server-error"));
 			this.disconnect();
 		});
 

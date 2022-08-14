@@ -270,6 +270,11 @@ class Locator {
 
 	async handleDoneAnsweringQuestions() {
 		await this.continue();
+		if (
+			(await this.driver.findElements(By.xpath(Indeed.errorsXpath))).length > 0
+		) {
+			await this.exitApplication();
+		}
 		// Retrain classifier after we finish answering the questions
 		Classifier.SingletonClassifier.retrain();
 	}

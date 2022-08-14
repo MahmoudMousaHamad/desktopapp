@@ -1,6 +1,7 @@
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { Route, Routes, HashRouter } from "react-router-dom";
 import Typography from "@mui/joy/Typography";
+import { useEffect } from "react";
 
 // Icons import
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -8,7 +9,6 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import IconButton from "@mui/joy/IconButton";
 import { Work } from "@mui/icons-material";
 import { Box } from "@mui/joy";
-import { useEffect } from "react";
 
 // Screens
 import Dashboard from "../screens/Dashboard";
@@ -17,7 +17,7 @@ import Profile from "../screens/Profile";
 import Login from "../screens/Login";
 
 // Actions
-import { endQuestions, setQuestion } from "../actions/qa";
+import { endQuestions, setQuestion, setQuestions } from "../actions/qa";
 import CoverLetter from "../screens/CoverLetter";
 import { sendData } from "../actions/socket";
 import Socket from "../Socket";
@@ -29,7 +29,7 @@ import Navigation from "./Navigation";
 import Layout from "./Layout";
 
 export default () => {
-	const { question } = useSelector((state) => state.qa);
+	const { questions } = useSelector((state) => state.qa);
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const store = useStore();
@@ -38,6 +38,11 @@ export default () => {
 		window.electron.ipcRenderer.on("question", (data) => {
 			dispatch(setQuestion(data.question));
 			dispatch(sendData("question", data.question));
+		});
+
+		window.electron.ipcRenderer.on("questions", (data) => {
+			dispatch(setQuestions(data.questions));
+			dispatch(sendData("questions", data.questions));
 		});
 
 		if (auth.isLoggedIn) {
@@ -68,7 +73,7 @@ export default () => {
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("question");
 		};
-	}, [dispatch, question, auth, store]);
+	}, [dispatch, questions, auth, store]);
 
 	return (
 		<HashRouter>

@@ -1,12 +1,12 @@
 /* eslint-disable promise/always-return */
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Button, Typography } from "@mui/joy";
+import { Box, Button, Typography, useColorScheme } from "@mui/joy";
 import { CircularProgress } from "@mui/material";
 import { Navigate } from "react-router-dom";
 
-import 'react-circular-progressbar/dist/styles.css';
+import "react-circular-progressbar/dist/styles.css";
 
 import OnboardingModal from "../components/OnboardingModal";
 import { sendData } from "../actions/socket";
@@ -66,16 +66,16 @@ export default () => {
 	const [status, dispatch] = useReducer(reducer, {
 		running: botStatus === "start",
 	});
+	const { mode } = useColorScheme("dark");
 	const auth = useSelector((state) => state.auth);
-	const dispatchRedux = useDispatch();
 	const [loading, setLoading] = useState();
+	const dispatchRedux = useDispatch();
 
 	const canSubmit = counts?.count < counts?.limit;
 	const showControl = profileFilled() && canSubmit && !loading;
 
 	useEffect(() => {
 		window.electron.ipcRenderer.on("scraper-status", (state) => {
-			console.log("Scraper status", state);
 			if (state) {
 				dispatch({ type: state });
 				setLoading(false);
@@ -86,7 +86,7 @@ export default () => {
 
 		return () => {
 			window.electron.ipcRenderer.removeAllListeners("scraper-status");
-		}
+		};
 	}, []);
 
 	useEffect(() => {
@@ -114,23 +114,32 @@ export default () => {
 
 	if (!counts) {
 		return (
-			<Box sx={{ display: 'flex', justifyContent: "center", height: "100vh", flexDirection: "column", alignItems: "center" }}>
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "center",
+					height: "100vh",
+					flexDirection: "column",
+					alignItems: "center",
+				}}
+			>
 				<CircularProgress />
 			</Box>
 		);
 	}
 
-	console.log("Status:", status);
-
 	return (
 		<>
 			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
 			<Layout.SidePane>
-				<Box sx={{ display: "flex",
-							flexDirection: "column",
-							justifyContent: "space-between",
-							alignItems: "center"
-						}}>
+				<Box
+					sx={{
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "space-between",
+						alignItems: "center",
+					}}
+				>
 					<Box sx={{ mt: 10 }}>
 						<Box sx={{ p: 2 }}>
 							{counts && (
@@ -139,11 +148,11 @@ export default () => {
 										text={`${counts.count} / ${counts.limit}`}
 										strokeWidth={5}
 										styles={buildStyles({
-											textSize: '12px',
+											textSize: "12px",
 											strokeLinecap: "butt",
-											textColor: "white",
-											trailColor: "white",
-											pathColor: "#1e88e5"
+											textColor: mode === "dark" ? "white" : "black",
+											trailColor: mode === "dark" ? "white" : "lightgrey",
+											pathColor: "#1e88e5",
 										})}
 										maxValue={counts.limit}
 										value={counts.count}
@@ -153,8 +162,8 @@ export default () => {
 						</Box>
 					</Box>
 					<Box sx={{ mb: 20 }}>
-						{ loading && <CircularProgress /> }
-						{ showControl && (
+						{loading && <CircularProgress />}
+						{showControl && (
 							<>
 								<Button
 									sx={{ mr: 2 }}
@@ -162,23 +171,23 @@ export default () => {
 									onClick={
 										status?.running || status?.paused
 											? () => {
-												setLoading(true);
-												dispatchRedux(
-													sendData("set-bot-status", {
-														status: "stop",
-														source: "desktop",
-													})
-												);
-											}
+													setLoading(true);
+													dispatchRedux(
+														sendData("set-bot-status", {
+															status: "stop",
+															source: "desktop",
+														})
+													);
+											  }
 											: () => {
-												setLoading(true);
-												dispatchRedux(
-													sendData("set-bot-status", {
-														status: "start",
-														source: "desktop",
-													})
-												);
-											}
+													setLoading(true);
+													dispatchRedux(
+														sendData("set-bot-status", {
+															status: "start",
+															source: "desktop",
+														})
+													);
+											  }
 									}
 									color={
 										status?.running || status?.paused ? "danger" : "primary"
