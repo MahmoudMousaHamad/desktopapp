@@ -1,25 +1,25 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
-import * as React from "react";
 import Box, { BoxProps } from "@mui/joy/Box";
-import Sheet from "@mui/joy/Sheet";
 
 const Root = (props: BoxProps) => (
 	<Box
 		{...props}
 		sx={[
 			{
+				"grid-template-rows": "0.5fr 1.5fr 1fr 1.4fr 0.6fr",
+				"grid-template-columns": "0.8fr 1.2fr 1fr 1fr",
 				bgcolor: "background.body",
 				display: "grid",
-				gridTemplateColumns: {
-					xs: "1fr",
-					sm: "minmax(64px, 200px) minmax(450px, 1fr)",
-					md: "minmax(160px, 300px)minmax(500px, 1fr)",
-				},
-				gridTemplateRows: "64px 1fr",
-				minHeight: "100vh",
+				gridTemplateAreas: `
+					"header header header header"
+					"side main main main"
+					"side main main main"
+					"side main main main"
+					"controls controls controls controls"
+				`,
+				height: "100vh",
 			},
-			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
 		]}
 	/>
 );
@@ -31,6 +31,7 @@ const Header = (props: BoxProps) => (
 		{...props}
 		sx={[
 			{
+				"grid-area": "header",
 				p: 2,
 				gap: 2,
 				bgcolor: "background.componentBg",
@@ -57,6 +58,7 @@ const SideNav = (props: BoxProps) => (
 		{...props}
 		sx={[
 			{
+				"grid-area": "side",
 				p: 2,
 				bgcolor: "background.componentBg",
 				borderRight: "1px solid",
@@ -66,24 +68,19 @@ const SideNav = (props: BoxProps) => (
 					sm: "initial",
 				},
 			},
-			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
 		]}
 	/>
 );
 
 const SidePane = (props: BoxProps) => (
 	<Box
-		className="Inbox"
 		{...props}
 		sx={[
 			{
-				bgcolor: "background.componentBg",
-				borderRight: "1px solid",
-				borderColor: "divider",
-				display: "grid",
-				gridTemplateColumns: "1fr 1fr",
+				flexDirection: "column",
+				display: "flex",
+				height: "100%",
 			},
-			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
 		]}
 	/>
 );
@@ -93,51 +90,37 @@ const Main = (props: BoxProps) => (
 		component="main"
 		className="Main"
 		{...props}
-		sx={[{ p: 2 }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}
+		sx={{
+			bgcolor: "background.body",
+			overflowY: "scroll",
+			"grid-area": "main",
+			padding: 3,
+		}}
 	/>
 );
 
-const SideDrawer = ({
-	onClose,
-	...props
-}: BoxProps & { onClose: React.MouseEventHandler<HTMLDivElement> }) => (
+const Controls = (props: BoxProps) => (
 	<Box
 		{...props}
-		sx={[
-			{ position: "fixed", zIndex: 1200, width: "100%", height: "100%" },
-			...(Array.isArray(props.sx) ? props.sx : [props.sx]),
-		]}
-	>
-		<Box
-			role="button"
-			onClick={onClose}
-			sx={{
-				position: "absolute",
-				inset: 0,
-				bgcolor: (theme) =>
-					`rgba(${theme.vars.palette.neutral.darkChannel} / 0.8)`,
-			}}
-		/>
-		<Sheet
-			sx={{
-				minWidth: 256,
-				width: "max-content",
-				height: "100%",
-				p: 2,
-				boxShadow: "lg",
-				bgcolor: "background.componentBg",
-			}}
-		>
-			{props.children}
-		</Sheet>
-	</Box>
+		sx={{
+			borderTop: "1px solid",
+			borderColor: "divider",
+			backgroundColor: "background.componentBg",
+			justifyContent: "center",
+			"grid-area": "controls",
+			flexDirection: "row",
+			alignItems: "center",
+			display: "flex",
+			zIndex: 10,
+		}}
+	/>
 );
 
 export default {
-	Root,
-	Header,
-	SideNav,
 	SidePane,
-	SideDrawer,
+	Controls,
+	SideNav,
+	Header,
+	Root,
 	Main,
 };

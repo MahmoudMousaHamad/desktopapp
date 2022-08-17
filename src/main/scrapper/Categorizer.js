@@ -58,7 +58,7 @@ const CATEGORIZER_PATH = path.resolve(appDatatDirPath, "./categorizer.json");
 class Categorizer {
 	load(userAnswers) {
 		Logger.info("Loading categorizer");
-		Logger.info("Categorizer file exists:", fs.existsSync(CATEGORIZER_PATH));
+		Logger.info(`Categorizer file exists: ${fs.existsSync(CATEGORIZER_PATH)}`);
 		if (fs.existsSync(CATEGORIZER_PATH)) {
 			this.categorizer = JSON.parse(
 				fs.readFileSync(CATEGORIZER_PATH, {
@@ -134,7 +134,7 @@ class Categorizer {
 			Logger.error(`Category exists ${category} ${this.categorizer[category]}`);
 		}
 
-		Logger.info("Adding category:", keywords, answer, type);
+		Logger.info(`Adding category: ${keywords} ${answer} ${type}`);
 
 		this.categorizer[category] = {
 			keywords,
@@ -147,6 +147,7 @@ class Categorizer {
 const SingletonCategorizer = new Categorizer();
 
 module.exports = {
+	Categorizer,
 	SingletonCategorizer,
 	categories,
 };

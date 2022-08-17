@@ -27,6 +27,7 @@ import config from "../config";
 import ColorSchemeToggle from "./ColorSchemeToggle";
 import Navigation from "./Navigation";
 import Layout from "./Layout";
+import BotControls from "./BotControls";
 
 export default () => {
 	const { questions } = useSelector((state) => state.qa);
@@ -71,6 +72,7 @@ export default () => {
 		return () => {
 			window.electron.ipcRenderer.removeAllListeners("application-submitted");
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
+			window.electron.ipcRenderer.removeAllListeners("questions");
 			window.electron.ipcRenderer.removeAllListeners("question");
 		};
 	}, [dispatch, questions, auth, store]);
@@ -81,9 +83,9 @@ export default () => {
 				<Layout.Header>
 					<Box
 						sx={{
-							display: "flex",
-							flexDirection: "row",
 							alignItems: "center",
+							flexDirection: "row",
+							display: "flex",
 							gap: 1.5,
 						}}
 					>
@@ -114,13 +116,18 @@ export default () => {
 				<Layout.SideNav>
 					<Navigation />
 				</Layout.SideNav>
-				<Routes>
-					<Route path="/" element={<Dashboard />} />
-					<Route path="/login" element={<Login />} />
-					<Route path="/register" element={<Register />} />
-					<Route path="/profile" element={<Profile />} />
-					<Route path="/coverletter" element={<CoverLetter />} />
-				</Routes>
+				<Layout.Main>
+					<Routes>
+						<Route path="/" element={<Dashboard />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/register" element={<Register />} />
+						<Route path="/profile" element={<Profile />} />
+						<Route path="/coverletter" element={<CoverLetter />} />
+					</Routes>
+				</Layout.Main>
+				<Layout.Controls>
+					<BotControls />
+				</Layout.Controls>
 			</Layout.Root>
 		</HashRouter>
 	);

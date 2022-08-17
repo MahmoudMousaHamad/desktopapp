@@ -53,7 +53,7 @@ export default () => {
 				color="primary"
 				variant="outlined"
 			>
-				<Typography sx={{ mb: 2 }} textColor="text.secondary" level="h4">
+				<Typography sx={{ mb: 2 }} textColor="text.primary" level="h4">
 					Locations
 				</Typography>
 				<Box sx={{ mb: 1 }}>

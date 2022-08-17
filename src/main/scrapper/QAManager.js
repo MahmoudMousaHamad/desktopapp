@@ -168,10 +168,7 @@ class QAManager {
 							: options[answer];
 				}
 
-				Logger.info(
-					"Answer as input to classifier/categorizer: ",
-					clientAnswer
-				);
+				Logger.info("Answer as input to categorizer: ", clientAnswer);
 
 				SingletonCategorizer.addCategory(
 					question.questionTokens,
@@ -200,11 +197,11 @@ class QAManager {
 
 			const { type, options } = this.currentQuestion.abstract();
 
-			// Answer as input to classifier
-			let classifierAnswer = answer;
+			// Answer as input to categorizer
+			let modifiedAnswer = answer;
 
 			if (options !== "None") {
-				classifierAnswer =
+				modifiedAnswer =
 					type === "checkbox"
 						? options.filter((option, index) => answer.includes(index))
 						: options[answer];
@@ -212,21 +209,16 @@ class QAManager {
 
 			Logger.info(
 				"Answer as input to classifier/categorizer: ",
-				classifierAnswer
+				modifiedAnswer
 			);
-
-			// SingletonClassifier.addDocument(
-			// 	this.currentQuestion.questionTokens,
-			// 	classifierAnswer
-			// );
 
 			SingletonCategorizer.addCategory(
 				this.currentQuestion.questionTokens,
-				classifierAnswer,
+				modifiedAnswer,
 				this.currentQuestion.type
 			);
 
-			await this.currentQuestion.answer(classifierAnswer);
+			await this.currentQuestion.answer(modifiedAnswer);
 
 			this.lastQuestionAnswered =
 				this.currentIndex >= this.clientQuestions.length;

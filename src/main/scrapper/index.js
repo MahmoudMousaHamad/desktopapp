@@ -8,7 +8,6 @@ const {
 	attachToSession,
 	killDriverProcess,
 } = require("./DriverManager");
-const { SingletonClassifier } = require("./Classifier");
 const { Locator } = require("./Locator");
 const { SingletonCategorizer } = require("./Categorizer");
 const { DoNotInteract } = require("./DriverScripts");
@@ -39,7 +38,6 @@ class Scraper {
 		Logger.info("Stopping bot");
 		this.running = "stopped";
 		await this.driver.close();
-		SingletonClassifier.save();
 		SingletonCategorizer.save();
 
 		killDriverProcess();

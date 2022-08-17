@@ -263,25 +263,11 @@ class Question {
 			this.questionTokens,
 			this.type
 		);
+
 		Logger.info("Question category:", category, "Score:", score);
 		if (score > 0) {
 			Logger.info("Answering question using category", answer);
 			attemptedAnswer = answer;
-		} else {
-			Logger.info(
-				"Attempting to answer question using classifier with tokens: ",
-				this.questionTokens
-			);
-			const classifications = Classifier.SingletonClassifier.getClassifications(
-				this.questionTokens
-			);
-			if (classifications.length === 0) {
-				Logger.info("No classification");
-				return false;
-			}
-			const { label, value } = classifications[0];
-			Logger.info("Highest confidence value: ", classifications[0]);
-			attemptedAnswer = value > Classifier.CONDIFENCE_THRESHOLD ? label : null;
 		}
 
 		if (attemptedAnswer) {

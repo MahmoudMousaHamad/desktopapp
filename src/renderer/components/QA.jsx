@@ -82,7 +82,8 @@ export default function QA() {
 				</>
 			) : (
 				<Typography textColor="text.tertiary" level="body2">
-					If a question needs your attention, it will show up here.
+					If an application needs your attention, its questions will show up
+					here.
 				</Typography>
 			)}
 		</Box>

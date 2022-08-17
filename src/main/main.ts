@@ -8,28 +8,19 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import {
-	app,
-	BrowserWindow,
-	shell,
-	ipcMain,
-	powerSaveBlocker,
-	dialog,
-} from "electron";
+import { app, BrowserWindow, shell } from "electron";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import path from "path";
 
+import scraperHandlers from "./handlers/scraperHandlers";
+import { resolveHtmlPath } from "./util";
 import {
 	downloadChromeDriver,
 	killDriverProcess,
 } from "./scrapper/DriverManager";
-import Preferences from "./scrapper/UserPrefernces";
-import { resolveHtmlPath } from "./util";
-import MenuBuilder from "./menu";
-import Scraper from "./scrapper";
-import { SingletonCategorizer } from "./scrapper/Categorizer";
 import Logger from "./scrapper/Logger";
+import autoUpdaterHandlers from "./handlers/autoUpdaterHandlers";
 
 export default class AppUpdater {
 	constructor() {
@@ -41,8 +32,6 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 let splash: BrowserWindow | null = null;
-
-// app.commandLine.appendSwitch("ignore-certificate-errors");
 
 if (process.env.NODE_ENV === "production") {
 	const sourceMapSupport = require("source-map-support");
@@ -125,9 +114,6 @@ const createWindow = async () => {
 		mainWindow = null;
 	});
 
-	// const menuBuilder = new MenuBuilder(mainWindow);
-	// menuBuilder.buildMenu();
-
 	// Open urls in the user's browser
 	mainWindow.webContents.setWindowOpenHandler((edata) => {
 		shell.openExternal(edata.url);
@@ -137,45 +123,16 @@ const createWindow = async () => {
 	if (app.isPackaged) {
 		// eslint-disable-next-line
 		new AppUpdater();
-
 		setInterval(() => {
 			autoUpdater.checkForUpdates();
 		}, 60000);
 	}
 };
 
-/**
- * Add event listeners...
- */
-
-autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-	const dialogOpts = {
-		type: "info",
-		buttons: ["Restart", "Later"],
-		title: "Application Update",
-		message: process.platform === "win32" ? releaseNotes : releaseName,
-		detail:
-			"A new version has been downloaded. Restart the application to apply the updates.",
-	};
-
-	dialog
-		.showMessageBox(dialogOpts)
-		.then((returnValue) => {
-			if (returnValue.response === 0) autoUpdater.quitAndInstall();
-		})
-		.catch(Logger.info);
-});
-
-autoUpdater.on("error", (message) => {
-	Logger.error("There was a problem updating the application");
-	Logger.error(message);
-});
-
 app.on("window-all-closed", () => {
 	// Respect the OSX convention of having the application in memory even
 	// after all windows have been closed
 	if (process.platform !== "darwin") {
-		// Kill chrome driver process
 		app.quit();
 	}
 
@@ -196,41 +153,8 @@ app
 	})
 	.catch(Logger.info);
 
-let blockerId = 0;
-const scraper = new Scraper.Scraper();
-
-ipcMain.on("start-scraper", async (event, preferences) => {
-	Preferences.setPreferences(preferences);
-	SingletonCategorizer.load(preferences.answers);
-
-	event.reply("scraper-status", "running");
-
-	blockerId = powerSaveBlocker.start("prevent-display-sleep");
-
-	await scraper.start();
-});
-
-ipcMain.on("stop-scraper", async (event) => {
-	await scraper.stop();
-	// exec("pkill -9 -f chromedriver");
-	killDriverProcess();
-	event.reply("scraper-status", scraper.getStatus());
-	powerSaveBlocker.stop(blockerId);
-});
-
-ipcMain.on("pause-scraper", async (event) => {
-	scraper.pause();
-	event.reply("scraper-status", scraper.getStatus());
-});
-
-ipcMain.on("resume-scraper", async (event) => {
-	event.reply("scraper-status", "running");
-	await scraper.resume();
-});
-
-ipcMain.on("scraper-status", (e) => {
-	e.reply("scraper-status", scraper.getStatus());
-});
+autoUpdaterHandlers();
+scraperHandlers();
 
 /**
  * Company website application workflows

@@ -224,7 +224,7 @@ export default () => {
 	for (const category in categoriesQuestions) {
 		const { question } = categoriesQuestions[category];
 		const text = (
-			<Typography sx={{ mb: 1 }} textColor="text.secondary" level="h5">
+			<Typography sx={{ mb: 1 }} textColor="text.primary" level="h5">
 				{question.text}
 			</Typography>
 		);
@@ -254,7 +254,7 @@ export default () => {
 								onChange={(e) => handleChange(e.target.value, category)}
 								value={option}
 								label={
-									<Typography textColor="text.tertiary" level="body1">
+									<Typography textColor="text.secondary" level="body1">
 										{option}
 									</Typography>
 								}

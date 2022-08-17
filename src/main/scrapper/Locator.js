@@ -10,7 +10,6 @@ const { By, Key, until } = require("selenium-webdriver");
 const window = require("electron").BrowserWindow;
 
 const Preferences = require("./UserPrefernces");
-const Classifier = require("./Classifier");
 const QAManager = require("./QAManager");
 const Scripts = require("./DriverScripts");
 const { default: Logger } = require("./Logger");
@@ -275,8 +274,6 @@ class Locator {
 		) {
 			await this.exitApplication();
 		}
-		// Retrain classifier after we finish answering the questions
-		Classifier.SingletonClassifier.retrain();
 	}
 
 	async chooseExperience() {

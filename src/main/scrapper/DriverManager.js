@@ -14,7 +14,12 @@ const ps = require("ps-node");
 const path = require("path");
 const fs = require("fs");
 
-const { appDatatDirPath, targetPlatform, isWindows } = require("./OSHelper");
+const {
+	chromeDriverPath,
+	appDatatDirPath,
+	targetPlatform,
+	isWindows,
+} = require("./OSHelper");
 const { default: Logger } = require("./Logger");
 
 const versionIndex = {
@@ -63,11 +68,12 @@ async function downloadChromeDriver() {
 
 	const fileUrl = `https://chromedriver.storage.googleapis.com/${versionIndex[chromeMajorVersion]}/chromedriver_${targetPlatform}.zip`;
 
-	Logger.info("Zip file url", fileUrl);
+	Logger.info(`Zip file url ${fileUrl}`);
 
 	const file = fs.createWriteStream(
 		path.join(appDatatDirPath, "chromedriver.zip")
 	);
+
 	const request = https.get(fileUrl, (response) => {
 		response.pipe(file);
 
@@ -82,14 +88,9 @@ async function downloadChromeDriver() {
 				unzipper.Extract({ path: path.join(appDatatDirPath, "chromedriver") })
 			);
 
-			fs.chmodSync(
-				path.join(
-					appDatatDirPath,
-					"chromedriver",
-					`chromedriver${isWindows ? ".exe" : ""}`
-				),
-				"755"
-			);
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			fs.chmodSync(chromeDriverPath, "755");
 		});
 	});
 }
@@ -109,9 +110,9 @@ function openChromeSession() {
 			"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 		if (!(fs.existsSync(chrome86Path) || fs.existsSync(chromePath))) {
 			throw Error(`
-        It looks like Chrome is not installed. Please make sure that Chrome
-        is installed correctly in ${chrome86Path} or ${chromePath}.
-        `);
+				It looks like Chrome is not installed. Please make sure that Chrome
+				is installed correctly in ${chrome86Path} or ${chromePath}.
+        	`);
 		}
 		chromeCommand = fs.existsSync(chrome86Path)
 			? `"${chrome86Path}"`

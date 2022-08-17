@@ -35,8 +35,18 @@ switch (platform) {
 console.log("Target platform", targetPlatform);
 console.log("appDatatDirPath", appDatatDirPath);
 
-module.exports = {
-	targetPlatform,
+const chromeDriverBinaryName = `chromedriver${isWindows ? ".exe" : ""}`;
+
+const chromeDriverPath = path.join(
 	appDatatDirPath,
+	"chromedriver",
+	chromeDriverBinaryName
+);
+
+module.exports = {
+	chromeDriverBinaryName,
+	chromeDriverPath,
+	appDatatDirPath,
+	targetPlatform,
 	isWindows,
 };

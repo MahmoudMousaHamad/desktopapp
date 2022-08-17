@@ -9,7 +9,7 @@ import Locations from "../components/Locations";
 const Profile = () => {
 	return (
 		<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-			<Box sx={{ p: 3 }}>
+			<Box>
 				<Typography sx={{ mb: 2 }} textColor="text.primary" level="h3">
 					Common Questions
 				</Typography>

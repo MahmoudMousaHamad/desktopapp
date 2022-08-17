@@ -83,6 +83,7 @@ export const joyTheme = extendTheme({
 					body: "var(--joy-palette-neutral-50)",
 					componentBg: "var(--joy-palette-common-white)",
 				},
+				divider: colors.grey[400],
 			},
 		},
 		dark: {
@@ -91,6 +92,7 @@ export const joyTheme = extendTheme({
 					body: "var(--joy-palette-common-black)",
 					componentBg: "var(--joy-palette-background-level1)",
 				},
+				divider: colors.grey[800],
 			},
 		},
 	},

@@ -8,7 +8,6 @@ function initLogger() {
 	const Logger = winston.createLogger({
 		level: "info",
 		format: winston.format.json(),
-		defaultMeta: { service: "user-service" },
 		transports: [
 			new winston.transports.File({
 				filename: path.resolve(appDatatDirPath, "./error.log"),

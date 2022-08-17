@@ -6,9 +6,15 @@ import { deepmerge } from "@mui/utils";
 
 import { joyTheme, muiTheme } from "./theme";
 import Router from "./components/Router";
+import { stop } from "./BotHelpers";
 
 const App = () => {
 	const { "server-error": serverError } = useSelector((state) => state.socket);
+
+	if (serverError) {
+		stop();
+	}
+
 	return (
 		<CssVarsProvider
 			disableTransitionOnChange
@@ -27,7 +33,6 @@ const App = () => {
 					sx={{
 						display: "flex",
 						justifyContent: "center",
-						height: "100vh",
 						flexDirection: "column",
 					}}
 				>
