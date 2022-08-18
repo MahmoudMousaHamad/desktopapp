@@ -229,7 +229,7 @@
       "target": [
         "AppImage"
       ],
-      "category": "Development"
+      "category": "Productivity"
     },
     "directories": {
       "app": "release/app",

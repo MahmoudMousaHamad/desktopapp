@@ -1,6 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
-import Box, { BoxProps } from "@mui/joy/Box";
+
+import { Box, BoxProps, useTheme } from "@mui/joy";
 
 const Root = (props: BoxProps) => (
 	<Box
@@ -91,9 +92,15 @@ const Main = (props: BoxProps) => (
 		className="Main"
 		{...props}
 		sx={{
+			boxShadow: `box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;
+			-webkit-box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;
+			-moz-box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;`,
+			backgroundImage: useTheme().backgrounds.main,
+			backgroundPosition: "0px 0px, -19px -19px",
+			backgroundSize: "contain, 10px 10px",
 			bgcolor: "background.body",
-			overflowY: "scroll",
 			"grid-area": "main",
+			overflowY: "scroll",
 			padding: 3,
 		}}
 	/>
@@ -103,13 +110,13 @@ const Controls = (props: BoxProps) => (
 	<Box
 		{...props}
 		sx={{
-			borderTop: "1px solid",
-			borderColor: "divider",
 			backgroundColor: "background.componentBg",
 			justifyContent: "center",
 			"grid-area": "controls",
-			flexDirection: "row",
+			borderTop: "1px solid",
 			alignItems: "center",
+			flexDirection: "row",
+			borderColor: "divider",
 			display: "flex",
 			zIndex: 10,
 		}}

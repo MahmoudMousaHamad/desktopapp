@@ -2,7 +2,7 @@ import { Box, Button, Typography } from "@mui/joy";
 import { CircularProgress } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { sendData } from "renderer/actions/socket";
+import { sendData } from "../actions/socket";
 
 import { pause, profileFilled, resume, start, stop } from "../BotHelpers";
 
@@ -36,6 +36,15 @@ export default () => {
 			if (state) {
 				dispatch({ type: state });
 				setLoading(false);
+				console.log("State:", state);
+				if (state === "stopped" || state === "running") {
+					dispatchRedux(
+						sendData("set-bot-status", {
+							source: "desktop",
+							status: state === "stopped" ? "stop" : "start",
+						})
+					);
+				}
 			}
 		});
 
@@ -44,7 +53,7 @@ export default () => {
 		return () => {
 			window.electron.ipcRenderer.removeAllListeners("scraper:status");
 		};
-	}, []);
+	}, [dispatchRedux]);
 
 	useEffect(() => {
 		if (botStatus === "start" && !status?.running) {
@@ -54,6 +63,8 @@ export default () => {
 		}
 	}, [botStatus]);
 
+	if (!counts) return <CircularProgress />;
+
 	return (
 		<Box>
 			{loading && <CircularProgress />}
@@ -62,28 +73,11 @@ export default () => {
 					<Button
 						sx={{ mr: 2 }}
 						size="lg"
-						onClick={
-							status?.running || status?.paused
-								? () => {
-										setLoading(true);
-										dispatchRedux(
-											sendData("set-bot-status", {
-												status: "stop",
-												source: "desktop",
-											})
-										);
-								  }
-								: () => {
-										setLoading(true);
-										dispatchRedux(
-											sendData("set-bot-status", {
-												status: "start",
-												source: "desktop",
-											})
-										);
-								  }
-						}
-						color={status?.running || status?.paused ? "danger" : "primary"}
+						onClick={() => {
+							setLoading(true);
+							status?.running || status?.paused ? stop() : start();
+						}}
+						color="primary"
 					>
 						{(status?.running || status?.paused
 							? "stop"
@@ -102,7 +96,7 @@ export default () => {
 				</>
 			)}
 			{!canSubmit && (
-				<Typography textColor="" level="body2">
+				<Typography level="body2">
 					We thank you for using JobApplier! Unfotunately, you have reached your
 					limit. Please pay the fee ($99 for 500 submissions) to keep using
 					JobApplier. You can venmo $99 to @mahmoud-mousahamad. Please include

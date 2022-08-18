@@ -9,7 +9,7 @@ export const muiTheme = extendMuiTheme({
 		light: {
 			palette: {
 				primary: {
-					main: colors.blue[500],
+					main: colors.blue[900],
 				},
 				grey: colors.grey,
 				error: {
@@ -78,7 +78,14 @@ export const joyTheme = extendTheme({
 	},
 	colorSchemes: {
 		light: {
+			backgrounds: {
+				main: "linear-gradient(to bottom, transparent, white 50%), radial-gradient(lightgray 1px, transparent 0)",
+			},
 			palette: {
+				progress: {
+					trail: "#f7cf59",
+					path: "#5981f7",
+				},
 				background: {
 					body: "var(--joy-palette-neutral-50)",
 					componentBg: "var(--joy-palette-common-white)",
@@ -87,12 +94,19 @@ export const joyTheme = extendTheme({
 			},
 		},
 		dark: {
+			backgrounds: {
+				main: "linear-gradient(to bottom, transparent, #2d2d49 50%), radial-gradient(#4c568f 1px, transparent 0)",
+			},
 			palette: {
-				background: {
-					body: "var(--joy-palette-common-black)",
-					componentBg: "var(--joy-palette-background-level1)",
+				progress: {
+					trail: "#f7cf59",
+					path: "#5981f7",
 				},
-				divider: colors.grey[800],
+				background: {
+					componentBg: "#2e2e48",
+					body: "#2d2d49",
+				},
+				divider: colors.grey[700],
 			},
 		},
 	},

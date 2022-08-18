@@ -2,7 +2,7 @@
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
-import { Box, useColorScheme } from "@mui/joy";
+import { Box, colors, useColorScheme, useTheme } from "@mui/joy";
 import { Navigate } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -17,9 +17,9 @@ import QA from "../components/QA";
 export default () => {
 	const { "bot-status-change": botStatus, "application-counts": counts } =
 		useSelector((state) => state.socket);
-	const { mode } = useColorScheme("dark");
 	const auth = useSelector((state) => state.auth);
 	const dispatchRedux = useDispatch();
+	const theme = useTheme();
 
 	useEffect(() => {
 		if (!auth.isLoggedIn) return;
@@ -65,16 +65,16 @@ export default () => {
 				>
 					<Box>
 						{counts && (
-							<Box sx={{ width: "200px", mt: "50px" }}>
+							<Box sx={{ width: "200px", mt: "50px", mb: "50px" }}>
 								<CircularProgressbar
 									text={`${counts.count} / ${counts.limit}`}
 									strokeWidth={5}
 									styles={buildStyles({
-										trailColor: mode === "dark" ? "white" : "lightgrey",
-										textColor: mode === "dark" ? "white" : "black",
+										trailColor: theme.palette.progress.trail,
 										strokeLinecap: "butt",
-										pathColor: "#1e88e5",
-										textSize: "12px",
+										textColor: theme.palette.text.primary,
+										pathColor: theme.palette.progress.path,
+										textSize: "10px",
 									})}
 									maxValue={counts.limit}
 									value={counts.count}
