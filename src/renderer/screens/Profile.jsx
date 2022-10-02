@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/joy";
 import UserInformation from "../components/UserInformation";
 
 import TypeAndExperience from "../components/TypeAndExperience";
-import JobTitles from "../components/JobTitles";
+import ListTextBox from "../components/ListTextBox";
 import Locations from "../components/Locations";
 
 const Profile = () => {
@@ -16,7 +16,11 @@ const Profile = () => {
 				<UserInformation />
 			</Box>
 			<Box sx={{ p: 3 }}>
-				<JobTitles />
+				<ListTextBox
+					placeholder="Type SPECIFIC job titles here"
+					title="Titles"
+					name="titles"
+				/>
 				<Locations />
 				<TypeAndExperience />
 			</Box>

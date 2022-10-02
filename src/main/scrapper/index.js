@@ -81,7 +81,7 @@ class Scraper {
 				await this.restart();
 			} else if (status === "success") {
 				try {
-					Logger.info("Running action for", page);
+					Logger.info(`Running action for ${page}`);
 					await action();
 					await this.locator.checkTabs();
 				} catch (e) {

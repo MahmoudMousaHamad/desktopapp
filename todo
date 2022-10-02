@@ -1,2 +1,27 @@
-- Add icons
-- Add license text
+DONE:
+TEST:
+	- Add license text
+	- Make application window bar movable
+	- Add placeholder text to job titles and job locations
+	- Remove repeated locations
+	- Add choose all button for locations
+TODO:
+	- Add location suggestion
+	- Add job title suggestion
+	- Make cover letter more customizable: (GPT-2)
+	- Add [company] that can be replaced in the cover letter by application company name
+	- Add option to add a custom paragraph for each job title.
+	- Make cover letter optional
+	- Make sure to save cover letter after onboarding
+	- Fix job submit action increment
+	- Make sure there is only one tab at all times
+	- Add current job title and job description
+	- Relevant experience question
+	- Adapt to new job format:
+		- Project Engineer I - Engineering Rotation - AVL North America - Plymouth, MI 48170
+	- Move submit button somewhere else
+	- Make sure textarea works
+	- Put skip application button
+	- When an application needs attention, make sure to notify the user by making the app in the foreground
+	- Pause and stop keeps loading for ever.
+	-

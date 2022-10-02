@@ -35,8 +35,8 @@ class Locator {
 			action: this.resumeSection.bind(this),
 		},
 		questions: {
-			strings: ["Questions from"],
-			type: SOURCE,
+			strings: ["answer", "questions"],
+			type: TITLE,
 			action: this.answerQuestions.bind(this),
 		},
 		experience: {
@@ -181,9 +181,7 @@ class Locator {
 	async goToNextAvailableJob() {
 		let applyNowPressed = false;
 
-		if (!(await this.waitFor(By.css(Indeed.bigJobCard), 10))) {
-			this.goToJobsPage();
-		}
+		await this.driver.sleep(5000);
 
 		const cards = await this.driver.findElements(By.css(Indeed.smallJobCard));
 
@@ -200,9 +198,12 @@ class Locator {
 
 			await this.driver.sleep(2500);
 
-			await this.driver
-				.switchTo()
-				.frame(await this.driver.findElement(By.css(Indeed.bigJobCard)));
+			const iframe = await this.driver.findElements(By.css(Indeed.bigJobCard));
+
+			if (iframe > 0) {
+				await this.driver.switchTo().frame(iframe[0]);
+			}
+
 			if (
 				(await this.driver.findElements(By.css(Indeed.applyButton))).length > 0
 			) {

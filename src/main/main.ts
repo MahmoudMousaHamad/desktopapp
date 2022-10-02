@@ -80,7 +80,6 @@ const createWindow = async () => {
 		icon: getAssetPath("icon.png"),
 		titleBarStyle: "hidden",
 		titleBarOverlay: true,
-		frame: false,
 		show: false,
 	});
 
