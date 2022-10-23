@@ -92,9 +92,6 @@ const Main = (props: BoxProps) => (
 		className="Main"
 		{...props}
 		sx={{
-			boxShadow: `box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;
-			-webkit-box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;
-			-moz-box-shadow: 68px 68px 67px -87px rgba(0,0,0,0.75) inset;`,
 			backgroundImage: useTheme().backgrounds.main,
 			backgroundPosition: "0px 0px, -19px -19px",
 			backgroundSize: "contain, 10px 10px",

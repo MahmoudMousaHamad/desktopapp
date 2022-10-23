@@ -1,43 +1,49 @@
 import { ipcMain, powerSaveBlocker } from "electron";
 
 import { SingletonCategorizer } from "../scrapper/Categorizer";
-import { killDriverProcess } from "../scrapper/DriverManager";
-import Preferences from "../scrapper/UserPrefernces";
-import { Scraper } from "../scrapper";
+import Preferences from "../scrapper/Preferences";
 
-const scraper = new Scraper();
+import {
+	Driver,
+	IndeedSiteCreator,
+	killDriverProcess,
+	Status,
+} from "../driver";
+
 let blockerId = 0;
 
 const scraperHandlers = () => {
+	const driver = new Driver(new IndeedSiteCreator());
+
 	ipcMain.on("scraper:start", async (event, preferences) => {
 		Preferences.setPreferences(preferences);
 		SingletonCategorizer.load(preferences.answers);
 
-		event.reply("scraper:status", "running");
+		event.reply("scraper:status", Status.RUNNING);
 
 		blockerId = powerSaveBlocker.start("prevent-display-sleep");
-		await scraper.start();
+		await driver.start();
 	});
 
 	ipcMain.on("scraper:stop", async (event) => {
-		await scraper.stop();
+		await driver.stop();
 		killDriverProcess();
-		event.reply("scraper:status", scraper.getStatus());
+		event.reply("scraper:status", driver.getStatus());
 		powerSaveBlocker.stop(blockerId);
 	});
 
 	ipcMain.on("scraper:pause", async (event) => {
-		scraper.pause();
-		event.reply("scraper:status", scraper.getStatus());
+		driver.pause();
+		event.reply("scraper:status", driver.getStatus());
 	});
 
 	ipcMain.on("scraper:resume", async (event) => {
-		event.reply("scraper:status", "running");
-		await scraper.resume();
+		await driver.resume();
+		event.reply("scraper:status", Status.RUNNING);
 	});
 
 	ipcMain.on("scraper:status", (e) => {
-		e.reply("scraper:status", scraper.getStatus());
+		e.reply("scraper:status", driver.getStatus());
 	});
 };
 
