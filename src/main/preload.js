@@ -1,10 +1,12 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const { Status } = require("./driver");
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 
 contextBridge.exposeInMainWorld("electron", {
 	NODE_ENV: process.env.NODE_ENV,
+	DriverStatus: Status,
 	ipcRenderer: {
 		send(channel, ...args) {
 			ipcRenderer.send(channel, ...args);
@@ -29,6 +31,6 @@ contextBridge.exposeInMainWorld("electron", {
 		},
 		eventNames() {
 			return ipcRenderer.eventNames();
-		}
+		},
 	},
 });

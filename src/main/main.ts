@@ -18,7 +18,7 @@ import { resolveHtmlPath } from "./util";
 import {
 	downloadChromeDriver,
 	killDriverProcess,
-} from "./scrapper/DriverManager";
+} from "./driver/DriverManager";
 import Logger from "./scrapper/Logger";
 import autoUpdaterHandlers from "./handlers/autoUpdaterHandlers";
 
@@ -142,7 +142,7 @@ app
 	.whenReady()
 	.then(async () => {
 		createWindow();
-		await downloadChromeDriver();
+		// await downloadChromeDriver();
 
 		app.on("activate", () => {
 			// On macOS it's common to re-create a window in the app when the

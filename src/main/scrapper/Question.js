@@ -5,9 +5,9 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-require("chromedriver");
 const { By, Key, promise } = require("selenium-webdriver");
 const natural = require("natural");
+require("chromedriver");
 
 const { SingletonCategorizer } = require("./Categorizer");
 const Classifier = require("./Classifier");

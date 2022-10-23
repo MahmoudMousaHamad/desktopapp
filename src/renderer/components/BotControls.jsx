@@ -1,18 +1,20 @@
-import { Box, Button, Typography } from "@mui/joy";
-import { CircularProgress } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Box, Button, Typography } from "@mui/joy";
+import { CircularProgress } from "@mui/material";
 import { sendData } from "../actions/socket";
 
 import { pause, profileFilled, resume, start, stop } from "../BotHelpers";
 
+const { DriverStatus } = window.electron;
+
 function reducer(state, action) {
 	switch (action.type) {
-		case "running":
+		case DriverStatus.RUNNING:
 			return { running: true };
-		case "stopped":
+		case DriverStatus.STOPPED:
 			return null;
-		case "paused":
+		case DriverStatus.PAUSED:
 			return { running: false, paused: true };
 		default:
 			throw new Error();
@@ -37,11 +39,11 @@ export default () => {
 				dispatch({ type: state });
 				setLoading(false);
 				console.log("State:", state);
-				if (state === "stopped" || state === "running") {
+				if (state === DriverStatus.STOPPED || state === DriverStatus.RUNNING) {
 					dispatchRedux(
 						sendData("set-bot-status", {
 							source: "desktop",
-							status: state === "stopped" ? "stop" : "start",
+							status: state === DriverStatus.STOPPED ? "stop" : "start",
 						})
 					);
 				}

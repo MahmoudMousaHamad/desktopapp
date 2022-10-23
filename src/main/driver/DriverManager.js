@@ -1,10 +1,10 @@
-/* eslint-disable promise/no-nesting */
 /* eslint-disable promise/catch-or-return */
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable new-cap */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable promise/no-nesting */
 /* eslint-disable global-require */
+/* eslint-disable new-cap */
 const chrome = require("selenium-webdriver/chrome");
 const unzipper = require("unzipper");
 const { app, dialog } = require("electron");
@@ -19,8 +19,8 @@ const {
 	appDatatDirPath,
 	targetPlatform,
 	isWindows,
-} = require("./OSHelper");
-const { default: Logger } = require("./Logger");
+} = require("../scrapper/OSHelper");
+const { default: Logger } = require("../scrapper/Logger");
 
 const versionIndex = {
 	106: "106.0.5249.21",
@@ -76,7 +76,7 @@ async function downloadChromeDriver() {
 		path.join(appDatatDirPath, "chromedriver.zip")
 	);
 
-	const request = https.get(fileUrl, (response) => {
+	https.get(fileUrl, (response) => {
 		response.pipe(file);
 
 		Logger.info("Downloading chrome driver...");
@@ -141,7 +141,7 @@ function openChromeSession() {
 	);
 }
 
-async function attachToSession() {
+function attachToSession() {
 	const myChromePath = path.join(
 		appDatatDirPath,
 		"chromedriver",

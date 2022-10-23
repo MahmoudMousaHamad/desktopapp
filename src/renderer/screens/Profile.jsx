@@ -17,7 +17,7 @@ const Profile = () => {
 			</Box>
 			<Box sx={{ p: 3 }}>
 				<ListTextBox
-					placeholder="Type SPECIFIC job titles here"
+					placeholder="Type specific job titles here"
 					title="Titles"
 					name="titles"
 				/>
