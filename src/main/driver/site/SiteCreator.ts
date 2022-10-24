@@ -78,7 +78,7 @@ export default abstract class SiteCreator {
 
 			const { action, status, page } = locatorResult;
 
-			if (action === Status.RESTART) {
+			if (status === "restart") {
 				await this.restart();
 			} else if (status === "success") {
 				try {

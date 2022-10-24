@@ -6,14 +6,16 @@
 /* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-import { WebDriver, until, By } from "selenium-webdriver";
+import { WebDriver, By } from "selenium-webdriver";
+
+import Logger from "../scrapper/Logger";
 
 import { PleaseSignIn } from "./DriverScripts";
-import Logger from "../scrapper/Logger";
 import { Site } from "./site/Site";
 
-export const TITLE = "TITLE";
 export const SOURCE = "SOURCE";
+export const TITLE = "TITLE";
+export const URL = "URL";
 
 export class Locator {
 	driver: WebDriver;
@@ -28,41 +30,38 @@ export class Locator {
 	}
 
 	async getAction() {
-		const pageTitle = await this.getTitle();
 		const pageSource = await this.getPageSource();
+		const pageTitle = await this.getTitle();
 
-		for (const key in this.site.locationsAndActions) {
-			if (key in this.site.locationsAndActions) {
-				const value = this.site.locationsAndActions[key];
-				let string: string | undefined = "";
-				try {
-					string = value.type === TITLE ? pageTitle : pageSource;
-				} catch (e) {
-					Logger.error(
-						"Something went wrong while getting the title or source of the page."
-					);
-					return { action: "restart", status: "failed" };
-				}
+		for (const [key, value] of Object.entries(this.site.locationsAndActions)) {
+			let string: string | undefined = "";
+			try {
+				if (value.type === TITLE) string = pageTitle;
+				else if (value.type === SOURCE) string = pageSource;
+				else string = await this.driver.getCurrentUrl();
+			} catch (e) {
+				Logger.error(
+					"Something went wrong while getting the title or source of the page."
+				);
+				return { action: this.site.goToJobsPage, status: "failed" };
+			}
 
-				if (!string) {
-					return { action: "goToJobsPage", status: "failed" };
-					break;
-				}
+			if (!string) return { action: this.site.goToJobsPage, status: "failed" };
 
-				if (
-					value.strings.some((s: string) =>
-						string?.toLowerCase().includes(s.toLowerCase())
-					)
-				) {
-					return {
-						action: value.action,
-						status: "success",
-						page: key,
-					};
-				}
+			if (
+				value.strings.some((s: string) =>
+					string?.toLowerCase().includes(s.toLowerCase())
+				)
+			) {
+				return {
+					action: value.action,
+					status: "success",
+					page: key,
+				};
 			}
 		}
 		return {
+			action: this.site.goToJobsPage,
 			status: "not-found",
 		};
 	}
@@ -105,24 +104,5 @@ export class Locator {
 				}, 1000);
 			});
 		}
-	}
-
-	async acceptAlert() {
-		const alert = await this.driver.wait(until.alertIsPresent(), 2000);
-		await alert?.accept();
-	}
-
-	async continueToApplication() {
-		await this.continue();
-	}
-
-	async submitApplication() {
-		await this.continue();
-	}
-
-	async continue() {
-		await (
-			await this.driver.findElement(By.css(this.site.selectors.nextButton))
-		).click();
 	}
 }

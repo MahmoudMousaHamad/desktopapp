@@ -28,11 +28,9 @@ interface JobSearchParams {
 export class IndeedSite implements Site {
 	submittedDate?: Date;
 
-	exitApplication: any;
-
 	driver: WebDriver;
 
-	selectors: any;
+	selectors: { [name: string]: string };
 
 	job?: Job;
 
@@ -204,6 +202,12 @@ export class IndeedSite implements Site {
 			this.exitApplication.bind(this)
 		);
 		await qaManager.startWorkflow();
+	}
+
+	async exitApplication() {
+		await this.goToJobsPage();
+		await this.driver.sleep(1000);
+		await Helper.acceptAlert();
 	}
 
 	async handleDoneAnsweringQuestions() {

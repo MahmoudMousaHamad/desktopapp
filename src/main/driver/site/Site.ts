@@ -12,8 +12,16 @@ export enum Status {
 	PAUSED,
 }
 
+interface LocationAction {
+	[location: string]: {
+		action(): Promise<void>;
+		strings: string[];
+		type: string;
+	};
+}
+
 export interface Site {
-	locationsAndActions: any;
+	locationsAndActions: LocationAction;
 	driver: WebDriver;
 	selectors: any;
 

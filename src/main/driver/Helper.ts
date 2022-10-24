@@ -45,6 +45,11 @@ class Helper {
 
 		return true;
 	}
+
+	async acceptAlert() {
+		const alert = await this.driver?.wait(until.alertIsPresent(), 2000);
+		await alert?.accept();
+	}
 }
 
 export default new Helper();
