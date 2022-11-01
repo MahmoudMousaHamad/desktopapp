@@ -1,20 +1,20 @@
-const winston = require("winston");
-const path = require("path");
+import winston from "winston";
+import path from "path";
 
-const { appDatatDirPath } = require("./OSHelper");
+import OS from "./OS";
 
 function initLogger() {
-	console.log("appDatatDirPath", appDatatDirPath);
+	console.log("appDatatDirPath", OS.appDatatDirPath);
 	const Logger = winston.createLogger({
 		level: "info",
 		format: winston.format.json(),
 		transports: [
 			new winston.transports.File({
-				filename: path.resolve(appDatatDirPath, "./error.log"),
+				filename: path.resolve(OS.appDatatDirPath, "./error.log"),
 				level: "error",
 			}),
 			new winston.transports.File({
-				filename: path.resolve(appDatatDirPath, "./combined.log"),
+				filename: path.resolve(OS.appDatatDirPath, "./combined.log"),
 			}),
 		],
 	});

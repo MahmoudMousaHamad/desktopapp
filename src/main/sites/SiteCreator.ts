@@ -4,18 +4,18 @@
 /* eslint-disable class-methods-use-this */
 
 import { WebDriver } from "selenium-webdriver";
-import { SingletonCategorizer } from "../../scrapper/Categorizer";
-import { DoNotInteract } from "../DriverScripts";
-import Logger from "../../scrapper/Logger";
+
+import { Categorizer, Logger } from "../lib";
 import {
+	Scripts,
 	attachToSession,
 	killDriverProcess,
 	openChromeSession,
-} from "../DriverManager";
+	Locator,
+	Helper,
+} from "../driver";
 
-import { Locator } from "../Locator";
 import { Site, Status } from "./Site";
-import Helper from "../Helper";
 
 export default abstract class SiteCreator {
 	driver?: WebDriver;
@@ -33,14 +33,16 @@ export default abstract class SiteCreator {
 		Helper.init(this.driver);
 		const site = this.factoryMethod(this.driver);
 		await site.goToJobsPage();
-		await this.run(site);
+		const locator = new Locator.Locator(this.driver as WebDriver, site);
+		await locator.waitUntilSignIn();
+		await this.run();
 	}
 
 	async stop() {
 		Logger.info("Stopping bot");
 		this.status = Status.STOPPED;
 		await this.driver?.close();
-		SingletonCategorizer.save();
+		Categorizer.SingletonCategorizer.save();
 
 		killDriverProcess();
 	}
@@ -53,7 +55,7 @@ export default abstract class SiteCreator {
 	async resume() {
 		Logger.info("Resuming bot");
 		this.status = Status.RUNNING;
-		// TODO: await this.run();
+		await this.run();
 	}
 
 	async restart() {
@@ -63,9 +65,10 @@ export default abstract class SiteCreator {
 
 	public abstract factoryMethod(driver: WebDriver): Site;
 
-	public async run(site: Site): Promise<void> {
-		const locator = new Locator(this.driver as WebDriver, site);
-		await this.driver?.executeScript(DoNotInteract);
+	public async run(): Promise<void> {
+		const site = this.factoryMethod(this.driver as WebDriver);
+		const locator = new Locator.Locator(this.driver as WebDriver, site);
+		await this.driver?.executeScript(Scripts.DoNotInteract);
 		await this.driver?.sleep(5000);
 
 		while (this.status === Status.RUNNING) {

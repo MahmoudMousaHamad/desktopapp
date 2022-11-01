@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { Categorizer } = require("../main/scrapper/Categorizer");
+const { Categorizer } = require("../main/lib/Categorizer");
 
 const categorizer = new Categorizer();
 

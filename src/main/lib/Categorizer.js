@@ -4,14 +4,14 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-const natural = require("natural");
-const path = require("path");
-const fs = require("fs");
+import natural from "natural";
+import path from "path";
+import fs from "fs";
 
-const { appDatatDirPath } = require("./OSHelper");
-const { default: Logger } = require("./Logger");
+import OS from "./OS";
+import Logger from "./Logger";
 
-const categories = {
+export const categories = {
 	sponsorship: [
 		"visa",
 		"sponsorship",
@@ -50,12 +50,12 @@ const categories = {
 	disability: ["disability", "status"],
 };
 
-const CATEGORIZER_PATH = path.resolve(appDatatDirPath, "./categorizer.json");
+const CATEGORIZER_PATH = path.resolve(OS.appDatatDirPath, "./categorizer.json");
 
 // Loaded when scrapper is started
 // Updated after every application
 // Saved to file when driver is closed
-class Categorizer {
+export class Categorizer {
 	load(userAnswers) {
 		Logger.info("Loading categorizer");
 		Logger.info(`Categorizer file exists: ${fs.existsSync(CATEGORIZER_PATH)}`);
@@ -80,7 +80,7 @@ class Categorizer {
 	}
 
 	categorize(questionTokens, type) {
-		Logger.info("Categorizing question with tokens", questionTokens);
+		Logger.info(`Categorizing question with tokens ${questionTokens}`);
 
 		let maxScore = -1;
 		let questionCategory;
@@ -144,10 +144,4 @@ class Categorizer {
 	}
 }
 
-const SingletonCategorizer = new Categorizer();
-
-module.exports = {
-	Categorizer,
-	SingletonCategorizer,
-	categories,
-};
+export const SingletonCategorizer = new Categorizer();

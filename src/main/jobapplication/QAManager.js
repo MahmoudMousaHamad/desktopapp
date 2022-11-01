@@ -9,14 +9,15 @@ const window = require("electron").BrowserWindow;
 const { By } = require("selenium-webdriver");
 const { ipcMain } = require("electron");
 
-const { SingletonCategorizer } = require("./Categorizer");
-const { default: Logger } = require("./Logger");
+const { SingletonCategorizer } = require("../lib/Categorizer");
+const { default: Logger } = require("../lib/Logger");
 const { Question } = require("./Question");
 
 class QAManager {
-	constructor(driver, handleDone, fallback) {
+	constructor(driver, handleDone, fallback, questionsXpathPrefex = "") {
 		this.channels = { question: "question", questions: "questions" };
 		this.listeners = { answer: "answer", answers: "answers" };
+		this.questionsXpathPrefex = questionsXpathPrefex;
 		[this.win] = window.getAllWindows();
 		this.handleDone = handleDone;
 		this.fallback = fallback;
@@ -102,7 +103,9 @@ class QAManager {
 			return;
 		}
 
-		Logger.info("Sending question to client", this.currentQuestion.abstract());
+		Logger.info(
+			`Sending question to client ${this.currentQuestion.abstract()}`
+		);
 
 		this.win.webContents.send(this.channels.question, {
 			question: this.currentQuestion.abstract(),
@@ -128,7 +131,7 @@ class QAManager {
 	async gatherQuestions() {
 		const questionsElements = await this.driver.findElements(
 			By.xpath(
-				"//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/..//label[not(./input)]/.. | //legend/.."
+				`${this.questionsXpathPrefex}//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/..//label[not(./input)]/.. | ${this.questionsXpathPrefex}//legend/..`
 			)
 		);
 
@@ -139,7 +142,7 @@ class QAManager {
 				const question = new Question(qe);
 				const coolQuestion = await question.prepare();
 				if (!coolQuestion) {
-					Logger.info("Question could not be prepared", await qe.getText());
+					Logger.info(`Question could not be prepared ${await qe.getText()}`);
 					return false;
 				}
 				this.questions.push(question);

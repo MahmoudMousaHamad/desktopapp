@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const { Status } = require("./driver");
+const { Status } = require("./sites");
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object

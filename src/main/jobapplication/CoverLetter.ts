@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import { WebElement } from "selenium-webdriver";
 
-import { Preferences } from "./Preferences";
+import { Preferences } from "../lib";
+
 import Job from "./Job";
 
 export default class CoverLetter {

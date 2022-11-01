@@ -7,13 +7,9 @@
 import { WebDriver, By, Key } from "selenium-webdriver";
 import { BrowserWindow } from "electron";
 
-import CoverLetter from "../../scrapper/CoverLetter";
-import Preferences from "../../scrapper/Preferences";
-import QAManager from "../../scrapper/QAManager";
-import { TITLE, SOURCE } from "../Locator";
-import Logger from "../../scrapper/Logger";
-import Job from "../../scrapper/Job";
-import Helper from "../Helper";
+import { CoverLetter, Job, QnAManager } from "../jobapplication";
+import { SingletonPreferences, Logger } from "../lib";
+import { Helper, Locator } from "../driver";
 
 import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
@@ -24,6 +20,8 @@ interface JobSearchParams {
 	title: string;
 	type: string;
 }
+
+const { SOURCE, TITLE } = Locator;
 
 export class IndeedSite implements Site {
 	submittedDate?: Date;
@@ -102,22 +100,24 @@ export class IndeedSite implements Site {
 
 	async goToJobsPage(): Promise<void> {
 		const location =
-			Preferences.locations[
-				Math.floor(Math.random() * Preferences.locations.length)
+			SingletonPreferences.locations[
+				Math.floor(Math.random() * SingletonPreferences.locations.length)
 			];
 
 		const title =
-			Preferences.titles[Math.floor(Math.random() * Preferences.titles.length)];
+			SingletonPreferences.titles[
+				Math.floor(Math.random() * SingletonPreferences.titles.length)
+			];
 
 		this.jobSearchParams = {
-			experience: Preferences.experienceLevel,
-			type: Preferences.jobType,
+			experience: SingletonPreferences.experienceLevel,
+			type: SingletonPreferences.jobType,
 			location,
 			title,
 		};
 
 		this.driver.get(
-			`https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${Preferences.experienceLevel})jt(${Preferences.jobType})%3B&from=smart-apply&vjk=fcc224d605e356c1`
+			`https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${SingletonPreferences.experienceLevel})jt(${SingletonPreferences.jobType})`
 		);
 	}
 
@@ -175,13 +175,13 @@ export class IndeedSite implements Site {
 	}
 
 	async resumeSection() {
-		await this.fillJobInfo();
+		await this.getJobInfo();
 		await Helper.scroll();
 		await this.driver.sleep(1000);
 		await this.continue();
 	}
 
-	async fillJobInfo(): Promise<void> {
+	async getJobInfo(): Promise<void> {
 		const company = await Helper.getText(".ia-JobHeader-information span");
 		const position = await Helper.getText(".ia-JobHeader-information h2");
 
@@ -196,7 +196,7 @@ export class IndeedSite implements Site {
 	}
 
 	async answerQuestions() {
-		const qaManager = new QAManager(
+		const qaManager = new QnAManager(
 			this.driver,
 			this.handleDoneAnsweringQuestions.bind(this),
 			this.exitApplication.bind(this)
@@ -234,7 +234,10 @@ export class IndeedSite implements Site {
 			Logger.error(e);
 		}
 		await this.driver.sleep(1000);
-		if (Preferences?.coverLetter && Preferences?.coverLetter !== "") {
+		if (
+			SingletonPreferences?.coverLetter &&
+			SingletonPreferences?.coverLetter !== ""
+		) {
 			const textarea = await this.driver.findElement(
 				By.css(this.selectors.textarea)
 			);
@@ -245,7 +248,7 @@ export class IndeedSite implements Site {
 			await textarea.sendKeys(Key.BACK_SPACE);
 
 			const coverLetter = new CoverLetter(
-				Preferences,
+				SingletonPreferences,
 				textarea,
 				this.job as Job
 			);

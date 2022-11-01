@@ -1,7 +1,7 @@
 import fs from "fs";
 
-import { downloadChromeDriver } from "../main/driver/DriverManager";
-import { chromeDriverPath } from "../main/scrapper/OSHelper";
+import { downloadChromeDriver } from "../main/driver/Manager";
+import { chromeDriverPath } from "../main/lib/OS";
 
 test("downloadChromeDriver() downloads chrome driver", async () => {
 	if (fs.existsSync(chromeDriverPath)) {

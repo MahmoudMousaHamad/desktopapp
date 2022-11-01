@@ -1,19 +1,22 @@
 /* eslint-disable class-methods-use-this */
-const natural = require("natural");
-const path = require("path");
-const pos = require("pos");
-const fs = require("fs");
+import natural from "natural";
+import path from "path";
+import pos from "pos";
+import fs from "fs";
 
-const { appDatatDirPath } = require("./OSHelper");
-const { default: Logger } = require("./Logger");
+import Logger from "./Logger";
+import OS from "./OS";
 
-const CLASSIFIER_PATH = path.resolve(appDatatDirPath, "./classifier.json");
-const CONDIFENCE_THRESHOLD = 0.33;
+export const CLASSIFIER_PATH = path.resolve(
+	OS.appDatatDirPath,
+	"./classifier.json"
+);
+export const CONDIFENCE_THRESHOLD = 0.33;
 
 // Loaded when scrapper is started
 // Retrained after every application
 // Saved to file when driver is closed
-class Classifier {
+export class Classifier {
 	constructor() {
 		this.loadClassifier();
 	}
@@ -69,9 +72,9 @@ class Classifier {
 	}
 }
 
-const SingletonClassifier = new Classifier();
+export const SingletonClassifier = new Classifier();
 
-const TokenizeQuestion = (question) => {
+export const TokenizeQuestion = (question) => {
 	const words = new pos.Lexer().lex(question);
 	const tagger = new pos.Tagger();
 	const taggedWords = tagger.tag(words);
@@ -84,11 +87,4 @@ const TokenizeQuestion = (question) => {
 	});
 
 	return [...new Set(importantWords)];
-};
-
-module.exports = {
-	CLASSIFIER_PATH,
-	CONDIFENCE_THRESHOLD,
-	SingletonClassifier,
-	TokenizeQuestion,
 };

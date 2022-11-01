@@ -8,13 +8,14 @@
 
 import { WebDriver, By } from "selenium-webdriver";
 
-import Logger from "../scrapper/Logger";
+import Logger from "../lib/Logger";
+import { Site } from "../sites";
 
-import { PleaseSignIn } from "./DriverScripts";
-import { Site } from "./site/Site";
+import { PleaseSignIn } from "./Scripts";
 
 export const SOURCE = "SOURCE";
 export const TITLE = "TITLE";
+export const TEXT = "TEXT";
 export const URL = "URL";
 
 export class Locator {
@@ -38,6 +39,10 @@ export class Locator {
 			try {
 				if (value.type === TITLE) string = pageTitle;
 				else if (value.type === SOURCE) string = pageSource;
+				else if (value.type === TEXT)
+					string = await (
+						await this.driver.findElement(By.css("body"))
+					).getText();
 				else string = await this.driver.getCurrentUrl();
 			} catch (e) {
 				Logger.error(

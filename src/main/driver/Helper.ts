@@ -1,8 +1,8 @@
 import { By, Locator, until, WebDriver, WebElement } from "selenium-webdriver";
 
-import Logger from "../scrapper/Logger";
+import Logger from "../lib/Logger";
 
-import { ScrollDown } from "./DriverScripts";
+import { ScrollDown } from "./Scripts";
 
 class Helper {
 	driver?: WebDriver;
