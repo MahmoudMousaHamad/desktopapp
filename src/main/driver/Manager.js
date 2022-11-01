@@ -6,9 +6,9 @@
 /* eslint-disable global-require */
 /* eslint-disable new-cap */
 const chrome = require("selenium-webdriver/chrome");
-const unzipper = require("unzipper");
 const { app, dialog } = require("electron");
 const { exec } = require("child_process");
+const unzipper = require("unzipper");
 const https = require("https");
 const ps = require("ps-node");
 const path = require("path");
@@ -19,8 +19,8 @@ const {
 	appDatatDirPath,
 	targetPlatform,
 	isWindows,
-} = require("../scrapper/OSHelper");
-const { default: Logger } = require("../scrapper/Logger");
+} = require("../lib/OS");
+const { default: Logger } = require("../lib/Logger");
 
 const versionIndex = {
 	106: "106.0.5249.21",
@@ -38,7 +38,7 @@ async function getChromeMajorVersion() {
 	const chromeVersion = await require("find-chrome-version")();
 	const chromeMajorVersion = chromeVersion.split(".")[0];
 
-	Logger.info("Chrome major version", chromeMajorVersion);
+	Logger.info(`Chrome major version: ${chromeMajorVersion}`);
 
 	if (Number(chromeMajorVersion) < 100) {
 		dialog.showErrorBox(

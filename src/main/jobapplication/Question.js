@@ -5,13 +5,12 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-const { By, Key, promise } = require("selenium-webdriver");
-const natural = require("natural");
-require("chromedriver");
+import { By, Key, promise } from "selenium-webdriver";
+import Natural from "natural";
 
-const { SingletonCategorizer } = require("./Categorizer");
-const Classifier = require("./Classifier");
-const { default: Logger } = require("./Logger");
+import { SingletonCategorizer, Logger, Classifier } from "../lib";
+
+require("chromedriver");
 
 class Question {
 	constructor(element) {
@@ -237,7 +236,7 @@ class Question {
 		let max = 0;
 		let maxOption;
 		for (const option of this.options) {
-			const distance = natural.JaroWinklerDistance(option, answer);
+			const distance = Natural.JaroWinklerDistance(option, answer);
 			if (distance > max) {
 				max = distance;
 				maxOption = option;
@@ -264,9 +263,9 @@ class Question {
 			this.type
 		);
 
-		Logger.info("Question category:", category, "Score:", score);
+		Logger.info(`Question category: ${category}, Score: ${score}`);
 		if (score > 0) {
-			Logger.info("Answering question using category", answer);
+			Logger.info(`Answering question using category ${answer}`);
 			attemptedAnswer = answer;
 		}
 
@@ -276,7 +275,7 @@ class Question {
 					const temp = [];
 					this.options.forEach((option) => {
 						attemptedAnswer.some((a) => {
-							const distance = natural.JaroWinklerDistance(
+							const distance = Natural.JaroWinklerDistance(
 								option,
 								a,
 								undefined,
@@ -295,7 +294,7 @@ class Question {
 					let maxDistance = -100;
 					let maxOption = "";
 					this.options.forEach((option) => {
-						const distance = natural.JaroWinklerDistance(
+						const distance = Natural.JaroWinklerDistance(
 							option,
 							attemptedAnswer,
 							undefined,
@@ -316,7 +315,7 @@ class Question {
 				}
 			}
 
-			Logger.info("Attempted answer: ", attemptedAnswer);
+			Logger.info(`Attempted answer: ${attemptedAnswer}`);
 
 			await this.answer(attemptedAnswer);
 			Logger.info("Question answered automatically");

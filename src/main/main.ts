@@ -15,11 +15,8 @@ import path from "path";
 
 import scraperHandlers from "./handlers/scraperHandlers";
 import { resolveHtmlPath } from "./util";
-import {
-	downloadChromeDriver,
-	killDriverProcess,
-} from "./driver/DriverManager";
-import Logger from "./scrapper/Logger";
+import { downloadChromeDriver, killDriverProcess } from "./driver/Manager";
+import Logger from "./lib/Logger";
 import autoUpdaterHandlers from "./handlers/autoUpdaterHandlers";
 
 export default class AppUpdater {

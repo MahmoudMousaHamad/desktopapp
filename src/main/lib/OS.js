@@ -1,5 +1,5 @@
-const path = require("path");
-const os = require("os");
+import path from "path";
+import os from "os";
 
 const platform = os.platform();
 
@@ -43,7 +43,7 @@ const chromeDriverPath = path.join(
 	chromeDriverBinaryName
 );
 
-module.exports = {
+export default {
 	chromeDriverBinaryName,
 	chromeDriverPath,
 	appDatatDirPath,

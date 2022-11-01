@@ -1,4 +1,4 @@
-import { SiteCreator, Status } from "./site";
+import { SiteCreator, Status } from "../sites";
 
 export default class Driver {
 	siteCreator: SiteCreator;

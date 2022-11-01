@@ -1,7 +1,7 @@
 import { autoUpdater } from "electron-updater";
 import { dialog } from "electron";
 
-import Logger from "../scrapper/Logger";
+import Logger from "../lib/Logger";
 
 const autoUpdaterHandlers = () => {
 	autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {

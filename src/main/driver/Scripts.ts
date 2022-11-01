@@ -18,7 +18,7 @@ document.body.prepend(htmlToElement(
 		<div id="jobapplier-modal-content">
 			<span class="jobapplier-close">&times;</span>
 			<p style="font-size: 20px;">Message from JobApplier</p>
-			<p style="font-size: 15px;">Please sign into Indeed to get started</p>
+			<p style="font-size: 15px;">Please sign in to get started</p>
 		</div>
 	</div>
 	\`
