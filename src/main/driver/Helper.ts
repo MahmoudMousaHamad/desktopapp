@@ -1,4 +1,13 @@
-import { By, Locator, until, WebDriver, WebElement } from "selenium-webdriver";
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-await-in-loop */
+import {
+	By,
+	Key,
+	Locator,
+	until,
+	WebDriver,
+	WebElement,
+} from "selenium-webdriver";
 
 import Logger from "../lib/Logger";
 
@@ -24,10 +33,8 @@ class Helper {
 		}
 	}
 
-	async getText(selector: string): Promise<string> {
-		return this.driver
-			?.findElement(By.css(selector))
-			.getText() as Promise<string>;
+	async getText(by: By): Promise<string> {
+		return this.driver?.findElement(by).getText() as Promise<string>;
 	}
 
 	async waitFor(selector: Locator, timeout = 10) {
@@ -49,6 +56,16 @@ class Helper {
 	async acceptAlert() {
 		const alert = await this.driver?.wait(until.alertIsPresent(), 2000);
 		await alert?.accept();
+	}
+
+	async clearInput(element: WebElement) {
+		const inputValueLength = (await element.getAttribute("value")).length;
+		await (
+			await element.getDriver()
+		).executeScript((e: { select: () => any }) => e.select(), element);
+		for (let i = 0; i < inputValueLength; i += 1) {
+			await element.sendKeys(Key.BACK_SPACE);
+		}
 	}
 }
 

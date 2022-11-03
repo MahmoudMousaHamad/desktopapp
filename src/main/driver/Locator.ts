@@ -90,24 +90,27 @@ export class Locator {
 
 	async signedIn() {
 		return (
-			(await this.driver.findElements(By.css(this.site.selectors.signedIn)))
+			(await this.driver.findElements(Site.getBy(this.site.selectors.signedIn)))
 				.length >= 1
 		);
 	}
 
 	async waitUntilSignIn() {
-		Logger.info("User signed in:", await this.signedIn());
-		if (!(await this.signedIn())) {
+		const signedin = await this.signedIn();
+		if (!signedin) {
+			Logger.info("User is not signed in");
 			await this.driver.executeScript(PleaseSignIn);
 			await new Promise<void>((resolve) => {
 				this.interval = setInterval(async () => {
 					if (await this.signedIn()) {
-						Logger.info("User is signed in.");
+						Logger.info("User just signed in.");
 						clearInterval(this.interval);
 						resolve();
 					}
 				}, 1000);
 			});
+		} else {
+			Logger.info("User is signed in");
 		}
 	}
 }

@@ -14,26 +14,9 @@ import { Helper, Locator } from "../driver";
 import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
 
-interface JobSearchParams {
-	experience: string;
-	location: string;
-	title: string;
-	type: string;
-}
-
 const { SOURCE, TITLE } = Locator;
 
-export class IndeedSite implements Site {
-	submittedDate?: Date;
-
-	driver: WebDriver;
-
-	selectors: { [name: string]: string };
-
-	job?: Job;
-
-	jobSearchParams?: JobSearchParams;
-
+export class IndeedSite extends Site {
 	locationsAndActions = {
 		jobs: {
 			strings: ["Job Search", "Jobs, Employment", "Flexible"],
@@ -93,11 +76,6 @@ export class IndeedSite implements Site {
 		},
 	};
 
-	constructor(driver: WebDriver, selectors: any) {
-		this.selectors = selectors;
-		this.driver = driver;
-	}
-
 	async goToJobsPage(): Promise<void> {
 		const location =
 			SingletonPreferences.locations[
@@ -127,7 +105,7 @@ export class IndeedSite implements Site {
 		await this.driver.sleep(5000);
 
 		const cards = await this.driver.findElements(
-			By.css(this.selectors.smallJobCard)
+			Site.getBy(this.selectors.smallJobCard)
 		);
 
 		for (const card of cards) {
@@ -144,7 +122,7 @@ export class IndeedSite implements Site {
 			await this.driver.sleep(2500);
 
 			const iframe = await this.driver.findElements(
-				By.css(this.selectors.bigJobCard)
+				Site.getBy(this.selectors.bigJobCard)
 			);
 
 			if (iframe.length > 0) {
@@ -152,12 +130,12 @@ export class IndeedSite implements Site {
 			}
 
 			if (
-				(await this.driver.findElements(By.css(this.selectors.applyButton)))
+				(await this.driver.findElements(Site.getBy(this.selectors.applyButton)))
 					.length > 0
 			) {
 				try {
 					await this.driver
-						.findElement(By.css(this.selectors.applyButton))
+						.findElement(Site.getBy(this.selectors.applyButton))
 						.click();
 					await Helper.checkTabs();
 				} catch (e) {
@@ -174,27 +152,6 @@ export class IndeedSite implements Site {
 		if (!applyNowPressed) await this.goToJobsPage();
 	}
 
-	async resumeSection() {
-		await this.getJobInfo();
-		await Helper.scroll();
-		await this.driver.sleep(1000);
-		await this.continue();
-	}
-
-	async getJobInfo(): Promise<void> {
-		const company = await Helper.getText(".ia-JobHeader-information span");
-		const position = await Helper.getText(".ia-JobHeader-information h2");
-
-		console.log("Job info:", position, company);
-
-		this.job = new Job(
-			position,
-			company,
-			"no-description",
-			this.jobSearchParams?.title as string
-		);
-	}
-
 	async answerQuestions() {
 		const qaManager = new QnAManager(
 			this.driver,
@@ -202,22 +159,6 @@ export class IndeedSite implements Site {
 			this.exitApplication.bind(this)
 		);
 		await qaManager.startWorkflow();
-	}
-
-	async exitApplication() {
-		await this.goToJobsPage();
-		await this.driver.sleep(1000);
-		await Helper.acceptAlert();
-	}
-
-	async handleDoneAnsweringQuestions() {
-		await this.continue();
-		if (
-			(await this.driver.findElements(By.xpath(this.selectors.errorsXpath)))
-				.length > 0
-		) {
-			await this.exitApplication();
-		}
 	}
 
 	async chooseExperience() {
@@ -228,7 +169,7 @@ export class IndeedSite implements Site {
 	async chooseLetter() {
 		try {
 			await (
-				await this.driver.findElements(By.css(this.selectors.coverLetter))
+				await this.driver.findElements(Site.getBy(this.selectors.coverLetter))
 			)[3].click();
 		} catch (e) {
 			Logger.error(e);
@@ -239,7 +180,7 @@ export class IndeedSite implements Site {
 			SingletonPreferences?.coverLetter !== ""
 		) {
 			const textarea = await this.driver.findElement(
-				By.css(this.selectors.textarea)
+				Site.getBy(this.selectors.textarea)
 			);
 			await this.driver.executeScript(
 				(element: any) => element.select(),
@@ -261,29 +202,51 @@ export class IndeedSite implements Site {
 	async continueToApplication() {
 		await this.continue();
 	}
-
-	async submitApplication() {
-		await this.continue();
-	}
-
-	async continue() {
-		await (
-			await this.driver.findElement(By.css(this.selectors.nextButton))
-		).click();
-	}
 }
 
 export class IndeedSiteCreator extends SiteCreator {
-	public factoryMethod(driver: WebDriver): Site {
+	public createSite(driver: WebDriver): Site {
 		const selectors = {
-			errorsXpath: "//div[@class='css-mllman e1wnkr790']",
-			bigJobCard: "#vjs-container-iframe",
-			applyButton: ".ia-IndeedApplyButton",
-			nextButton: ".ia-continueButton",
-			coverLetter: "div.css-kyg8or",
-			smallJobCard: ".cardOutline",
-			signedIn: "#AccountMenu",
-			textarea: "textarea",
+			errors: {
+				selector: "//div[@class='css-mllman e1wnkr790']",
+				by: By.css,
+			},
+			bigJobCard: {
+				selector: "#vjs-container-iframe",
+				by: By.css,
+			},
+			applyButton: {
+				selector: ".ia-IndeedApplyButton",
+				by: By.css,
+			},
+			nextButton: {
+				selector: ".ia-continueButton",
+				by: By.css,
+			},
+			coverLetter: {
+				selector: "div.css-kyg8or",
+				by: By.css,
+			},
+			smallJobCard: {
+				selector: ".cardOutline",
+				by: By.css,
+			},
+			signedIn: {
+				selector: "#AccountMenu",
+				by: By.css,
+			},
+			textarea: {
+				selector: "textarea",
+				by: By.css,
+			},
+			companyName: {
+				selector: ".ia-JobHeader-information span",
+				by: By.css,
+			},
+			position: {
+				selector: ".ia-JobHeader-information h2",
+				by: By.css,
+			},
 		};
 		return new IndeedSite(driver, selectors);
 	}

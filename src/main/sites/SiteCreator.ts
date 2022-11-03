@@ -2,16 +2,15 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
-
 import { WebDriver } from "selenium-webdriver";
 
 import { Categorizer, Logger } from "../lib";
 import {
-	Scripts,
-	attachToSession,
 	killDriverProcess,
 	openChromeSession,
+	attachToSession,
 	Locator,
+	Scripts,
 	Helper,
 } from "../driver";
 
@@ -31,7 +30,7 @@ export default abstract class SiteCreator {
 		this.status = Status.RUNNING;
 		this.driver = attachToSession();
 		Helper.init(this.driver);
-		const site = this.factoryMethod(this.driver);
+		const site = this.createSite(this.driver);
 		await site.goToJobsPage();
 		const locator = new Locator.Locator(this.driver as WebDriver, site);
 		await locator.waitUntilSignIn();
@@ -43,7 +42,6 @@ export default abstract class SiteCreator {
 		this.status = Status.STOPPED;
 		await this.driver?.close();
 		Categorizer.SingletonCategorizer.save();
-
 		killDriverProcess();
 	}
 
@@ -63,10 +61,10 @@ export default abstract class SiteCreator {
 		await this.resume();
 	}
 
-	public abstract factoryMethod(driver: WebDriver): Site;
+	public abstract createSite(driver: WebDriver): Site;
 
 	public async run(): Promise<void> {
-		const site = this.factoryMethod(this.driver as WebDriver);
+		const site = this.createSite(this.driver as WebDriver);
 		const locator = new Locator.Locator(this.driver as WebDriver, site);
 		await this.driver?.executeScript(Scripts.DoNotInteract);
 		await this.driver?.sleep(5000);
@@ -106,8 +104,6 @@ export default abstract class SiteCreator {
 						}, 5000);
 					});
 				}
-			} else if (status === "not-found") {
-				await site.goToJobsPage();
 			} else {
 				await site.goToJobsPage();
 			}
