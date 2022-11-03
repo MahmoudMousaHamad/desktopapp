@@ -15,6 +15,7 @@ const scraperHandlers = () => {
 	let siteCreator = new LinkedInSiteCreator();
 
 	if (selected === INDEED) siteCreator = new IndeedSiteCreator();
+
 	const driver = new Driver(siteCreator);
 
 	ipcMain.on("scraper:start", async (event, preferences) => {

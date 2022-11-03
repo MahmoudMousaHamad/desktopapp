@@ -7,31 +7,14 @@
 import { WebDriver, By } from "selenium-webdriver";
 import { BrowserWindow } from "electron";
 
-import { Job, QnAManager } from "../jobapplication";
-import { Locator, Helper } from "../driver";
+import { QnAManager } from "../jobapplication";
 import { SingletonPreferences } from "../lib";
+import { Locator, Helper } from "../driver";
 
-import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
+import SiteCreator from "./SiteCreator";
 
-interface JobSearchParams {
-	[name: string]: {
-		value: string;
-		name: string;
-	};
-}
-
-export class LinkedInSite implements Site {
-	submittedDate?: Date;
-
-	driver: WebDriver;
-
-	selectors: { [name: string]: string };
-
-	job?: Job;
-
-	jobSearchParams?: JobSearchParams;
-
+export class LinkedInSite extends Site {
 	locationsAndActions = {
 		resume: {
 			strings: ["Resume"],
@@ -60,11 +43,6 @@ export class LinkedInSite implements Site {
 			},
 		},
 	};
-
-	constructor(driver: WebDriver, selectors: any) {
-		this.selectors = selectors;
-		this.driver = driver;
-	}
 
 	async goToJobsPage(): Promise<void> {
 		const LinkedInSearchParamsMapper: {
@@ -142,12 +120,10 @@ export class LinkedInSite implements Site {
 		await this.driver.sleep(5000);
 
 		const cards = await this.driver.findElements(
-			By.css(this.selectors.smallJobCard)
+			Site.getBy(this.selectors.smallJobCard)
 		);
 
 		for (const card of cards) {
-			await this.driver.switchTo().defaultContent();
-
 			try {
 				if ((await card.getText()).toLowerCase().includes("applied")) continue;
 			} catch (e) {
@@ -159,12 +135,12 @@ export class LinkedInSite implements Site {
 			await this.driver.sleep(2500);
 
 			if (
-				(await this.driver.findElements(By.css(this.selectors.applyButton)))
+				(await this.driver.findElements(Site.getBy(this.selectors.applyButton)))
 					.length > 0
 			) {
 				try {
 					await this.driver
-						.findElement(By.css(this.selectors.applyButton))
+						.findElement(Site.getBy(this.selectors.applyButton))
 						.click();
 					await Helper.checkTabs();
 				} catch (e) {
@@ -176,29 +152,7 @@ export class LinkedInSite implements Site {
 			}
 		}
 
-		await this.driver.switchTo().defaultContent();
-
 		if (!applyNowPressed) await this.goToJobsPage();
-	}
-
-	async resumeSection() {
-		await this.getJobInfo();
-		await this.driver.sleep(1000);
-		await this.continue();
-	}
-
-	async getJobInfo(): Promise<void> {
-		const company = await Helper.getText(this.selectors.companyName);
-		const position = await Helper.getText(this.selectors.position);
-
-		console.log("Job info:", position, company);
-
-		this.job = new Job(
-			position,
-			company,
-			"no-description",
-			this.jobSearchParams?.title?.value as string
-		);
 	}
 
 	async answerQuestions() {
@@ -210,51 +164,47 @@ export class LinkedInSite implements Site {
 		);
 		await qnaManager.startWorkflow();
 	}
-
-	async exitApplication() {
-		await this.goToJobsPage();
-		await this.driver.sleep(1000);
-		await Helper.acceptAlert();
-	}
-
-	async handleDoneAnsweringQuestions() {
-		await this.continue();
-		if (
-			(await this.driver.findElements(By.xpath(this.selectors.errorsXpath)))
-				.length > 0
-		) {
-			await this.exitApplication();
-		}
-	}
-
-	async continueToApplication() {
-		await this.continue();
-	}
-
-	async submitApplication() {
-		await this.continue();
-	}
-
-	async continue() {
-		await (
-			await this.driver.findElement(By.xpath(this.selectors.nextButtonXpath))
-		).click();
-	}
 }
 
 export class LinkedInSiteCreator extends SiteCreator {
-	public factoryMethod(driver: WebDriver): Site {
+	public createSite(driver: WebDriver): Site {
 		const selectors = {
-			errorsXpath: "//p[ends-wth(@id,'error-message')]",
-			jobCardBigXpath:
-				"//section[starts-with(@class,'scaffold-layout__detail')]",
-			applyButton: "button.jobs-apply-button",
-			nextButtonXpath: "//span[text()[contains(.,'Next')]]/..",
-			smallJobCard: "ul.scaffold-layout__list-container > li",
-			companyName: ".jobs-unified-top-card__company-name",
-			position: ".jobs-unified-top-card__job-title",
-			signedIn: "#ember15",
-			textarea: "textarea",
+			errors: {
+				selector: "//p[ends-wth(@id,'error-message')]",
+				by: By.xpath,
+			},
+			jobCardBigXpath: {
+				selector: "//section[starts-with(@class,'scaffold-layout__detail')]",
+				by: By.xpath,
+			},
+			applyButton: {
+				selector: "button.jobs-apply-button",
+				by: By.css,
+			},
+			nextButton: {
+				selector: "//span[text()[contains(.,'Next')]]/..",
+				by: By.xpath,
+			},
+			smallJobCard: {
+				selector: "ul.scaffold-layout__list-container > li",
+				by: By.css,
+			},
+			companyName: {
+				selector: ".jobs-unified-top-card__company-name",
+				by: By.css,
+			},
+			position: {
+				selector: ".jobs-unified-top-card__job-title",
+				by: By.css,
+			},
+			signedIn: {
+				selector: "#ember15",
+				by: By.css,
+			},
+			textarea: {
+				selector: "textarea",
+				by: By.css,
+			},
 		};
 		return new LinkedInSite(driver, selectors);
 	}

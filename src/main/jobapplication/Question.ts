@@ -5,24 +5,22 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { By, Key, promise } from "selenium-webdriver";
+import { By, Key, promise, WebElement } from "selenium-webdriver";
 import Natural from "natural";
 
 import { SingletonCategorizer, Logger, Classifier } from "../lib";
+import { Site } from "../sites";
 
 require("chromedriver");
 
 class Question {
-	constructor(element) {
-		this.element = element;
-	}
+	element: WebElement;
 
-	async clearInput(element) {
-		const inputValueLength = (await element.getAttribute("value")).length;
-		await (await element.getDriver()).executeScript((e) => e.select(), element);
-		for (let i = 0; i < inputValueLength; i++) {
-			await element.sendKeys(Key.BACK_SPACE);
-		}
+	site: Site;
+
+	constructor(element: WebElement, site: Site) {
+		this.element = element;
+		this.site = site;
 	}
 
 	typesSelectors = {
