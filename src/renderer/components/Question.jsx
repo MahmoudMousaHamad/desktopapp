@@ -121,18 +121,18 @@ function constructInput(
 	onKeyDown,
 	...args
 ) {
-	if (options === "None") {
+	if (options) {
 		return questionTypeInput[type].element(
+			options,
 			handleChange,
 			answer,
-			onKeyDown,
 			...args
 		);
 	}
 	return questionTypeInput[type].element(
-		options,
 		handleChange,
 		answer,
+		onKeyDown,
 		...args
 	);
 }

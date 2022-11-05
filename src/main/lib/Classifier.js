@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import natural from "natural";
 import path from "path";
-import pos from "pos";
 import fs from "fs";
 
 import Logger from "./Logger";
@@ -73,18 +72,3 @@ export class Classifier {
 }
 
 export const SingletonClassifier = new Classifier();
-
-export const TokenizeQuestion = (question) => {
-	const words = new pos.Lexer().lex(question);
-	const tagger = new pos.Tagger();
-	const taggedWords = tagger.tag(words);
-	const importantWords = [];
-	taggedWords.forEach((taggedWord) => {
-		const [word, tag] = taggedWord;
-		if (Classifier.ACCEPTED_TAGS.includes(tag) && word.length > 2) {
-			importantWords.push(word);
-		}
-	});
-
-	return [...new Set(importantWords)];
-};

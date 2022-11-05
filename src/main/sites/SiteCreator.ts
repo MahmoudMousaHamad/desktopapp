@@ -4,6 +4,7 @@
 /* eslint-disable class-methods-use-this */
 import { WebDriver } from "selenium-webdriver";
 
+import { QuestionInfo, QuestionsInfo } from "../jobapplication/Question";
 import { Categorizer, Logger } from "../lib";
 import {
 	killDriverProcess,
@@ -17,6 +18,30 @@ import {
 import { Site, Status } from "./Site";
 
 export default abstract class SiteCreator {
+	questionsInfo: QuestionsInfo = {
+		text: new QuestionInfo(
+			"text",
+			["input[type=text]", "input[type=tel]"],
+			"label"
+		),
+		textarea: new QuestionInfo("textarea", "textarea", "label"),
+		number: new QuestionInfo("number", "input[type=number]", "label"),
+		date: new QuestionInfo("date", "input[type=date]", "label"),
+		radio: new QuestionInfo(
+			"radio",
+			"input[type=radio]",
+			"legend",
+			".//label/input//.."
+		),
+		select: new QuestionInfo("select", "select", "label", ".//select/option"),
+		checkbox: new QuestionInfo(
+			"checkbox",
+			"input[type=checkbox]",
+			["label", "legend"],
+			".//label/input//.."
+		),
+	};
+
 	driver?: WebDriver;
 
 	status: Status;
@@ -29,8 +54,8 @@ export default abstract class SiteCreator {
 		openChromeSession();
 		this.status = Status.RUNNING;
 		this.driver = attachToSession();
-		Helper.init(this.driver);
-		const site = this.createSite(this.driver);
+		Helper.init(this.driver as WebDriver);
+		const site = this.createSite(this.driver as WebDriver);
 		await site.goToJobsPage();
 		const locator = new Locator.Locator(this.driver as WebDriver, site);
 		await locator.waitUntilSignIn();

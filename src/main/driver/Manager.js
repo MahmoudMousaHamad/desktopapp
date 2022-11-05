@@ -5,22 +5,18 @@
 /* eslint-disable promise/no-nesting */
 /* eslint-disable global-require */
 /* eslint-disable new-cap */
-const chrome = require("selenium-webdriver/chrome");
-const { app, dialog } = require("electron");
-const { exec } = require("child_process");
-const unzipper = require("unzipper");
-const https = require("https");
-const ps = require("ps-node");
-const path = require("path");
-const fs = require("fs");
+import chrome from "selenium-webdriver/chrome";
+import { app, dialog } from "electron";
+import { exec } from "child_process";
+import unzipper from "unzipper";
+import https from "https";
+import ps from "ps-node";
+import path from "path";
+import fs from "fs";
 
-const {
-	chromeDriverPath,
-	appDatatDirPath,
-	targetPlatform,
-	isWindows,
-} = require("../lib/OS");
-const { default: Logger } = require("../lib/Logger");
+import { Logger, OS } from "../lib";
+
+const { chromeDriverPath, appDatatDirPath, targetPlatform, isWindows } = OS;
 
 const versionIndex = {
 	106: "106.0.5249.21",
@@ -34,7 +30,7 @@ const versionIndex = {
 
 const chromeRemoteDebugPort = 9222;
 
-async function getChromeMajorVersion() {
+export async function getChromeMajorVersion() {
 	const chromeVersion = await require("find-chrome-version")();
 	const chromeMajorVersion = chromeVersion.split(".")[0];
 
@@ -58,7 +54,7 @@ async function getChromeMajorVersion() {
 	return chromeMajorVersion;
 }
 
-async function downloadChromeDriver() {
+export async function downloadChromeDriver() {
 	const chromeMajorVersion = await getChromeMajorVersion();
 
 	if (!chromeMajorVersion)
@@ -97,7 +93,7 @@ async function downloadChromeDriver() {
 	});
 }
 
-function openChromeSession() {
+export function openChromeSession() {
 	const userChromeDataDir = `${appDatatDirPath}/userchromedata`;
 	if (!fs.existsSync(userChromeDataDir)) {
 		fs.mkdirSync(userChromeDataDir);
@@ -141,7 +137,7 @@ function openChromeSession() {
 	);
 }
 
-function attachToSession() {
+export function attachToSession() {
 	const myChromePath = path.join(
 		appDatatDirPath,
 		"chromedriver",
@@ -161,7 +157,7 @@ function attachToSession() {
 	return driver;
 }
 
-function killDriverProcess() {
+export function killDriverProcess() {
 	const find = require("find-process");
 
 	find("name", "chromedriver")
@@ -177,10 +173,3 @@ function killDriverProcess() {
 			throw e;
 		});
 }
-
-module.exports = {
-	downloadChromeDriver,
-	openChromeSession,
-	killDriverProcess,
-	attachToSession,
-};

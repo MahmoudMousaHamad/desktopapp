@@ -240,12 +240,7 @@ class QAManager {
 		this.currentQuestion = this.clientQuestions.at(this.currentIndex);
 		this.currentIndex += 1;
 
-		if (!(await this.currentQuestion?.prepare()) && !this.qnaOver()) {
-			// await this.getNextQuestion();
-			return false;
-		}
-
-		return true;
+		return (await this.currentQuestion?.prepare()) && !this.qnaOver();
 	}
 
 	qnaOver() {

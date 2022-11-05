@@ -151,28 +151,3 @@ app
 
 autoUpdaterHandlers();
 scraperHandlers();
-
-/**
- * Company website application workflows
- *
- * A)
- *  Find apply button (Press)
- *  Terms and conditions (Agree)
- *  Resume (Upload)
- *  Basic information (Fill)
- *  Work experience (Fill)
- *    Add more as necessary
- *  Education (Fill)
- *    Add more as necessary
- *  Additional attachments (Attach)
- *    Cover letter
- *  Application Questions (Fill)
- *    Questions are divided into divs
- *  Voluntary Disclosures (Fill)
- *  Disability self-identity (Fill)
- *  Review (Submit)
- *  Submission Verification (Log)
- *
- * B) Greenhouse
- *
- */

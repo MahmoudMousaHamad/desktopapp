@@ -7,6 +7,7 @@
 import { WebDriver, By } from "selenium-webdriver";
 import { BrowserWindow } from "electron";
 
+import { QuestionInfo, QuestionsInfo } from "main/jobapplication/Question";
 import { QnAManager } from "../jobapplication";
 import { SingletonPreferences } from "../lib";
 import { Locator, Helper } from "../driver";
@@ -17,7 +18,7 @@ import SiteCreator from "./SiteCreator";
 export class LinkedInSite extends Site {
 	locationsAndActions = {
 		resume: {
-			strings: ["Resume"],
+			strings: ["Be sure to include an updated resume"],
 			type: Locator.TEXT,
 			action: this.resumeSection.bind(this),
 		},
@@ -77,7 +78,7 @@ export class LinkedInSite extends Site {
 				Math.floor(Math.random() * SingletonPreferences.titles.length)
 			];
 
-		this.jobSearchParams = {
+		const jobSearchParams = {
 			autoApply: {
 				name: "f_AL",
 				value: "true",
@@ -103,7 +104,7 @@ export class LinkedInSite extends Site {
 			},
 		};
 
-		const stringSearchParams = Object.entries(this.jobSearchParams)
+		const stringSearchParams = Object.entries(jobSearchParams)
 			.map(([, { name, value }]) => `${name}=${value}`)
 			.join("&");
 
@@ -117,7 +118,7 @@ export class LinkedInSite extends Site {
 	async enterApplication() {
 		let applyNowPressed = false;
 
-		await this.driver.sleep(5000);
+		await this.driver.sleep(2000);
 
 		const cards = await this.driver.findElements(
 			Site.getBy(this.selectors.smallJobCard)
@@ -132,7 +133,7 @@ export class LinkedInSite extends Site {
 
 			await card.click();
 
-			await this.driver.sleep(2500);
+			await this.driver.sleep(2000);
 
 			if (
 				(await this.driver.findElements(Site.getBy(this.selectors.applyButton)))
@@ -156,22 +157,22 @@ export class LinkedInSite extends Site {
 	}
 
 	async answerQuestions() {
-		const qnaManager = new QnAManager(
-			this.driver,
-			this.handleDoneAnsweringQuestions.bind(this),
-			this.exitApplication.bind(this),
-			"//div[@class='jobs-easy-apply-content']"
-		);
-		await qnaManager.startWorkflow();
+		await new QnAManager(this).startWorkflow();
 	}
 }
 
 export class LinkedInSiteCreator extends SiteCreator {
 	public createSite(driver: WebDriver): Site {
+		super.questionsInfo.radio = new QuestionInfo(
+			"radio",
+			"input[type=radio]",
+			"legend",
+			".//*[@data-test-fb-radio-display-text='true']"
+		);
 		const selectors = {
 			errors: {
-				selector: "//p[ends-wth(@id,'error-message')]",
-				by: By.xpath,
+				selector: "#todo-change-me",
+				by: By.css,
 			},
 			jobCardBigXpath: {
 				selector: "//section[starts-with(@class,'scaffold-layout__detail')]",
@@ -182,7 +183,8 @@ export class LinkedInSiteCreator extends SiteCreator {
 				by: By.css,
 			},
 			nextButton: {
-				selector: "//span[text()[contains(.,'Next')]]/..",
+				selector:
+					"//span[text()[contains(.,'Next') or contains(.,'Review') or contains(.,'Submit application')]]/..",
 				by: By.xpath,
 			},
 			smallJobCard: {
@@ -205,7 +207,11 @@ export class LinkedInSiteCreator extends SiteCreator {
 				selector: "textarea",
 				by: By.css,
 			},
+			questionsXpathPrefex: {
+				selector: "//div[@class='jobs-easy-apply-content']",
+				by: By.xpath,
+			},
 		};
-		return new LinkedInSite(driver, selectors);
+		return new LinkedInSite(driver, selectors, super.questionsInfo);
 	}
 }

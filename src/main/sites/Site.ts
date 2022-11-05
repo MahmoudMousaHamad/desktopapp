@@ -3,9 +3,11 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 
-import { Helper } from "main/driver";
-import { Job } from "main/jobapplication";
 import { By, WebDriver } from "selenium-webdriver";
+
+import { QuestionsInfo } from "../jobapplication/Question";
+import { Job } from "../jobapplication";
+import { Helper } from "../driver";
 
 export enum Status {
 	RESTART,
@@ -24,6 +26,7 @@ interface LocationAction {
 
 export interface SiteInterface {
 	locationsAndActions: LocationAction;
+	questionsInfo: QuestionsInfo;
 	driver: WebDriver;
 	selectors: any;
 
@@ -43,6 +46,8 @@ export abstract class Site implements SiteInterface {
 	abstract answerQuestions(): Promise<void>;
 	abstract goToJobsPage(): Promise<void>;
 
+	questionsInfo: QuestionsInfo;
+
 	locationsAndActions: {
 		[name: string]: { strings: string[]; type: string; action: () => any };
 	};
@@ -59,13 +64,16 @@ export abstract class Site implements SiteInterface {
 
 	job?: Job;
 
-	constructor(driver: WebDriver, selectors: any) {
+	constructor(driver: WebDriver, selectors: any, questionsInfo: QuestionsInfo) {
+		this.questionsInfo = questionsInfo;
 		this.locationsAndActions = {};
 		this.selectors = selectors;
 		this.driver = driver;
 	}
 
-	static getBy(selector: any): By {
+	static getBy(_selector: any): By {
+		let { selector } = _selector;
+		selector = Array.isArray(selector) ? selector.join(",") : selector;
 		return selector.by(selector.selector);
 	}
 

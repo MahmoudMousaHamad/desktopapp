@@ -99,7 +99,7 @@ export default () => {
 						<Typography level="h2" fontWeight={700}>
 							JobApplier
 						</Typography>
-						v0.1.10
+						v0.1.11
 					</Box>
 					<Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>
 						<IconButton

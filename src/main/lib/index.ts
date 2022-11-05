@@ -4,7 +4,6 @@ export {
 	CLASSIFIER_PATH,
 	CONDIFENCE_THRESHOLD,
 	SingletonClassifier,
-	TokenizeQuestion,
 } from "./Classifier";
 export * as Categorizer from "./Categorizer";
 export { default as Logger } from "./Logger";
