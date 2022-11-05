@@ -6,10 +6,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import natural from "natural";
 import path from "path";
+import pos from "pos";
 import fs from "fs";
 
 import OS from "./OS";
 import Logger from "./Logger";
+import { Classifier } from "./Classifier";
 
 export const categories = {
 	sponsorship: [
@@ -93,17 +95,10 @@ export class Categorizer {
 			let score = 0;
 			for (const keyword of keywords) {
 				const matchingWords = questionTokens.filter((word) => {
-					const distance = natural.JaroWinklerDistance(
-						word,
-						keyword,
-						undefined,
-						true
-					);
+					const distance = natural.JaroWinklerDistance(word, keyword);
 					return distance > 0.9;
 				});
-				if (matchingWords.length > 0) {
-					score++;
-				}
+				if (matchingWords.length > 0) score++;
 			}
 			if (score > maxScore) {
 				questionCategory = category;
@@ -112,10 +107,10 @@ export class Categorizer {
 		}
 
 		return {
-			category: questionCategory,
-			score: maxScore,
 			answer: this.categorizer[questionCategory]?.answer,
 			type: this.categorizer[questionCategory]?.type,
+			category: questionCategory,
+			score: maxScore,
 		};
 	}
 
@@ -142,6 +137,21 @@ export class Categorizer {
 			type,
 		};
 	}
+
+	TokenizeQuestion = (question) => {
+		const words = new pos.Lexer().lex(question);
+		const tagger = new pos.Tagger();
+		const taggedWords = tagger.tag(words);
+		const importantWords = [];
+		taggedWords.forEach((taggedWord) => {
+			const [word, tag] = taggedWord;
+			if (Classifier.ACCEPTED_TAGS.includes(tag) && word.length > 2) {
+				importantWords.push(word);
+			}
+		});
+
+		return [...new Set(importantWords)];
+	};
 }
 
 export const SingletonCategorizer = new Categorizer();

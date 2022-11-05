@@ -153,12 +153,7 @@ export class IndeedSite extends Site {
 	}
 
 	async answerQuestions() {
-		const qaManager = new QnAManager(
-			this.driver,
-			this.handleDoneAnsweringQuestions.bind(this),
-			this.exitApplication.bind(this)
-		);
-		await qaManager.startWorkflow();
+		await new QnAManager(this).startWorkflow();
 	}
 
 	async chooseExperience() {
@@ -248,6 +243,6 @@ export class IndeedSiteCreator extends SiteCreator {
 				by: By.css,
 			},
 		};
-		return new IndeedSite(driver, selectors);
+		return new IndeedSite(driver, selectors, super.questionsInfo);
 	}
 }

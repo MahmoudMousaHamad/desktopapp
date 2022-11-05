@@ -14,8 +14,8 @@ export default class Job {
 		searchedJobTitle: string
 	) {
 		this.searchedJobTitle = searchedJobTitle;
+		this.description = description;
 		this.position = position;
 		this.company = company;
-		this.description = description;
 	}
 }
