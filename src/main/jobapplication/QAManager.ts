@@ -33,8 +33,11 @@ class QAManager {
 	win: BrowserWindow;
 
 	constructor(site: Site) {
-		this.channels = { question: "question", questions: "questions" };
-		this.listeners = { answer: "answer", answers: "answers" };
+		this.channels = {
+			questions: "questions",
+			clearQuestions: "clear-questions",
+		};
+		this.listeners = { answers: "answers" };
 		[this.win] = BrowserWindow.getAllWindows();
 		this.answeredLastQuestion = false;
 		this.questionsSentDate = 0;
@@ -77,10 +80,11 @@ class QAManager {
 					resolve();
 				} else if (Date.now() - this.questionsSentDate >= 60000) {
 					Logger.info(
-						"Waiting for answer timed out, exiting job application..."
+						"Waiting for answers timed out, exiting job application..."
 					);
 					clearInterval(this.interval);
 					resolve();
+					this.win.webContents.send(this.channels.clearQuestions);
 					await this.forceQuit();
 				}
 			}, 1000);
@@ -152,7 +156,7 @@ class QAManager {
 							: options[answer];
 				}
 
-				Logger.info("Answer as input to categorizer: ", clientAnswer);
+				Logger.info(`Answer as input to categorizer: ${clientAnswer}`);
 
 				SingletonCategorizer.addCategory(question.tokens, clientAnswer, type);
 

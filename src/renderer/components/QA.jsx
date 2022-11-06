@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
 import { useEffect, useState } from "react";
 
-import { questionAnswered } from "../actions/qa";
+import { questionsAnswered } from "../actions/qa";
 import Question from "./Question";
 
 export default function QA() {
@@ -32,7 +32,7 @@ export default function QA() {
 				answers,
 			});
 			setAnswers(null);
-			dispatch(questionAnswered());
+			dispatch(questionsAnswered());
 		}
 	}
 

@@ -71,9 +71,7 @@ export abstract class Site implements SiteInterface {
 		this.driver = driver;
 	}
 
-	static getBy(_selector: any): By {
-		let { selector } = _selector;
-		selector = Array.isArray(selector) ? selector.join(",") : selector;
+	static getBy(selector: any): By {
 		return selector.by(selector.selector);
 	}
 

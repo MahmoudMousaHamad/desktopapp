@@ -50,6 +50,10 @@ export default abstract class SiteCreator {
 		this.status = Status.STOPPED;
 	}
 
+	getQuestionsInfo(): QuestionsInfo {
+		return this.questionsInfo;
+	}
+
 	public async start(): Promise<void> {
 		openChromeSession();
 		this.status = Status.RUNNING;

@@ -7,8 +7,7 @@
 import { WebDriver, By } from "selenium-webdriver";
 import { BrowserWindow } from "electron";
 
-import { QuestionInfo, QuestionsInfo } from "main/jobapplication/Question";
-import { QnAManager } from "../jobapplication";
+import { QnAManager, QuestionInfo } from "../jobapplication";
 import { SingletonPreferences } from "../lib";
 import { Locator, Helper } from "../driver";
 
@@ -163,7 +162,8 @@ export class LinkedInSite extends Site {
 
 export class LinkedInSiteCreator extends SiteCreator {
 	public createSite(driver: WebDriver): Site {
-		super.questionsInfo.radio = new QuestionInfo(
+		const questionsInfo = super.getQuestionsInfo();
+		questionsInfo.radio = new QuestionInfo(
 			"radio",
 			"input[type=radio]",
 			"legend",
@@ -212,6 +212,6 @@ export class LinkedInSiteCreator extends SiteCreator {
 				by: By.xpath,
 			},
 		};
-		return new LinkedInSite(driver, selectors, super.questionsInfo);
+		return new LinkedInSite(driver, selectors, questionsInfo);
 	}
 }

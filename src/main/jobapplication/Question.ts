@@ -15,7 +15,7 @@ import { Site } from "../sites";
 
 require("chromedriver");
 
-const SCORE_THRESHOLD = 3;
+const SCORE_THRESHOLD = 1;
 
 export enum QuestionTypes {
 	textarea = "textarea",
@@ -133,10 +133,6 @@ class Question {
 				By.xpath(optionsSelector)
 			);
 			const inputs = await this.element.findElements(By.xpath(inputSelector));
-			Logger.info(
-				"Attempting to fillout checkboxes. Attempting answer of index ",
-				answer
-			);
 			// Uncheck any checked boxes
 			for (let i = 0; i < options.length; ++i) {
 				if (await inputs[i].isSelected()) {
@@ -189,9 +185,21 @@ class Question {
 		};
 	}
 
-	async answer(answer: any) {
+	async answer(answer: string) {
+		if (!this.type) throw Error("Type is not defined");
 		Logger.info(`Question type: ${this.type}`);
-		await this.answerFunctions[this.type as string](answer);
+
+		const { inputSelector, optionsSelector } =
+			this.site.questionsInfo[this.type];
+		Logger.info(
+			`Inputting answer of value ${answer} and type ${typeof answer}
+			for input with selector ${inputSelector} and ${optionsSelector}`
+		);
+		await this.answerFunctions[this.type as string](
+			answer.toString(),
+			inputSelector.join(","),
+			optionsSelector
+		);
 	}
 
 	async attemptToAnswer() {
@@ -227,7 +235,7 @@ class Question {
 					attemptedAnswer = temp;
 				} else {
 					// Go through options and see if the attempted answer makes sense
-					let maxDistance = -100;
+					let maxDistance = -Infinity;
 					let maxOption = "";
 					this.options.forEach((option) => {
 						const distance = Natural.JaroWinklerDistance(
@@ -301,7 +309,6 @@ class Question {
 			Logger.error("ERROR: Couldn't get question options");
 			return null;
 		}
-
 		if (options.length === 0) {
 			Logger.info("This question has no options");
 		}
