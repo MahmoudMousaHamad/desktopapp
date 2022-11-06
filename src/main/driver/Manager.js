@@ -143,7 +143,7 @@ export function attachToSession() {
 		"chromedriver",
 		`chromedriver${isWindows ? ".exe" : ""}`
 	);
-	Logger.info("Chrome driver path:", myChromePath);
+	Logger.info(`Chrome driver path: ${myChromePath}`);
 
 	const service = new chrome.ServiceBuilder(myChromePath)
 		.enableVerboseLogging()

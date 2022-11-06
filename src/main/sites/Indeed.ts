@@ -242,7 +242,11 @@ export class IndeedSiteCreator extends SiteCreator {
 				selector: ".ia-JobHeader-information h2",
 				by: By.css,
 			},
+			questionsXpathPrefex: {
+				selector: "",
+				by: By.xpath,
+			},
 		};
-		return new IndeedSite(driver, selectors, super.questionsInfo);
+		return new IndeedSite(driver, selectors, super.getQuestionsInfo());
 	}
 }

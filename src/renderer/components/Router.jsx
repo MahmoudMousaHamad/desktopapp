@@ -17,7 +17,7 @@ import Profile from "../screens/Profile";
 import Login from "../screens/Login";
 
 // Actions
-import { endQuestions, setQuestion, setQuestions } from "../actions/qa";
+import { clearQuestions, endQuestions, setQuestions } from "../actions/qa";
 import CoverLetter from "../screens/CoverLetter";
 import { sendData } from "../actions/socket";
 import Socket from "../Socket";
@@ -36,17 +36,15 @@ export default () => {
 	const store = useStore();
 
 	useEffect(() => {
-		window.electron.ipcRenderer.on("question", (data) => {
-			dispatch(setQuestion(data.question));
-			dispatch(sendData("question", data.question));
-		});
-
-		window.electron.ipcRenderer.on("questions", (data) => {
-			dispatch(setQuestions(data.questions));
-			dispatch(sendData("questions", data.questions));
-		});
-
 		if (auth.isLoggedIn) {
+			window.electron.ipcRenderer.on("questions", (data) => {
+				dispatch(setQuestions(data.questions));
+				dispatch(sendData("questions", data.questions));
+			});
+			window.electron.ipcRenderer.on("clear-questions", () => {
+				dispatch(clearQuestions());
+				dispatch(sendData("clear-questions")); // TODO: remove questions and/or norification from mobile client
+			});
 			window.electron.ipcRenderer.on("application-submitted", () => {
 				if (!auth.user.id)
 					throw Error(
@@ -71,6 +69,7 @@ export default () => {
 
 		return () => {
 			window.electron.ipcRenderer.removeAllListeners("application-submitted");
+			window.electron.ipcRenderer.removeAllListeners("clear-questions");
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("questions");
 			window.electron.ipcRenderer.removeAllListeners("question");

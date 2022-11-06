@@ -10,11 +10,7 @@ import { stop } from "./BotHelpers";
 
 const App = () => {
 	const { "server-error": serverError } = useSelector((state) => state.socket);
-
-	if (serverError) {
-		stop();
-	}
-
+	if (serverError) stop();
 	return (
 		<CssVarsProvider
 			disableTransitionOnChange

@@ -1,6 +1,7 @@
 import {
-	QUESTION_ANSWERED,
+	QUESTIONS_ANSWERED,
 	QUESTIONS_ENDED,
+	CLEAR_QUESTIONS,
 	SET_QUESTIONS,
 	SET_QUESTION,
 } from "../actions/types";
@@ -13,10 +14,12 @@ export default (state = initialState, action) => {
 			return { ...state, question: payload, answered: false };
 		case SET_QUESTIONS:
 			return { ...state, questions: payload, answered: false };
+		case CLEAR_QUESTIONS:
+			return { ...state, questions: null, answered: false };
 		case QUESTIONS_ENDED:
 			return { ...state, question: null };
-		case QUESTION_ANSWERED:
-			return { ...state, question: null, answered: true, questions: null };
+		case QUESTIONS_ANSWERED:
+			return { ...state, question: null, answered: true };
 		default:
 			return state;
 	}
