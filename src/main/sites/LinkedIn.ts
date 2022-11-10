@@ -107,7 +107,7 @@ export class LinkedInSite extends Site {
 			.map(([, { name, value }]) => `${name}=${value}`)
 			.join("&");
 
-		this.driver.get(
+		await this.driver.get(
 			`https://www.linkedin.com/jobs/search/?${stringSearchParams}`
 		);
 

@@ -4,17 +4,20 @@ import { IndeedSiteCreator, LinkedInSiteCreator, Status } from "../sites";
 import { SingletonCategorizer } from "../lib/Categorizer";
 import SingletonPreferences from "../lib/Preferences";
 import { killDriverProcess, Driver } from "../driver";
+import { Logger } from "../lib";
 
 let blockerId = 0;
 
 const scraperHandlers = () => {
-	let siteCreator = new LinkedInSiteCreator();
-	let driver = new Driver(siteCreator);
+	const linkedin = new LinkedInSiteCreator();
+	const indeed = new IndeedSiteCreator();
+	let driver = new Driver(linkedin);
+
 	ipcMain.on("scraper:start", async (event, preferences) => {
-		if (preferences.site === "INDEED") {
-			siteCreator = new IndeedSiteCreator();
-			driver = new Driver(siteCreator);
-		}
+		Logger.info(`Site: ${preferences.site}`);
+		if (preferences.site === "INDEED") driver = new Driver(indeed);
+		else driver = new Driver(linkedin);
+
 		SingletonPreferences.setPreferences(preferences);
 		SingletonCategorizer.load(preferences.answers);
 
@@ -32,8 +35,8 @@ const scraperHandlers = () => {
 	});
 
 	ipcMain.on("scraper:pause", async (event) => {
-		driver.pause();
 		event.reply("scraper:status", driver.getStatus());
+		await driver.pause();
 	});
 
 	ipcMain.on("scraper:resume", async (event) => {
