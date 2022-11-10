@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Typography } from "@mui/joy";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, MenuItem, Select } from "@mui/material";
 import { sendData } from "../actions/socket";
 
 import { pause, profileFilled, resume, start, stop } from "../BotHelpers";
@@ -28,6 +28,7 @@ export default () => {
 		running: botStatus === "start",
 	});
 	const [loading, setLoading] = useState();
+	const [site, setSite] = useState(localStorage.getItem("site") || "INDEED");
 	const dispatchRedux = useDispatch();
 
 	const canSubmit = counts?.count < counts?.limit;
@@ -72,6 +73,18 @@ export default () => {
 			{loading && <CircularProgress />}
 			{showControl && (
 				<>
+					<Select
+						disabled={status?.running || status?.paused}
+						onChange={(e) => {
+							localStorage.setItem("site", e.target.value);
+							setSite(e.target.value);
+						}}
+						sx={{ mr: 2 }}
+						value={site}
+					>
+						<MenuItem value="INDEED">Indeed</MenuItem>
+						<MenuItem value="LINKEDIN">LinkedIn</MenuItem>
+					</Select>
 					<Button
 						sx={{ mr: 2 }}
 						size="lg"
@@ -88,13 +101,23 @@ export default () => {
 					</Button>
 					{(status?.paused || status?.running) && (
 						<Button
-							size="lg"
 							onClick={status?.running ? pause : resume}
 							color="warning"
+							sx={{ mr: 2 }}
+							size="lg"
 						>
 							{(status?.running ? "Pause" : "Resume").toUpperCase()}
 						</Button>
 					)}
+					<Button
+						onClick={() =>
+							dispatchRedux(
+								sendData("questions", [{ text: "Test", type: "text" }])
+							)
+						}
+					>
+						Send Question to Phone
+					</Button>
 				</>
 			)}
 			{!canSubmit && (

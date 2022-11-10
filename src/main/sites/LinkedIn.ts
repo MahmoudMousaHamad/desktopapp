@@ -117,7 +117,7 @@ export class LinkedInSite extends Site {
 	async enterApplication() {
 		let applyNowPressed = false;
 
-		await this.driver.sleep(2000);
+		await this.driver.sleep(5000);
 
 		const cards = await this.driver.findElements(
 			Site.getBy(this.selectors.smallJobCard)
@@ -132,7 +132,7 @@ export class LinkedInSite extends Site {
 
 			await card.click();
 
-			await this.driver.sleep(2000);
+			await this.driver.sleep(3000);
 
 			if (
 				(await this.driver.findElements(Site.getBy(this.selectors.applyButton)))

@@ -5,20 +5,16 @@ import { SingletonCategorizer } from "../lib/Categorizer";
 import SingletonPreferences from "../lib/Preferences";
 import { killDriverProcess, Driver } from "../driver";
 
-const LINKEDIN = 1;
-const INDEED = 2;
-
 let blockerId = 0;
 
 const scraperHandlers = () => {
-	const selected = LINKEDIN;
 	let siteCreator = new LinkedInSiteCreator();
-
-	if (selected === INDEED) siteCreator = new IndeedSiteCreator();
-
-	const driver = new Driver(siteCreator);
-
+	let driver = new Driver(siteCreator);
 	ipcMain.on("scraper:start", async (event, preferences) => {
+		if (preferences.site === "INDEED") {
+			siteCreator = new IndeedSiteCreator();
+			driver = new Driver(siteCreator);
+		}
 		SingletonPreferences.setPreferences(preferences);
 		SingletonCategorizer.load(preferences.answers);
 

@@ -72,7 +72,6 @@ export default () => {
 			window.electron.ipcRenderer.removeAllListeners("clear-questions");
 			window.electron.ipcRenderer.removeAllListeners("questions-ended");
 			window.electron.ipcRenderer.removeAllListeners("questions");
-			window.electron.ipcRenderer.removeAllListeners("question");
 		};
 	}, [dispatch, questions, auth, store]);
 
