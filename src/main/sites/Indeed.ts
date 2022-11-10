@@ -94,7 +94,7 @@ export class IndeedSite extends Site {
 			title,
 		};
 
-		this.driver.get(
+		await this.driver.get(
 			`https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${SingletonPreferences.experienceLevel})jt(${SingletonPreferences.jobType})`
 		);
 	}
