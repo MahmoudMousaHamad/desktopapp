@@ -17,9 +17,9 @@ export default (state = initialState, action) => {
 		case CLEAR_QUESTIONS:
 			return { ...state, questions: null, answered: false };
 		case QUESTIONS_ENDED:
-			return { ...state, question: null };
+			return { ...state, questions: null };
 		case QUESTIONS_ANSWERED:
-			return { ...state, question: null, answered: true };
+			return { ...state, questions: null, answered: true };
 		default:
 			return state;
 	}

@@ -78,15 +78,16 @@ class QAManager {
 				if (this.answeredLastQuestion) {
 					clearInterval(this.interval);
 					resolve();
-				} else if (Date.now() - this.questionsSentDate >= 60000) {
-					Logger.info(
-						"Waiting for answers timed out, exiting job application..."
-					);
-					clearInterval(this.interval);
-					resolve();
-					this.win.webContents.send(this.channels.clearQuestions);
-					await this.forceQuit();
 				}
+				// else if (Date.now() - this.questionsSentDate >= 60000) {
+				// 	Logger.info(
+				// 		"Waiting for answers timed out, exiting job application..."
+				// 	);
+				// 	clearInterval(this.interval);
+				// 	resolve();
+				// 	this.win.webContents.send(this.channels.clearQuestions);
+				// 	await this.forceQuit();
+				// }
 			}, 1000);
 		});
 	}

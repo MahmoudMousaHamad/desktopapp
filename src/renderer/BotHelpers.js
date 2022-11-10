@@ -23,6 +23,7 @@ export const start = () => {
 		jobType: JSON.parse(localStorage.getItem("job-type")),
 		titles: JSON.parse(localStorage.getItem("titles")),
 		coverLetter: localStorage.getItem("cover-letter"),
+		site: localStorage.getItem("site") || "INDEED",
 	});
 };
 
