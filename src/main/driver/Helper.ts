@@ -14,7 +14,11 @@ import Logger from "../lib/Logger";
 import { ScrollDown } from "./Scripts";
 
 class Helper {
-	driver?: WebDriver;
+	driver: WebDriver;
+
+	constructor(driver: WebDriver) {
+		this.driver = driver;
+	}
 
 	init(driver: WebDriver) {
 		this.driver = driver;
@@ -34,7 +38,7 @@ class Helper {
 	}
 
 	async getText(by: By): Promise<string> {
-		return this.driver?.findElement(by).getText() as Promise<string>;
+		return (await this.driver.findElement(by)).getText();
 	}
 
 	async waitFor(selector: Locator, timeout = 10) {
@@ -69,4 +73,4 @@ class Helper {
 	}
 }
 
-export default new Helper();
+export default new Helper(null as unknown as WebDriver);

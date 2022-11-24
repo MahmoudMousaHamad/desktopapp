@@ -112,7 +112,9 @@ export default () => {
 					<Button
 						onClick={() =>
 							dispatchRedux(
-								sendData("questions", [{ text: "Test", type: "text" }])
+								sendData("questions", [
+									{ text: "What is your email address?", type: "text" },
+								])
 							)
 						}
 					>
