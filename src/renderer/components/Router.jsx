@@ -125,9 +125,7 @@ export default () => {
 						<Route path="/coverletter" element={<CoverLetter />} />
 					</Routes>
 				</Layout.Main>
-				<Layout.Controls>
-					<BotControls />
-				</Layout.Controls>
+				<Layout.Controls>{auth.isLoggedIn && <BotControls />}</Layout.Controls>
 			</Layout.Root>
 		</HashRouter>
 	);
