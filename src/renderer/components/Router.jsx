@@ -14,6 +14,7 @@ import { Box } from "@mui/joy";
 import Dashboard from "../screens/Dashboard";
 import Register from "../screens/Register";
 import Profile from "../screens/Profile";
+import Pricing from "../screens/Pricing";
 import Login from "../screens/Login";
 
 // Actions
@@ -121,6 +122,7 @@ export default () => {
 						<Route path="/register" element={<Register />} />
 						<Route path="/profile" element={<Profile />} />
 						<Route path="/coverletter" element={<CoverLetter />} />
+						<Route path="/pricing" element={<Pricing />} />
 					</Routes>
 				</Layout.Main>
 				<Layout.Controls>{auth.isLoggedIn && <BotControls />}</Layout.Controls>

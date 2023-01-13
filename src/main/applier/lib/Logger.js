@@ -4,7 +4,6 @@ import path from "path";
 import OS from "./OS";
 
 function initLogger() {
-	console.log("appDatatDirPath", OS.appDatatDirPath);
 	const Logger = winston.createLogger({
 		level: "info",
 		format: winston.format.json(),

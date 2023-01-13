@@ -1,39 +1,36 @@
 /* eslint-disable promise/always-return */
 import { Box, Button, Input, Typography } from "@mui/joy";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { useSnackbar } from "notistack";
 
 import { setMessage } from "../actions/message";
 import { register } from "../actions/auth";
 
 const Register = () => {
 	const { message } = useSelector((state) => state.message);
+	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
 	const [firstName, setFirstName] = useState("");
 	const [password, setPassword] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
 
-	const onChangeEmail = (e) => {
-		setEmail(e.target.value);
-	};
-	const onChangePassword = (e) => {
-		setPassword(e.target.value);
-	};
-	const onChangeFirstName = (e) => {
-		setFirstName(e.target.value);
-	};
-	const onChangeLastName = (e) => {
-		setLastName(e.target.value);
-	};
+	const onChangeFirstName = (e) => setFirstName(e.target.value);
+	const onChangePassword = (e) => setPassword(e.target.value);
+	const onChangeLastName = (e) => setLastName(e.target.value);
+	const onChangeEmail = (e) => setEmail(e.target.value);
 
 	const handleRegister = (e) => {
 		e.preventDefault();
 		if (email && password && firstName && lastName) {
 			dispatch(register(email, password, firstName, lastName))
 				.then(() => {
-					console.log("Registration was successfull, please login.");
+					enqueueSnackbar("Registration was successfull, please login.");
+					navigate("/login");
 				})
 				.catch(() => {
 					setMessage("Sorry, something went wrong.");
@@ -86,11 +83,6 @@ const Register = () => {
 					<Button type="submit">Register</Button>
 				</>
 			</form>
-			<Box sx={{ mt: 3 }}>
-				<Typography level="body1" textColor="text.secondary">
-					{message}
-				</Typography>
-			</Box>
 		</Box>
 	);
 };

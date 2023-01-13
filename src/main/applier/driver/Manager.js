@@ -16,9 +16,16 @@ import fs from "fs";
 
 import { Logger, OS } from "../lib";
 
-const { chromeDriverPath, appDatatDirPath, targetPlatform, isWindows } = OS;
+const {
+	userChromeDataDir,
+	chromeDriverPath,
+	appDatatDirPath,
+	targetPlatform,
+	isWindows,
+} = OS;
 
 const versionIndex = {
+	108: "108.0.5359.71",
 	106: "106.0.5249.21",
 	105: "105.0.5195.52",
 	104: "104.0.5112.29",
@@ -64,7 +71,9 @@ export async function downloadChromeDriver() {
 		fs.mkdirSync(appDatatDirPath);
 	}
 
-	const fileUrl = `https://chromedriver.storage.googleapis.com/${versionIndex[chromeMajorVersion]}/chromedriver_${targetPlatform}.zip`;
+	const fileUrl = `https://chromedriver.storage.googleapis.com/${
+		versionIndex[await getChromeMajorVersion()]
+	}/chromedriver_${targetPlatform}.zip`;
 
 	Logger.info(`Zip file url ${fileUrl}`);
 
@@ -93,11 +102,8 @@ export async function downloadChromeDriver() {
 	});
 }
 
-export function openChromeSession() {
-	const userChromeDataDir = `${appDatatDirPath}/userchromedata`;
-	if (!fs.existsSync(userChromeDataDir)) {
-		fs.mkdirSync(userChromeDataDir);
-	}
+export async function openChromeSession() {
+	if (!fs.existsSync(userChromeDataDir)) fs.mkdirSync(userChromeDataDir);
 
 	let chromeCommand;
 
@@ -119,31 +125,34 @@ export function openChromeSession() {
 		chromeCommand = "google-chrome";
 	}
 
+	// TODO: Use chrome-launcher to launch chrome
+	const userAgent = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${await getChromeMajorVersion()}.0.0.0 Safari/537.36`;
+
 	exec(
-		`${chromeCommand} --remote-debugging-port=${chromeRemoteDebugPort} --user-data-dir="${userChromeDataDir}"`,
+		`${chromeCommand} \
+		--remote-debugging-port=${chromeRemoteDebugPort} \
+		--disable-blink-features=AutomationControlled \
+		--user-data-dir=${userChromeDataDir} \
+		--remote-debugging-address=0.0.0.0 \
+		--user-agent="${userAgent}" \
+		--start-maximized \
+		`,
 		(error, stdout, stderr) => {
-			if (stdout) {
-				Logger.info(`stdout: ${stdout}`);
-			}
-
-			if (stderr) {
-				Logger.error(`stderr: ${stderr}`);
-			}
-
-			if (error) {
-				Logger.error(`exec error: ${error}`);
-			}
+			if (stdout) Logger.info(`stdout: ${stdout}`);
+			if (stderr) Logger.error(`stderr: ${stderr}`);
+			if (error) Logger.error(`exec error: ${error}`);
 		}
 	);
 }
 
-export function attachToSession() {
+export async function attachToSession() {
 	const myChromePath = path.join(
 		appDatatDirPath,
 		"chromedriver",
 		`chromedriver${isWindows ? ".exe" : ""}`
 	);
 	Logger.info(`Chrome driver path: ${myChromePath}`);
+	Logger.info(`User data directory: ${userChromeDataDir}`);
 
 	const service = new chrome.ServiceBuilder(myChromePath)
 		.enableVerboseLogging()
@@ -152,24 +161,41 @@ export function attachToSession() {
 	const options = new chrome.Options();
 	options.options_.debuggerAddress = `localhost:${chromeRemoteDebugPort}`;
 
+	// options.addArguments([
+	// 	`--remote-debugging-port=${chromeRemoteDebugPort}`,
+	// 	`--user-data-dir=${userChromeDataDir}`,
+	// 	"--remote-debugging-address=0.0.0.0",
+	// 	`--user-agent=${userAgent}`,
+	// 	"--disable-dev-shm-usage",
+	// 	"--disable-gpu",
+	// 	"--no-sandbox",
+	// 	"--headless",
+	// ]);
 	const driver = chrome.Driver.createSession(options, service);
 
 	return driver;
 }
 
-export function killDriverProcess() {
-	const find = require("find-process");
+export async function killDriverProcess() {
+	// const find = require("find-process");
+	const kill = require("kill-port");
 
-	find("name", "chromedriver")
-		.then((list) => {
-			list.forEach((p) => {
-				ps.kill(p.pid, (e) => {
-					if (e) throw e;
-					Logger.info(`The ${p.name} process has been killed`);
-				});
-			});
-		})
-		.catch((e) => {
-			throw e;
-		});
+	// find("name", "chromedriver")
+	// 	.then((list) => {
+	// 		list.forEach((p) => {
+	// 			ps.kill(p.pid, (e) => {
+	// 				if (e) throw e;
+	// 				Logger.info(`The ${p.name} process has been killed`);
+	// 			});
+	// 		});
+	// 	})
+	// 	.catch((e) => {
+	// 		Logger.error(e);
+	// 	});
+
+	try {
+		await kill(chromeRemoteDebugPort, "tcp");
+	} catch (e) {
+		Logger.error(e);
+	}
 }

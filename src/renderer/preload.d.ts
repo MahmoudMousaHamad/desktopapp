@@ -1,4 +1,4 @@
-import { Status } from "../main/driver";
+import { Status } from "../main/applier/driver";
 
 declare global {
 	interface Window {

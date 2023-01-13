@@ -20,8 +20,12 @@ export default {
 			autoConnect: false,
 		});
 
+		const { user } = store.getState().auth;
+
+		if (!user.id) throw new Error("User id is not defined");
+
 		this.socket.auth = {
-			user: store.getState().auth.user,
+			user,
 			source: "desktop",
 		};
 

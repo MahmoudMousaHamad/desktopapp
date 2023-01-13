@@ -43,8 +43,11 @@ const chromeDriverPath = path.join(
 	chromeDriverBinaryName
 );
 
+const userChromeDataDir = path.join(appDatatDirPath, "userchromedata");
+
 export default {
 	chromeDriverBinaryName,
+	userChromeDataDir,
 	chromeDriverPath,
 	appDatatDirPath,
 	targetPlatform,

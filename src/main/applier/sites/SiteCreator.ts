@@ -55,9 +55,9 @@ export default abstract class SiteCreator {
 	}
 
 	public async start(): Promise<void> {
-		openChromeSession();
+		await openChromeSession();
 		this.status = Status.RUNNING;
-		this.driver = attachToSession();
+		this.driver = await attachToSession();
 		Helper.init(this.driver as WebDriver);
 		const site = this.createSite(this.driver as WebDriver);
 		await site.goToJobsPage();
@@ -67,11 +67,11 @@ export default abstract class SiteCreator {
 	}
 
 	async stop() {
-		Logger.info("Stopping bot");
+		Logger.info("Stopping bot 2");
 		this.status = Status.STOPPED;
 		await this.driver?.close();
 		Categorizer.SingletonCategorizer.save();
-		killDriverProcess();
+		await killDriverProcess();
 	}
 
 	pause() {
@@ -88,6 +88,10 @@ export default abstract class SiteCreator {
 	async restart() {
 		this.pause();
 		await this.resume();
+	}
+
+	getStatus() {
+		return this.status;
 	}
 
 	public abstract createSite(driver: WebDriver): Site;
@@ -127,7 +131,8 @@ export default abstract class SiteCreator {
 									`Something went wrong AGAIN while running action for ${page}, falling back`,
 									e
 								);
-								await site.goToJobsPage();
+								Logger.info(`Status: ${this.status}`);
+								if (this.status === Status.RUNNING) await site.goToJobsPage();
 							}
 							resolve();
 						}, 5000);

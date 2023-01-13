@@ -139,11 +139,10 @@ class QAManager {
 
 	setupIPCListeners() {
 		ipcMain.on(this.listeners.answers, async (_event, { answers }) => {
-			if (!this.questionsToSend) {
-				return;
-			}
+			if (!this.questionsToSend) return;
 			for (let i = 0; i < answers.length; i++) {
 				const question = this.questionsToSend[i];
+				if (!question) continue;
 				const answer = answers[i];
 				const { options, type } = question.getInfo();
 				let clientAnswer = answer;
@@ -158,9 +157,7 @@ class QAManager {
 				}
 
 				Logger.info(`Answer as input to categorizer: ${clientAnswer}`);
-
 				SingletonCategorizer.addCategory(question.tokens, clientAnswer, type);
-
 				await question.answer(clientAnswer);
 			}
 

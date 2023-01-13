@@ -2,7 +2,10 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 import { Box, Input, Radio, Typography } from "@mui/joy";
+import { MenuItem, Select } from "@mui/material";
 import { useState } from "react";
+
+import countries from "../constants/countries";
 
 const keywords = {
 	sponsorship: [
@@ -46,9 +49,10 @@ const keywords = {
 let categoriesQuestions = {
 	sponsorship: {
 		question: {
-			type: "radio",
 			text: "Do you require sponsorship?",
 			options: ["Yes", "No"],
+			defaultAnswer: "Yes",
+			type: "radio",
 		},
 	},
 	experience: {
@@ -59,47 +63,50 @@ let categoriesQuestions = {
 	},
 	relocate: {
 		question: {
-			type: "radio",
 			text: "Are you willing to relocate?",
+			type: "radio",
 			options: [
 				"Yes, I can make the commute",
 				"Yes, I am planning to relocate",
 				"Yes, but I need relocation assitance",
 				"No",
 			],
+			defaultAnswer: "No",
 		},
 	},
 	workAuthorization: {
 		question: {
-			type: "radio",
 			text: "Do you have any work authorization?",
 			options: ["Yes", "No"],
+			defaultAnswer: "Yes",
+			type: "radio",
 		},
 	},
 	citizen: {
 		question: {
-			type: "radio",
 			text: "Are you a U.S. citizen?",
 			options: ["Yes", "No"],
+			type: "radio",
 		},
 	},
 	clearance: {
 		question: {
-			type: "radio",
 			text: "Do you have a security clearance?",
 			options: ["Yes", "No"],
+			defaultAnswer: "No",
+			type: "radio",
 		},
 	},
 	salary: {
 		question: {
-			type: "number",
 			text: "What is your salary expectation?",
+			type: "number",
 		},
 	},
 	gpa: {
 		question: {
-			type: "number",
 			text: "What is your GPA?",
+			type: "number",
 		},
 	},
 	degree: {
@@ -114,18 +121,21 @@ let categoriesQuestions = {
 				"Master's",
 				"Doctorate",
 			],
+			defaultAnswer: "Bachelor's",
 		},
 	},
 	phone: {
 		question: {
-			type: "number",
+			type: "tel",
 			text: "What is your phone number?",
 		},
 	},
 	country: {
 		question: {
-			type: "text",
 			text: "In which country do you reside?",
+			defaultAnswer: "United States",
+			options: countries,
+			type: "select",
 		},
 	},
 	address: {
@@ -136,15 +146,19 @@ let categoriesQuestions = {
 	},
 	email: {
 		question: {
-			type: "text",
+			defaultAnswer: localStorage.user
+				? JSON.parse(localStorage.user).email
+				: "",
 			text: "What is your email?",
+			type: "text",
 		},
 	},
 	gender: {
 		question: {
-			type: "radio",
-			text: "What is your gender?",
 			options: ["Male", "Female", "Prefer not to answer"],
+			defaultAnswer: "Prefer not to answer",
+			text: "What is your gender?",
+			type: "radio",
 		},
 	},
 	ethnicity: {
@@ -152,34 +166,27 @@ let categoriesQuestions = {
 			type: "radio",
 			text: "What is your ethnicity?",
 			options: [
+				"Native Hawaiian or Other Pacific Islander",
 				"American Indian or Alaska Native",
-				"Asian",
 				"Black or African American",
 				"Hispanic or Latino",
-				"Native Hawaiian or Other Pacific Islander",
 				"White",
+				"Asian",
 			],
 		},
 	},
 	disability: {
 		question: {
-			type: "radio",
+			defaultAnswer: "I don't wish to answer",
 			text: "Disability status",
 			options: [
 				"Yes, I have a disability",
 				"No, I don't have a disability",
 				"I don't wish to answer",
 			],
+			type: "radio",
 		},
 	},
-};
-
-const getQuestionsByType = (type) => {
-	return Object.fromEntries(
-		Object.entries(categoriesQuestions).filter(
-			([, value]) => value.question.type === type
-		)
-	);
 };
 
 categoriesQuestions = Object.fromEntries(
@@ -223,13 +230,17 @@ export default () => {
 
 	for (const category in categoriesQuestions) {
 		const { question } = categoriesQuestions[category];
+		const { type } = question;
 		const text = (
 			<Typography sx={{ mb: 1 }} textColor="text.primary" level="h5">
 				{question.text}
 			</Typography>
 		);
 
-		if (question.type === "text" || question.type === "number") {
+		if (question.defaultAnswer && !answers[category]?.answer)
+			handleChange(question.defaultAnswer, category);
+
+		if (["text", "number", "tel", "email"].includes(type)) {
 			questions.push(
 				<>
 					{text}
@@ -242,12 +253,29 @@ export default () => {
 					/>
 				</>
 			);
-		} else {
+		} else if (type === "select") {
 			questions.push(
 				<>
 					{text}
-					{question.options.map((option, index) => (
-						<div key={index}>
+					<Select
+						onChange={(e) => handleChange(e.target.value, category)}
+						sx={{ mr: 2 }}
+						value={answers[category]?.answer}
+					>
+						{question.options.map((option) => (
+							<MenuItem key={option} value={option}>
+								{option}
+							</MenuItem>
+						))}
+					</Select>
+				</>
+			);
+		} else if (type === "radio") {
+			questions.push(
+				<>
+					{text}
+					{question.options.map((option) => (
+						<div key={option}>
 							<Radio
 								sx={{ mb: 1 }}
 								checked={answers[category]?.answer === option}

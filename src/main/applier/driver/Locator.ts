@@ -97,8 +97,11 @@ export class Locator {
 
 	async waitUntilSignIn() {
 		const signedin = await this.signedIn();
-		if (!signedin) {
+		if (signedin) {
+			Logger.info("User is signed in");
+		} else {
 			Logger.info("User is not signed in");
+			// TODO: this.site.signin();
 			await this.driver.executeScript(PleaseSignIn);
 			await new Promise<void>((resolve) => {
 				this.interval = setInterval(async () => {
@@ -109,8 +112,6 @@ export class Locator {
 					}
 				}, 1000);
 			});
-		} else {
-			Logger.info("User is signed in");
 		}
 	}
 }

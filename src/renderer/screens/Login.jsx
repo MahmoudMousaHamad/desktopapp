@@ -1,14 +1,17 @@
 /* eslint-disable promise/always-return */
 import { Box, Button, Input, Typography } from "@mui/joy";
-import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import GoogleButton from "react-google-button";
 import { Navigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import React, { useState } from "react";
 
 import { login } from "../actions/auth";
 
 const Login = () => {
 	const { isLoggedIn } = useSelector((state) => state.auth);
 	const { message } = useSelector((state) => state.message);
+	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useDispatch();
 
 	const [password, setPassword] = useState("");
@@ -25,19 +28,17 @@ const Login = () => {
 		if (email && password) {
 			dispatch(login(email, password))
 				.then(() => {
-					console.log("Login successful!");
+					enqueueSnackbar("Login successful!");
 				})
 				.catch(console.log);
 		}
 	};
 
-	if (isLoggedIn) {
-		return <Navigate to="/" />;
-	}
+	if (isLoggedIn) return <Navigate to="/" />;
 
 	return (
 		<Box sx={{ p: 5 }}>
-			<form onSubmit={handleLogin}>
+			{/* <form onSubmit={handleLogin}>
 				<Typography level="label" textColor="text.secondary">
 					Email
 				</Typography>
@@ -58,11 +59,13 @@ const Login = () => {
 					onChange={onChangePassword}
 				/>
 				<Button type="submit">Login</Button>
-			</form>
-			<Box sx={{ mt: 3 }}>
-				<Typography level="body1" textColor="text.secondary">
-					{message}
-				</Typography>
+			</form> */}
+			<Box sx={{ mt: 2 }}>
+				<GoogleButton
+					onClick={() => {
+						window.electron.ipcRenderer.send("google-oath");
+					}}
+				/>
 			</Box>
 		</Box>
 	);

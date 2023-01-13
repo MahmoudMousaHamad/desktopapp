@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { downloadChromeDriver } from "../main/driver/Manager";
+import { downloadChromeDriver } from "../main/applier/driver/Manager";
 import OS from "../main/lib/OS";
 
 test("downloadChromeDriver() downloads chrome driver", async () => {

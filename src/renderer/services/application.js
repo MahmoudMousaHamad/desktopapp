@@ -5,25 +5,24 @@ import axios from "axios";
 import config from "../config";
 
 const getCounts = (userId) => {
-  Logger.info("Get counts user id:", userId);
-  return axios.get(
-    `${
-      config.endpoints(window.electron.NODE_ENV).APPLICATIONS_API_URL
-    }getCounts`,
-    { params: { userId } }
-  );
+	return axios.get(
+		`${
+			config.endpoints(window.electron.NODE_ENV).APPLICATIONS_API_URL
+		}getCounts`,
+		{ params: { userId } }
+	);
 };
 
 const updateCount = (userId) => {
-  return axios.post(
-    `${
-      config.endpoints(window.electron.NODE_ENV).APPLICATIONS_API_URL
-    }updateCount`,
-    { userId }
-  );
+	return axios.post(
+		`${
+			config.endpoints(window.electron.NODE_ENV).APPLICATIONS_API_URL
+		}updateCount`,
+		{ userId }
+	);
 };
 
 export default {
-  updateCount,
-  getCounts,
+	updateCount,
+	getCounts,
 };

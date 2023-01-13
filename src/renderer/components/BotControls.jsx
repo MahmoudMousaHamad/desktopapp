@@ -109,7 +109,7 @@ export default () => {
 							{(status?.running ? "Pause" : "Resume").toUpperCase()}
 						</Button>
 					)}
-					<Button
+					{/* <Button
 						onClick={() =>
 							dispatchRedux(
 								sendData("questions", [
@@ -119,16 +119,15 @@ export default () => {
 						}
 					>
 						Send Question to Phone
-					</Button>
+					</Button> */}
 				</>
 			)}
 			{!canSubmit && (
 				<Typography level="body2">
-					We thank you for using JobApplier! Unfotunately, you have reached your
-					limit. Please pay the fee ($99 for 500 submissions) to keep using
-					JobApplier. You can venmo $99 to @mahmoud-mousahamad. Please include
-					your JobApplier account email and your full name in the payment note.
-					Thank you!
+					You have reached your limit. Please pay the fee ($99 for 500 job
+					submissions) to keep using JobApplier. You can venmo $99 to
+					@mahmoud-mousahamad. Please include your JobApplier account email and
+					your full name in the payment note. Thank you!
 				</Typography>
 			)}
 			{!profileFilled() && (

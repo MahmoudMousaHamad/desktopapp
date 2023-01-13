@@ -1,18 +1,22 @@
 import { StyledEngineProvider } from "@mui/system";
-import React from "react";
-import { createRoot } from "react-dom/client";
+import { SnackbarProvider } from "notistack";
 import { Provider } from "react-redux";
+import { render } from "react-dom";
+import React from "react";
+
 import App from "./App";
 import store from "./store";
 
-const container = document.getElementById("root")!;
-const root = createRoot(container);
-root.render(
+const root = document.getElementById("root");
+render(
 	<React.StrictMode>
 		<Provider store={store}>
 			<StyledEngineProvider injectFirst>
-				<App />
+				<SnackbarProvider maxSnack={3}>
+					<App />
+				</SnackbarProvider>
 			</StyledEngineProvider>
 		</Provider>
-	</React.StrictMode>
+	</React.StrictMode>,
+	root
 );

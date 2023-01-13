@@ -14,7 +14,8 @@ import { Helper, Locator } from "../driver";
 import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
 
-const { SOURCE, TITLE } = Locator;
+const SOURCE = "SOURCE";
+const TITLE = "TITLE";
 
 export class IndeedSite extends Site {
 	locationsAndActions = {
