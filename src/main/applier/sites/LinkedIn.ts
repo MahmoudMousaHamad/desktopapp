@@ -26,7 +26,7 @@ export class LinkedInSite extends Site {
 			action: this.handleSubmitted.bind(this),
 		},
 		questions: {
-			strings: ["Contact info", "Additional Questions", "Work authorization"],
+			strings: ["Additional Questions", "Work authorization"],
 			type: Locator.TEXT,
 			action: this.answerQuestions.bind(this),
 		},
@@ -96,6 +96,7 @@ export class LinkedInSite extends Site {
 	}
 
 	async enterApplication() {
+		console.log("Finding a new job");
 		let applyNowPressed = false;
 
 		await this.driver.sleep(1000);
@@ -126,6 +127,10 @@ export class LinkedInSite extends Site {
 						.click();
 					await Helper.checkTabs();
 				} catch (e) {
+					console.log(
+						"Something went wrong while clicking apply now button",
+						e
+					);
 					await this.driver.switchTo().defaultContent();
 					continue;
 				}
@@ -136,6 +141,7 @@ export class LinkedInSite extends Site {
 
 		if (!applyNowPressed) await this.goToJobsPage();
 
+		// For contact info section
 		await this.continue();
 	}
 

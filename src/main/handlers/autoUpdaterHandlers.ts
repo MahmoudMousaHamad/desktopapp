@@ -4,14 +4,14 @@ import { dialog } from "electron";
 import Logger from "../applier/lib/Logger";
 
 const autoUpdaterHandlers = () => {
-	autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+	autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: "info",
-			buttons: ["Restart", "Later"],
-			title: "Application Update",
+			buttons: ["Restart"],
+			title: "Work-Shy Update",
 			message: process.platform === "win32" ? releaseNotes : releaseName,
 			detail:
-				"A new version has been downloaded. Restart the application to apply the updates.",
+				"A new version has been downloaded. Restart Work-Shy to apply the updates.",
 		};
 
 		dialog

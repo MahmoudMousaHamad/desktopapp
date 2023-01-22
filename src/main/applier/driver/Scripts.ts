@@ -17,7 +17,7 @@ document.body.prepend(htmlToElement(
 	<div id="jobapplier-modal" class="jobapplier-modal">
 		<div id="jobapplier-modal-content">
 			<span class="jobapplier-close">&times;</span>
-			<p style="font-size: 20px;">Message from JobApplier</p>
+			<p style="font-size: 20px;">Message from Work-Shy</p>
 			<p style="font-size: 15px;">Please sign in to get started</p>
 		</div>
 	</div>
@@ -62,9 +62,9 @@ document.body.prepend(htmlToElement(
 	<div id="jobapplier-modal" class="jobapplier-modal">
 		<div id="jobapplier-modal-content">
 			<span class="jobapplier-close">&times;</span>
-			<p style="font-size: 20px;">Message from JobApplier</p>
+			<p style="font-size: 20px;">Message from Work-Shy</p>
 			<p style="font-size: 15px;">
-			This window is controlled by JobApplier.
+			This window is controlled by Work-Shy.
 			Please do not interact with this chrome window.
 			If anything goes wrong, restart the app and let us know what went wrong
 			so that we can fix it. email: mahmoudmousahamad@gmail.com

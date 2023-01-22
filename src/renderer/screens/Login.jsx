@@ -96,10 +96,10 @@ const Login = () => {
 					borderRadius: "10px",
 				}}
 			>
-				<img src={Logo} width="200px" alt="JobApplier Logo" />
+				<img src={Logo} width="200px" alt="Work-Shy Logo" />
 				<Box>
 					<Typography sx={{ mt: 1 }} level="h2" fontWeight={700}>
-						JobApplier
+						Work-Shy
 					</Typography>
 				</Box>
 				<Box sx={{ mt: 10 }}>

@@ -8,20 +8,20 @@ import Locations from "./Locations";
 
 const steps = [
 	{
-		title: "Welcome to JobApplier! 👋",
+		title: "Welcome to Work-Shy! 👋",
 		description:
 			"Before you start applying to jobs like a ninja, we need to do a few things first.",
 	},
 	// {
-	// 	title: "How does JobApplier work?",
-	// 	description: `The idea behind JobApplier is new and was never done before, as far as we know.
+	// 	title: "How does Work-Shy work?",
+	// 	description: `The idea behind Work-Shy is new and was never done before, as far as we know.
 	// 		We realized that applying to jobs involves a lot of the same repetitive tasks: filling out
 	// 		the same information, clicking the same buttons, searching, and attaching the same stuff.
 	// 		You get the idea. We also know that the more job applications you send out, the better your chances
 	// 		are at getting a job.
 	// 		Well, computers are great at automating boring tasks, such as applying to jobs. And
 	// 		if we can automate applying to jobs, it means that we can apply to more and more jobs with little
-	// 		to no effort. Sounds too good to be true. But it is true. That is why we created JobApplier!
+	// 		to no effort. Sounds too good to be true. But it is true. That is why we created Work-Shy!
 	// 		We created a "bot", which is just a computer program that applies for jobs on your behalf.
 	// 		It does all the boring tasks for you and it even learns about you and answers job application questions
 	// 		on your behalf. Cool, right? Okay, so, how does it work?
@@ -35,16 +35,16 @@ const steps = [
 	// 	body: (
 	// 		<ol>
 	// 			<li>
-	// 				Download and install the JobApplier Desktop application on your
+	// 				Download and install the Work-Shy Desktop application on your
 	// 				Computer. Register, login and fill out your information.
 	// 			</li>
 	// 			<li>
 	// 				Ensure your Indeed account is ready. Upload and setup your resume. If
 	// 				you&apos;re new to Indeed, apply to a job to see how it works.
 	// 			</li>
-	// 			<li>Download the JobApplier mobile application and login.</li>
+	// 			<li>Download the Work-Shy mobile application and login.</li>
 	// 			<li>
-	// 				Open the JobApplier Desktop application, hit the &quot;Start&quot;
+	// 				Open the Work-Shy Desktop application, hit the &quot;Start&quot;
 	// 				button to start the bot. The bot is going to open a new Google Chrome
 	// 				window that it controls.
 	// 			</li>
@@ -99,8 +99,8 @@ const steps = [
 	// 	),
 	// },
 	{
-		title: "Download the JobApplier mobile app",
-		description: `Go to the Play or Apple store and search for "JobApplier".
+		title: "Download the Work-Shy mobile app",
+		description: `Go to the Play or Apple store and search for "Work-Shy".
 			Download the app and login.`,
 	},
 ];

@@ -20,7 +20,7 @@ const keywords = {
 		"eg",
 		"work",
 	],
-	experience: ["many", "how", "year", "experience"],
+	experience: ["many", "how", "year", "years", "work", "experience"],
 	relocate: ["reliably", "commute", "able", "job", "will", "relocate"],
 	relocateYesNo: [
 		"willingness",

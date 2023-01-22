@@ -267,12 +267,13 @@ class Question {
 					attemptedAnswer = maxOption;
 				}
 			}
-		} else if (
+		} else if (this.text?.startsWith("How many")) attemptedAnswer = "1";
+		else if (
 			this.type === QuestionTypes.text ||
 			this.type === QuestionTypes.textarea
 		)
-			attemptedAnswer = "N/A";
-		else if (this.type === QuestionTypes.number) attemptedAnswer = "0";
+			attemptedAnswer = "1";
+		else if (this.type === QuestionTypes.number) attemptedAnswer = "1";
 		else if (this.type === QuestionTypes.date) attemptedAnswer = "2020-01-01";
 		else if (this.options && this.options?.length > 0)
 			[, attemptedAnswer] = this.options;

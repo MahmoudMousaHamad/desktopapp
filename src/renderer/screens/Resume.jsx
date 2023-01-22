@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Link, Typography } from "@mui/joy";
+import { Box, Button, Link, Typography } from "@mui/joy";
 import MyDialog from "../components/Dialog";
 import UserInformation from "../components/UserInformation";
 
@@ -20,7 +20,7 @@ const Resume = () => {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: "1fr 1fr 1fr",
+					gridTemplateColumns: "1fr 1fr 1fr 1fr",
 					gridGap: "20px",
 				}}
 			>
@@ -35,20 +35,30 @@ const Resume = () => {
 						</Typography>
 						<Typography level="body2">
 							For LinkedIn,
-							<Link
+							<Button
 								sx={{ ml: 1 }}
-								href="https://www.linkedin.com/jobs/application-settings/"
+								onClick={() =>
+									window.electron.ipcRenderer.send(
+										"open-url",
+										"https://www.linkedin.com/jobs/application-settings/"
+									)
+								}
 							>
 								Click here
-							</Link>
+							</Button>
 							<Box>
 								For Indeed,
-								<Link
+								<Button
 									sx={{ ml: 1 }}
-									href="https://profile.indeed.com/?hl=en_US&co=US"
+									onClick={() =>
+										window.electron.ipcRenderer.send(
+											"open-url",
+											"https://profile.indeed.com/"
+										)
+									}
 								>
 									Click here
-								</Link>
+								</Button>
 							</Box>
 						</Typography>
 					</>

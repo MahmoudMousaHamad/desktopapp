@@ -1,8 +1,8 @@
 {
   "name": "desktopapp",
-  "displayName": "JobApplier",
-  "description": "JobApplier desktop app",
-  "version": "0.1.11",
+  "displayName": "Work-Shy",
+  "description": "Work-Shy desktop app",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
@@ -178,13 +178,13 @@
   },
   "build": {
     "protocols": {
-      "name": "JobApplier",
+      "name": "Work-Shy",
       "schemes": [
-        "jobapplier"
+        "work-shy"
       ]
     },
-    "productName": "JobApplier",
-    "appId": "com.mahmoudmousahamad.JobApplier",
+    "productName": "Work-Shy",
+    "appId": "com.mahmoudmousahamad.Work-Shy",
     "artifactName": "${productName}.${ext}",
     "publish": {
       "provider": "spaces",

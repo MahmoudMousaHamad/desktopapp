@@ -167,12 +167,14 @@ export class IndeedSite extends Site {
 			);
 			await textarea.sendKeys(Key.BACK_SPACE);
 
-			const coverLetter = new CoverLetter(
-				SingletonPreferences,
-				textarea,
-				this.jobs[this.jobs.length - 1] as Job
-			);
-			await coverLetter.fill();
+			if (this.job) {
+				const coverLetter = new CoverLetter(
+					SingletonPreferences,
+					textarea,
+					this.job
+				);
+				await coverLetter.fill();
+			}
 		}
 		await this.continue();
 	}

@@ -165,7 +165,10 @@ export default abstract class SiteCreator {
 					}
 				}
 			} else if (status === "restart") await this.restart();
-			else await this.site?.goToJobsPage();
+			else {
+				Logger.error(`Could not find an action for the page ${status}`);
+				await this.site?.goToJobsPage();
+			}
 			await this.driver?.sleep(2000);
 			previousPage = page;
 		}

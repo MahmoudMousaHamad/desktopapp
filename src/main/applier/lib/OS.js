@@ -16,16 +16,16 @@ switch (platform) {
 			process.env.HOME,
 			"Library",
 			"Application Support",
-			"JobApplier"
+			"Work-Shy"
 		);
 		break;
 	case "linux":
 		targetPlatform = "linux64";
-		appDatatDirPath = path.join(process.env.HOME, ".JobApplier");
+		appDatatDirPath = path.join(process.env.HOME, ".Work-Shy");
 		break;
 	case "win32":
 		targetPlatform = "win32";
-		appDatatDirPath = path.join(process.env.APPDATA, "JobApplier");
+		appDatatDirPath = path.join(process.env.APPDATA, "Work-Shy");
 		isWindows = true;
 		break;
 	default:

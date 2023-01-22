@@ -7,7 +7,7 @@ sudo docker run --rm -ti \
     --env DO_SECRET_KEY=WLNAC1hvaGaAiXwqaiTmL3hiPvKq4ieagH2C1sy5ozo \
     --env ELECTRON_CACHE="/root/.cache/electron" \
     --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder"  \
-    -v ${PWD}:/project  -v ${PWD##*/}-node-modules:/project/node_modules  \
+    -v "${PWD}:/project"  -v "${PWD##*/}-node-modules:/project/node_modules"  \
     -v ~/.cache/electron:/root/.cache/electron  \
     -v ~/.cache/electron-builder:/root/.cache/electron-builder \
     --entrypoint=/bin/bash  electronuserland/builder:wine \

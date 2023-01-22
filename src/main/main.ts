@@ -181,6 +181,12 @@ ipcMain.on("google-oath", async () => {
 	mainWindow?.focus();
 });
 
+ipcMain.on("open-url", (href) => {
+	if (typeof href === "string") {
+		shell.openExternal(href);
+	}
+});
+
 ipcMain.on("open-stripe", async (_e, { email, userId }) => {
 	await new Promise<void>((resolve) => {
 		const server = new LoopbackRedirectServer(
