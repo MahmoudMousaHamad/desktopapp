@@ -1,6 +1,5 @@
 import { ipcMain, powerSaveBlocker } from "electron";
 
-import { killDriverProcess } from "../applier/driver";
 import {
 	IndeedSiteCreator,
 	LinkedInSiteCreator,
@@ -17,7 +16,7 @@ let site = new LinkedInSiteCreator();
 const scraperHandlers = () => {
 	site = new LinkedInSiteCreator();
 
-	ipcMain.on("scraper:start", async (event, preferences) => {
+	ipcMain.on("applier:start", async (event, preferences) => {
 		Logger.info(`Site: ${preferences.site}`);
 		if (preferences.site === "INDEED") {
 			site = new IndeedSiteCreator();
@@ -28,38 +27,49 @@ const scraperHandlers = () => {
 		SingletonPreferences.setPreferences(preferences);
 		SingletonCategorizer.load(preferences.answers);
 
-		event.reply("scraper:status", Status.RUNNING);
+		event.reply("applier:status", {
+			status: Status.RUNNING,
+			count: site.getStatus().count,
+		});
 
 		blockerId = powerSaveBlocker.start("prevent-display-sleep");
 		try {
 			await site.start();
 		} catch (e) {
-			Logger.error(e);
+			Logger.error(
+				`something went wrong while starting site ${preferences.site} ${e}`
+			);
 		}
 	});
 
-	ipcMain.on("scraper:stop", async (event) => {
+	ipcMain.on("applier:stop", async (event) => {
 		if (site.status === Status.RUNNING || site.status === Status.PAUSED) {
-			Logger.info("Stopping bot 1");
 			await site.stop();
-			await killDriverProcess();
-			event.reply("scraper:status", site.getStatus());
+			Logger.info("Stopped applier");
+			event.reply("applier:status", site.getStatus());
+			event.reply("session-ended", {
+				count: site.getStatus().count,
+				jobs: site.getJobs(),
+			});
 			powerSaveBlocker.stop(blockerId);
 		}
 	});
 
-	ipcMain.on("scraper:pause", async (event) => {
-		event.reply("scraper:status", site.getStatus());
-		await site.pause();
+	ipcMain.on("applier:pause", async (event) => {
+		event.reply("applier:status", site.getStatus());
+		site.pause();
 	});
 
-	ipcMain.on("scraper:resume", async (event) => {
-		event.reply("scraper:status", Status.RUNNING);
+	ipcMain.on("applier:resume", async (event) => {
+		event.reply("applier:status", {
+			status: Status.RUNNING,
+			count: site.getStatus().count,
+		});
 		await site.resume();
 	});
 
-	ipcMain.on("scraper:status", (e) => {
-		e.reply("scraper:status", site.getStatus());
+	ipcMain.on("applier:status", (e) => {
+		e.reply("applier:status", site.getStatus());
 	});
 };
 

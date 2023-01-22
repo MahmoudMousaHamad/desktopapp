@@ -1,3 +1,4 @@
+/* eslint-disable promise/param-names */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -21,14 +22,23 @@ import log from "electron-log";
 import path from "path";
 
 import ElectronGoogleOAuth2 from "@getstation/electron-google-oauth2";
+import { parse } from "url";
 import scraperHandlers from "./handlers/scraperHandlers";
-import { resolveHtmlPath } from "./util";
+import { LoopbackRedirectServer, resolveHtmlPath } from "./util";
 import {
 	downloadChromeDriver,
 	killDriverProcess,
 } from "./applier/driver/Manager";
 import Logger from "./applier/lib/Logger";
 import autoUpdaterHandlers from "./handlers/autoUpdaterHandlers";
+
+const RESOURCES_PATH = app.isPackaged
+	? path.join(process.resourcesPath, "assets")
+	: path.join(__dirname, "../../assets");
+
+const getAssetPath = (...paths: string[]): string => {
+	return path.join(RESOURCES_PATH, ...paths);
+};
 
 export default class AppUpdater {
 	constructor() {
@@ -73,14 +83,6 @@ const createWindow = async () => {
 	if (isDebug) {
 		await installExtensions();
 	}
-
-	const RESOURCES_PATH = app.isPackaged
-		? path.join(process.resourcesPath, "assets")
-		: path.join(__dirname, "../../assets");
-
-	const getAssetPath = (...paths: string[]): string => {
-		return path.join(RESOURCES_PATH, ...paths);
-	};
 
 	mainWindow = new BrowserWindow({
 		webPreferences: {
@@ -132,7 +134,7 @@ const createWindow = async () => {
 
 	if (app.isPackaged) {
 		// eslint-disable-next-line
-		new AppUpdater();
+    new AppUpdater();
 		setInterval(() => {
 			autoUpdater.checkForUpdates();
 		}, 60000);
@@ -172,18 +174,38 @@ const myApiOauth = new ElectronGoogleOAuth2(CLIENT_ID, CLIENT_SECRET, [], {
 	successRedirectURL: "https://google.com",
 });
 
-app.setAsDefaultProtocolClient("jobapplier");
-
-app.on("open-url", (event, url) => {
-	const code = url.split("code");
-	ipcRenderer.send("google-oauth-code", code);
-	dialog.showErrorBox("Welcome Back", `You arrived from: ${url}`);
-});
-
 ipcMain.on("google-oath", async () => {
 	const tokens = await myApiOauth.openAuthWindowAndGetTokens();
+	mainWindow?.webContents.send("login-done");
 	mainWindow?.webContents.send("google-oauth-tokens", tokens);
 	mainWindow?.focus();
+});
+
+ipcMain.on("open-stripe", async (_e, { email, userId }) => {
+	await new Promise<void>((resolve) => {
+		const server = new LoopbackRedirectServer(
+			42813,
+			"https://useapplier.com/payment_successful",
+			"/callback"
+		);
+		shell.openExternal(
+			`${
+				isDev
+					? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
+					: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
+			}?prefilled_email=${email}&client_reference_id=${userId}`
+		);
+		server
+			.waitForRedirection()
+			.then((reachedCallbackURL) => {
+				const parsed = parse(reachedCallbackURL, true);
+				if (parsed.query.error)
+					throw new Error(parsed.query.error_description as string);
+				Logger.info("Open stripe done");
+				resolve();
+			})
+			.catch((reason) => console.log(reason));
+	});
 });
 
 autoUpdaterHandlers();

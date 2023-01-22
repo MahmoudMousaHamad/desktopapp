@@ -1,10 +1,10 @@
-import { Status } from "../main/applier/driver";
+import { Status } from "../main/applier/sites";
 
 declare global {
 	interface Window {
 		electron: {
 			NODE_ENV: string;
-			DriverStatus: Status;
+			ApplierStatus: Status;
 			ipcRenderer: {
 				invoke(channel: unknown, args: unknown[]): void;
 				send(channel: unknown, args: unknown[]): void;

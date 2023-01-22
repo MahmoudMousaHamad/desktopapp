@@ -2,14 +2,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import { Box, BoxProps, useTheme } from "@mui/joy";
+import { forwardRef } from "react";
 
 const Root = (props: BoxProps) => (
 	<Box
 		{...props}
 		sx={[
 			{
-				"grid-template-rows": "0.5fr 1.5fr 1fr 1.4fr 0.6fr",
-				"grid-template-columns": "0.8fr 1.2fr 1fr 1fr",
+				"grid-template-rows": "0.1fr 1.5fr 1fr 1.4fr 0.3fr",
+				"grid-template-columns": "0.4fr 1.2fr 1fr 1fr",
 				bgcolor: "background.body",
 				display: "grid",
 				gridTemplateAreas: `
@@ -17,7 +18,7 @@ const Root = (props: BoxProps) => (
 					"side main main main"
 					"side main main main"
 					"side main main main"
-					"controls controls controls controls"
+					"side main main main"
 				`,
 				height: "100vh",
 			},
@@ -33,7 +34,7 @@ const Header = (props: BoxProps) => (
 		sx={[
 			{
 				"grid-area": "header",
-				p: 2,
+				padding: "5px 15px",
 				gap: 2,
 				bgcolor: "background.componentBg",
 				display: "flex",
@@ -86,8 +87,9 @@ const SidePane = (props: BoxProps) => (
 	/>
 );
 
-const Main = (props: BoxProps) => (
+const Main = forwardRef((props: BoxProps, ref) => (
 	<Box
+		ref={ref}
 		component="main"
 		className="Main"
 		{...props}
@@ -101,7 +103,7 @@ const Main = (props: BoxProps) => (
 			padding: 3,
 		}}
 	/>
-);
+));
 
 const Controls = (props: BoxProps) => (
 	<Box

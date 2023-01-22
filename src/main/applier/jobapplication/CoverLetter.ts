@@ -24,11 +24,8 @@ export default class CoverLetter {
 			company: {
 				replace: () => this.job.company,
 			},
-			position: {
-				replace: () => this.job.position,
-			},
-			custom_paragraph: {
-				replace: () => this.preferences.titles[this.job.searchedJobTitle],
+			title: {
+				replace: () => this.job.title,
 			},
 		};
 

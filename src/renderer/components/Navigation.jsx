@@ -7,42 +7,35 @@ import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 // Icons import
-import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import LogoutSharpIcon from "@mui/icons-material/LogoutSharp";
-import { DashboardRounded, LoginSharp } from "@mui/icons-material";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { useDispatch, useSelector } from "react-redux";
-import ArticleIcon from "@mui/icons-material/Article";
+import {
+	DashboardRounded,
+	InsertDriveFileRounded,
+	LayersRounded,
+} from "@mui/icons-material";
+import { useDispatch } from "react-redux";
 
 import { logout } from "../actions/auth";
+import Socket from "../Socket";
 
 export default function Nav() {
-	const { isLoggedIn } = useSelector((state) => state.auth);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const navItems = isLoggedIn
-		? [
-				{ name: "Dashboard", to: "/", icon: DashboardRounded },
-				{ name: "Profile", to: "/profile", icon: AccountCircleSharpIcon },
-				{
-					name: "Cover Letter",
-					to: "/coverletter",
-					icon: ArticleIcon,
-				},
-				{
-					name: "Logout",
-					to: null,
-					icon: LogoutSharpIcon,
-					onClick: () => {
-						navigate("/login");
-						dispatch(logout());
-					},
-				},
-		  ]
-		: [
-				{ name: "Login", to: "/login", icon: LoginSharp },
-				{ name: "Register", to: "/register", icon: PersonAddIcon },
-		  ];
+	const navItems = [
+		{ name: "Dashboard", to: "/", icon: DashboardRounded },
+		{ name: "Edit Resume", to: "/resume", icon: InsertDriveFileRounded },
+		{ name: "Applied Jobs", to: "/jobs", icon: LayersRounded },
+		{
+			name: "Logout",
+			to: null,
+			icon: LogoutSharpIcon,
+			onClick: () => {
+				Socket.disconnect();
+				dispatch(logout());
+				navigate("/login");
+			},
+		},
+	];
 
 	return (
 		<List size="sm" sx={{ "--List-item-radius": "8px" }}>
@@ -63,7 +56,7 @@ export default function Nav() {
 						>
 							<ListItemButton sx={{ fontSize: "18px" }}>
 								<ListItemDecorator sx={{ color: "inherit" }}>
-									{item.icon && <item.icon fontSize="small" />}
+									{item.icon && <item.icon fontSize="medium" color="primary" />}
 								</ListItemDecorator>
 								{item.name}
 							</ListItemButton>

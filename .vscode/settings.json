@@ -2,13 +2,15 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  
+
+	"editor.formatOnSave": true,
+
   "files.associations": {
     ".eslintrc": "jsonc",
     ".prettierrc": "jsonc",
     ".eslintignore": "ignore"
   },
-  
+
   "eslint.validate": [
     "javascript",
     "javascriptreact",

@@ -19,7 +19,7 @@ export default () => {
 	return (
 		<>
 			<Sheet
-				sx={{ p: 5, borderRadius: 15, mb: 5 }}
+				sx={{ p: 5, borderRadius: 15, width: "auto", height: "fit-content" }}
 				color="primary"
 				variant="outlined"
 			>
@@ -28,11 +28,11 @@ export default () => {
 				</Typography>
 				<Box sx={{ mb: 3 }}>
 					{[
-						{ label: "Full-time", value: "fulltime" },
-						{ label: "Part-time", value: "parttime" },
-						{ label: "Contract", value: "contract" },
-						{ label: "Temporary", value: "temporary" },
-						{ label: "Internship", value: "internship" },
+						{ label: "Full-time", value: "INDEED:fulltime,LINKEDIN:F" },
+						{ label: "Part-time", value: "INDEED:parttime,LINKEDIN:P" },
+						{ label: "Contract", value: "INDEED:contract,LINKEDIN:C" },
+						{ label: "Temporary", value: "INDEED:temporary,LINKEDIN:T" },
+						{ label: "Internship", value: "INDEED:internship,LINKEDIN:I" },
 					].map((option) => (
 						<Radio
 							key={option.value}
@@ -50,9 +50,9 @@ export default () => {
 				</Typography>
 				<Box sx={{ mb: 1 }}>
 					{[
-						{ label: "Entry level", value: "ENTRY_LEVEL" },
-						{ label: "Mid level", value: "MID_LEVEL" },
-						{ label: "Senior level", value: "SENIOR_LEVEL" },
+						{ label: "Entry level", value: "INDEED:ENTRY_LEVEL,LINKEDIN:2" },
+						{ label: "Mid level", value: "INDEED:MID_LEVEL,LINKEDIN:4" },
+						{ label: "Senior level", value: "INDEED:SENIOR_LEVEL,LINKEDIN:4" },
 					].map((option) => (
 						<Radio
 							key={option.value}

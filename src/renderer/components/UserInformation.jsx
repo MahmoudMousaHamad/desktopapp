@@ -105,7 +105,7 @@ let categoriesQuestions = {
 	},
 	gpa: {
 		question: {
-			text: "What is your GPA?",
+			text: "GPA",
 			type: "number",
 		},
 	},
@@ -132,7 +132,7 @@ let categoriesQuestions = {
 	},
 	country: {
 		question: {
-			text: "In which country do you reside?",
+			text: "Country",
 			defaultAnswer: "United States",
 			options: countries,
 			type: "select",
@@ -190,10 +190,10 @@ let categoriesQuestions = {
 };
 
 categoriesQuestions = Object.fromEntries(
-	Object.entries(categoriesQuestions).sort(([, a], [, b]) => {
-		if (a.question.type === "radio") return -1;
-		if (a.question.type === "number") return 0;
-		if (a.question.type === "text") return 1;
+	Object.entries(categoriesQuestions).sort(([, a]) => {
+		const { type } = a.question;
+		if (type === "text" || type === "tel" || type === "number") return -1;
+		if (type === "radio") return 1;
 		return 0;
 	})
 );
@@ -232,7 +232,12 @@ export default () => {
 		const { question } = categoriesQuestions[category];
 		const { type } = question;
 		const text = (
-			<Typography sx={{ mb: 1 }} textColor="text.primary" level="h5">
+			<Typography
+				sx={{ mb: 1 }}
+				textColor="text.primary"
+				level="body1"
+				fontWeight={500}
+			>
 				{question.text}
 			</Typography>
 		);
@@ -259,7 +264,6 @@ export default () => {
 					{text}
 					<Select
 						onChange={(e) => handleChange(e.target.value, category)}
-						sx={{ mr: 2 }}
 						value={answers[category]?.answer}
 					>
 						{question.options.map((option) => (
@@ -277,7 +281,6 @@ export default () => {
 					{question.options.map((option) => (
 						<div key={option}>
 							<Radio
-								sx={{ mb: 1 }}
 								checked={answers[category]?.answer === option}
 								onChange={(e) => handleChange(e.target.value, category)}
 								value={option}
@@ -296,14 +299,8 @@ export default () => {
 
 	return (
 		<>
-			<Typography sx={{ mb: 2 }} textColor="text.secondary" level="body1">
-				All of your answers are saved on your computer. We do not collect any of
-				your application-related information.
-			</Typography>
 			{questions.map((q, index) => (
-				<Box key={index} sx={{ mb: 2 }}>
-					{q}
-				</Box>
+				<Box key={index}>{q}</Box>
 			))}
 		</>
 	);

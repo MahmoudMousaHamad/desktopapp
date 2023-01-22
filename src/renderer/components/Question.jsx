@@ -121,6 +121,8 @@ function constructInput(
 	onKeyDown,
 	...args
 ) {
+	if (options?.length === 0)
+		throw Error(`Options array is empty. Question info: ${type} ${options}`);
 	if (options) {
 		return questionTypeInput[type].element(
 			options,
@@ -139,6 +141,8 @@ function constructInput(
 
 export default ({ question, handleChange, answer, onKeyDown, ...params }) => {
 	const { text, type, options } = question;
+
+	if (!type) throw Error("Question type is not defined");
 
 	const input = constructInput(type, options, handleChange, answer, onKeyDown);
 

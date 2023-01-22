@@ -5,11 +5,10 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 import { WebDriver, By, Key } from "selenium-webdriver";
-import { BrowserWindow } from "electron";
 
 import { CoverLetter, Job, QnAManager } from "../jobapplication";
 import { SingletonPreferences, Logger } from "../lib";
-import { Helper, Locator } from "../driver";
+import { Helper } from "../driver";
 
 import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
@@ -25,19 +24,14 @@ export class IndeedSite extends Site {
 			action: this.enterApplication.bind(this),
 		},
 		resume: {
-			strings: ["Add a resume"],
-			type: SOURCE,
+			strings: ["Upload or build a resume"],
+			type: TITLE,
 			action: this.resumeSection.bind(this),
 		},
-		questions: {
-			strings: ["answer", "questions"],
-			type: TITLE,
-			action: this.answerQuestions.bind(this),
-		},
 		experience: {
-			strings: ["Select a past job that shows relevant experience"],
-			type: SOURCE,
-			action: this.chooseExperience.bind(this),
+			strings: ["Add relevant work experience information"],
+			type: TITLE,
+			action: this.continue.bind(this),
 		},
 		letter: {
 			strings: [
@@ -49,11 +43,8 @@ export class IndeedSite extends Site {
 			action: this.chooseLetter.bind(this),
 		},
 		missingQualifications: {
-			strings: [
-				"is looking for these qualifications",
-				"Do you have these qualifications from the job description?",
-			],
-			type: SOURCE,
+			strings: ["Qualification check"],
+			type: TITLE,
 			action: this.continueToApplication.bind(this),
 		},
 		submit: {
@@ -66,44 +57,41 @@ export class IndeedSite extends Site {
 		},
 		submitted: {
 			strings: ["Your application has been submitted!", "One more step"],
+			action: this.handleSubmitted.bind(this),
 			type: SOURCE,
-			action: async () => {
-				BrowserWindow.getAllWindows()[0].webContents.send(
-					"application-submitted"
-				);
-				await this.goToJobsPage();
-				this.submittedDate = new Date();
-			},
+		},
+		questions: {
+			strings: ["Answer screener questions from the employer"],
+			type: TITLE,
+			action: this.answerQuestions.bind(this),
 		},
 	};
 
 	async goToJobsPage(): Promise<void> {
 		const location =
 			SingletonPreferences.locations[
-				Math.floor(Math.random() * SingletonPreferences.locations.length)
+				Math.floor(Math.random() * (SingletonPreferences.locations.length - 1))
 			];
 
 		const title =
 			SingletonPreferences.titles[
-				Math.floor(Math.random() * SingletonPreferences.titles.length)
+				Math.floor(Math.random() * (SingletonPreferences.titles.length - 1))
 			];
 
-		this.jobSearchParams = {
-			experience: SingletonPreferences.experienceLevel,
-			type: SingletonPreferences.jobType,
-			location,
-			title,
-		};
+		this.currentJobStartDate = Date.now();
 
 		await this.driver.get(
-			`https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${SingletonPreferences.experienceLevel})jt(${SingletonPreferences.jobType})`
+			`https://www.indeed.com/jobs?q=${title}&l=${location}&sc=0kf%3Aexplvl(${SingletonPreferences.getValue(
+				"INDEED",
+				"experienceLevel"
+			)})jt(${SingletonPreferences.getValue("INDEED", "jobType")})`
 		);
 	}
 
 	async enterApplication() {
 		let applyNowPressed = false;
 
-		await this.driver.sleep(5000);
+		// await this.driver.sleep(1000);
 
 		const cards = await this.driver.findElements(
 			Site.getBy(this.selectors.smallJobCard)
@@ -120,7 +108,7 @@ export class IndeedSite extends Site {
 
 			await card.click();
 
-			await this.driver.sleep(2500);
+			await this.driver.sleep(1000);
 
 			const iframe = await this.driver.findElements(
 				Site.getBy(this.selectors.bigJobCard)
@@ -135,6 +123,7 @@ export class IndeedSite extends Site {
 					.length > 0
 			) {
 				try {
+					this.job = await this.getJobInfo();
 					await this.driver
 						.findElement(Site.getBy(this.selectors.applyButton))
 						.click();
@@ -157,11 +146,6 @@ export class IndeedSite extends Site {
 		await new QnAManager(this).startWorkflow();
 	}
 
-	async chooseExperience() {
-		await this.driver.sleep(1000);
-		await this.continue();
-	}
-
 	async chooseLetter() {
 		try {
 			await (
@@ -170,7 +154,6 @@ export class IndeedSite extends Site {
 		} catch (e) {
 			Logger.error(e);
 		}
-		await this.driver.sleep(1000);
 		if (
 			SingletonPreferences?.coverLetter &&
 			SingletonPreferences?.coverLetter !== ""
@@ -187,11 +170,10 @@ export class IndeedSite extends Site {
 			const coverLetter = new CoverLetter(
 				SingletonPreferences,
 				textarea,
-				this.job as Job
+				this.jobs[this.jobs.length - 1] as Job
 			);
 			await coverLetter.fill();
 		}
-		await this.driver.sleep(1000);
 		await this.continue();
 	}
 
@@ -205,7 +187,7 @@ export class IndeedSiteCreator extends SiteCreator {
 		const selectors = {
 			errors: {
 				selector: "//div[@class='css-mllman e1wnkr790']",
-				by: By.css,
+				by: By.xpath,
 			},
 			bigJobCard: {
 				selector: "#vjs-container-iframe",
@@ -236,18 +218,25 @@ export class IndeedSiteCreator extends SiteCreator {
 				by: By.css,
 			},
 			companyName: {
-				selector: ".ia-JobHeader-information span",
+				selector: "div[data-company-name='true']",
 				by: By.css,
 			},
 			position: {
-				selector: ".ia-JobHeader-information h2",
+				selector: ".jobsearch-JobInfoHeader-title-container",
 				by: By.css,
 			},
-			questionsXpathPrefex: {
-				selector: "",
+			questions: {
+				selector:
+					// Look into //*[*[label or legend]]
+					"//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/..//label[not(./input)]/.. | //legend/..",
 				by: By.xpath,
 			},
 		};
-		return new IndeedSite(driver, selectors, super.getQuestionsInfo());
+		return new IndeedSite(
+			driver,
+			selectors,
+			super.getQuestionsInfo(),
+			"https://www.indeed.com/"
+		);
 	}
 }

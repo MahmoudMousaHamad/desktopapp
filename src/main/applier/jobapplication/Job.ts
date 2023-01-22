@@ -1,21 +1,15 @@
 export default class Job {
-	position: string;
+	title: string;
 
 	company: string;
 
 	description: string;
 
-	searchedJobTitle: string;
+	submissionDate?: number;
 
-	constructor(
-		position: string,
-		company: string,
-		description: string,
-		searchedJobTitle: string
-	) {
-		this.searchedJobTitle = searchedJobTitle;
+	constructor(title: string, company: string, description: string) {
 		this.description = description;
-		this.position = position;
+		this.title = title;
 		this.company = company;
 	}
 }

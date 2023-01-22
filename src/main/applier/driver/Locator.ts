@@ -13,6 +13,7 @@ import { Site } from "../sites";
 
 import { PleaseSignIn } from "./Scripts";
 
+export const ELEMENT = "ELEMENT";
 export const SOURCE = "SOURCE";
 export const TITLE = "TITLE";
 export const TEXT = "TEXT";
@@ -31,19 +32,27 @@ export class Locator {
 	}
 
 	async getAction() {
-		const pageSource = await this.getPageSource();
-		const pageTitle = await this.getTitle();
-
 		for (const [key, value] of Object.entries(this.site.locationsAndActions)) {
 			let string: string | undefined = "";
 			try {
-				if (value.type === TITLE) string = pageTitle;
-				else if (value.type === SOURCE) string = pageSource;
+				if (value.type === TITLE) string = await this.getTitle();
+				else if (value.type === SOURCE) string = await this.getPageSource();
 				else if (value.type === TEXT)
 					string = await (
 						await this.driver.findElement(By.css("body"))
 					).getText();
-				else string = await this.driver.getCurrentUrl();
+				else if (value.type === ELEMENT) {
+					const elements = await this.driver.findElements(
+						By.css(value.strings.join(","))
+					);
+					if (elements.length > 0) {
+						return {
+							action: value.action,
+							status: "success",
+							page: key,
+						};
+					}
+				} else string = await this.driver.getCurrentUrl();
 			} catch (e) {
 				Logger.error(
 					"Something went wrong while getting the title or source of the page."
@@ -91,17 +100,18 @@ export class Locator {
 	async signedIn() {
 		return (
 			(await this.driver.findElements(Site.getBy(this.site.selectors.signedIn)))
-				.length >= 1
+				.length > 0
 		);
 	}
 
 	async waitUntilSignIn() {
+		await this.driver.get(this.site.jobsURL);
 		const signedin = await this.signedIn();
 		if (signedin) {
 			Logger.info("User is signed in");
 		} else {
+			// wait for 5s to see if the user will be logged in automatically
 			Logger.info("User is not signed in");
-			// TODO: this.site.signin();
 			await this.driver.executeScript(PleaseSignIn);
 			await new Promise<void>((resolve) => {
 				this.interval = setInterval(async () => {

@@ -10,7 +10,6 @@ import { app, dialog } from "electron";
 import { exec } from "child_process";
 import unzipper from "unzipper";
 import https from "https";
-import ps from "ps-node";
 import path from "path";
 import fs from "fs";
 
@@ -131,7 +130,6 @@ export async function openChromeSession() {
 	exec(
 		`${chromeCommand} \
 		--remote-debugging-port=${chromeRemoteDebugPort} \
-		--disable-blink-features=AutomationControlled \
 		--user-data-dir=${userChromeDataDir} \
 		--remote-debugging-address=0.0.0.0 \
 		--user-agent="${userAgent}" \

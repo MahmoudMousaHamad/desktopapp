@@ -34,6 +34,7 @@ export default {
 		});
 
 		this.socket.on("connect_error", (err) => {
+			store.dispatch(Actions.gotData("Server error", "server-error"));
 			console.log("Connection to server failed", err);
 		});
 
@@ -41,9 +42,7 @@ export default {
 
 		this.socket.on("connect", async () => {
 			this.isConnected = true;
-
 			console.log("User: ", store.getState().auth.user);
-
 			store.dispatch(
 				Actions.sendData("authentication", {
 					user: store.getState().auth.user,
@@ -51,19 +50,15 @@ export default {
 				})
 			);
 
-			["answer", "bot-status-change", "application-counts", "answers"].forEach(
-				(channel) => {
-					this.socket.on(channel, (data) => {
-						console.log(
-							"Got data from server on channel:",
-							channel,
-							", and data:",
-							data
-						);
-						store.dispatch(Actions.gotData(data, channel));
-					});
-				}
-			);
+			["bot-status-change", "answers", "user", "jobs"].forEach((channel) => {
+				this.socket.on(channel, (data) => {
+					console.log(
+						`Got data from server on channel: ${channel}, with data:`,
+						data
+					);
+					store.dispatch(Actions.gotData(data, channel));
+				});
+			});
 		});
 
 		this.socket.on("disconnect", () => {

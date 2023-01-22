@@ -6,7 +6,7 @@ const { Status } = require("./applier/sites");
 
 contextBridge.exposeInMainWorld("electron", {
 	NODE_ENV: process.env.NODE_ENV,
-	DriverStatus: Status,
+	ApplierStatus: Status,
 	ipcRenderer: {
 		send(channel, ...args) {
 			ipcRenderer.send(channel, ...args);

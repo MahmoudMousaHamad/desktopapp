@@ -1,4 +1,5 @@
 import { StyledEngineProvider } from "@mui/system";
+import { HashRouter } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { Provider } from "react-redux";
 import { render } from "react-dom";
@@ -13,7 +14,9 @@ render(
 		<Provider store={store}>
 			<StyledEngineProvider injectFirst>
 				<SnackbarProvider maxSnack={3}>
-					<App />
+					<HashRouter>
+						<App />
+					</HashRouter>
 				</SnackbarProvider>
 			</StyledEngineProvider>
 		</Provider>

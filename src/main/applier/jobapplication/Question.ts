@@ -132,10 +132,12 @@ class Question {
 			const options = await this.element.findElements(
 				By.xpath(optionsSelector)
 			);
+			Logger.info(`${optionsSelector} ${inputSelector}`);
 			const inputs = await this.element.findElements(By.xpath(inputSelector));
+			console.log(options, inputs);
 			// Uncheck any checked boxes
 			for (let i = 0; i < options.length; ++i) {
-				if (await inputs[i].isSelected()) {
+				if (await inputs[i]?.isSelected()) {
 					await options[i].click();
 				}
 			}
@@ -203,6 +205,15 @@ class Question {
 	}
 
 	async attemptToAnswer() {
+		// If checkbox and only one option, select it
+		if (
+			this.type === "checkbox" &&
+			this.options &&
+			this.options?.length === 1
+		) {
+			this.answer(this.options[0]);
+			return true;
+		}
 		Logger.info(`Attempting to answer question: ${this.text}`);
 
 		let attemptedAnswer: any;
@@ -256,8 +267,18 @@ class Question {
 					attemptedAnswer = maxOption;
 				}
 			}
+		} else if (
+			this.type === QuestionTypes.text ||
+			this.type === QuestionTypes.textarea
+		)
+			attemptedAnswer = "N/A";
+		else if (this.type === QuestionTypes.number) attemptedAnswer = "0";
+		else if (this.type === QuestionTypes.date) attemptedAnswer = "2020-01-01";
+		else if (this.options && this.options?.length > 0)
+			[, attemptedAnswer] = this.options;
 
-			Logger.info(`Attempting answer: ${attemptedAnswer}...`);
+		if (attemptedAnswer) {
+			Logger.info(`Attempting answer with: ${attemptedAnswer}...`);
 			await this.answer(attemptedAnswer);
 			Logger.info("Question answered automatically");
 			return true;

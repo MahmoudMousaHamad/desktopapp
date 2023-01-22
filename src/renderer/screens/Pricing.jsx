@@ -7,12 +7,12 @@ import {
 	ListItemButton,
 	ListItemText,
 } from "@mui/material";
+import { useSelector } from "react-redux";
 
 const premiumPlanPoints = [
 	"Lifetime Access",
 	"Linkedin automation",
 	"Indeed automation",
-	"Ziprecruiter automation",
 	"Daily limit - 750 Job Applications",
 	"Up to - 5 Resumes / CV's",
 	"Day wise analytics",
@@ -21,6 +21,7 @@ const premiumPlanPoints = [
 ];
 
 export default () => {
+	const auth = useSelector((s) => s.auth);
 	return (
 		<Box
 			sx={{
@@ -54,21 +55,32 @@ export default () => {
 				>
 					<Typography fontSize="20px">PREMIUM PLAN</Typography>
 					<Typography fontSize="40px">$99</Typography>
-					<List>
+					<List
+						sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+						dense
+					>
 						{premiumPlanPoints.map((p) => (
-							<ListItem>
+							<ListItem key={p}>
 								<ListItemAvatar>
 									<Avatar>
 										<Star />
 									</Avatar>
 								</ListItemAvatar>
-								<ListItemButton>
-									<ListItemText primary={p} />
-								</ListItemButton>
+								<ListItemText primary={p} />
 							</ListItem>
 						))}
 					</List>
-					<Button size="lg">PURCHASE PLAN</Button>
+					<Button
+						size="lg"
+						onClick={() =>
+							window.electron.ipcRenderer.send("open-stripe", {
+								email: auth.user.email,
+								userId: auth.user.id,
+							})
+						}
+					>
+						PURCHASE PLAN
+					</Button>
 				</Box>
 			</Box>
 		</Box>

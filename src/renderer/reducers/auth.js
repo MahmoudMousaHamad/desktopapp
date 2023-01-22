@@ -6,7 +6,13 @@ import {
 	LOGOUT,
 } from "../actions/types";
 
-const user = JSON.parse(localStorage.getItem("user"));
+let user = JSON.parse(localStorage.user || null);
+const tokens = JSON.parse(localStorage.tokens || null);
+console.log(tokens);
+if (!tokens?.access_token || Date.now() >= tokens?.expiry_date) {
+	console.log("User is gonna be null");
+	user = null;
+}
 const initialState = user
 	? { isLoggedIn: true, user }
 	: { isLoggedIn: false, user: null };
@@ -25,7 +31,6 @@ export default (state = initialState, action) => {
 				isLoggedIn: false,
 			};
 		case LOGIN_SUCCESS:
-			console.log("User as saved in state:", payload);
 			return {
 				...state,
 				isLoggedIn: true,

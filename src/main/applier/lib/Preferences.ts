@@ -26,6 +26,14 @@ export class Preferences {
 		this.jobType = jobType;
 		this.titles = titles;
 	}
+
+	getValue(site: "INDEED" | "LINKEDIN", key: "experienceLevel" | "jobType") {
+		const value = this[key] as string;
+		return value
+			.split(",")
+			.filter((v) => v.split(":")[0] === site)[0]
+			.split(":")[1];
+	}
 }
 
 export default new Preferences();

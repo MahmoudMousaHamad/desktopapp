@@ -2,33 +2,53 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable promise/always-return */
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Button, List, ListItem } from "@mui/joy";
-import { CircularProgress } from "@mui/material";
-import { CreditCard } from "@mui/icons-material";
+import { Avatar, Box, Button, List, ListItem, Typography } from "@mui/joy";
+import {
+	CircularProgress,
+	LinearProgress,
+	ListItemAvatar,
+	ListItemText,
+} from "@mui/material";
+import { CreditCard, InfoRounded } from "@mui/icons-material";
 import { ProgressBar } from "react-bootstrap";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import "react-circular-progressbar/dist/styles.css";
 
+import { STOP_SESSION } from "../actions/types";
+import { sendData } from "../actions/socket";
 import OnboardingModal from "../components/OnboardingModal";
-import { start, stop } from "../BotHelpers";
+import { stop } from "../BotHelpers";
 import Layout from "../components/Layout";
 import QA from "../components/QA";
 
 import LinkedInLogo from "../../../assets/images/linkedin.png";
 import IndeedLogo from "../../../assets/images/indeed.png";
 
+const SpanIfString = ({ comp }) => {
+	return (
+		<>
+			{typeof comp === "string" ? (
+				<Typography display="inline-block">{comp}</Typography>
+			) : (
+				comp
+			)}
+		</>
+	);
+};
+
 const DashBox = ({ upperLeft, upperRight, left, right, bottom }) => {
 	return (
 		<Box
 			sx={{
 				borderRadius: "20px",
-				backgroundColor: "white",
+				backgroundColor: "background.componentBg",
 				boxShadow: "0px 2px 4px 2px #efefef, 0px 2px 4px 2px #efefef",
 				position: "relative",
 				margin: "10px",
 				p: 2,
+				minWidth: "300px",
 			}}
 		>
 			<Box
@@ -39,8 +59,12 @@ const DashBox = ({ upperLeft, upperRight, left, right, bottom }) => {
 					display: "grid",
 				}}
 			>
-				<Box sx={{ textAlign: "left" }}>{upperLeft}</Box>
-				<Box sx={{ textAlign: "end" }}>{upperRight}</Box>
+				<Box sx={{ textAlign: "left" }}>
+					<SpanIfString comp={upperLeft} />
+				</Box>
+				<Box sx={{ textAlign: "end" }}>
+					<SpanIfString comp={upperRight} />
+				</Box>
 			</Box>
 			<Box
 				sx={{
@@ -50,46 +74,53 @@ const DashBox = ({ upperLeft, upperRight, left, right, bottom }) => {
 					display: "grid",
 				}}
 			>
-				<div
-					style={{
+				<Box
+					sx={{
 						justifyContent: "flex-start",
 						alignItems: "flex-end",
 						display: "flex",
 					}}
 				>
-					{left}
-				</div>
-				<div
-					style={{
+					<SpanIfString comp={left} />
+				</Box>
+				<Box
+					sx={{
 						justifyContent: "flex-end",
 						alignItems: "flex-end",
 						display: "flex",
 					}}
 				>
-					{right}
-				</div>
+					<SpanIfString comp={right} />
+				</Box>
 			</Box>
-			<Box>{bottom}</Box>
+			<Box>
+				<SpanIfString comp={bottom} />
+			</Box>
 		</Box>
 	);
 };
 
-const PlatformBox = ({ logoSrc, name, points, startProp, beta }) => {
+const PlatformBox = ({ logoSrc, name, points, user }) => {
+	const navigator = useNavigate();
+
 	return (
-		<div
-			style={{
+		<Box
+			sx={{
+				display: "flex",
+				justifyContent: "center",
+				flexDirection: "column",
+				alignItems: "center",
 				width: "auto",
 				height: "500px",
-				textAlign: "center",
 				borderRadius: "20px",
-				backgroundColor: "white",
+				backgroundColor: "background.componentBg",
 				boxShadow: "0px 2px 4px 2px #efefef, 0px 2px 4px 2px #efefef",
 				position: "relative",
 				margin: "10px",
 			}}
 		>
-			<div
-				style={{
+			<Box
+				sx={{
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
@@ -97,46 +128,71 @@ const PlatformBox = ({ logoSrc, name, points, startProp, beta }) => {
 				}}
 			>
 				<img width="40px" height="40px" src={logoSrc} alt={name} />
-			</div>
-			<p
-				style={{
+			</Box>
+			<Typography
+				level="h4"
+				fontWeight={700}
+				sx={{
 					fontWeight: "bold",
 					textTransform: "uppercase",
+					textAlign: "center",
 				}}
 			>
 				{name}
-			</p>
-			<List>
+			</Typography>
+			<List sx={{ width: "100%", bgcolor: "background.paper" }} dense>
 				{points.map((p) => (
-					<ListItem key={p}>{p}</ListItem>
+					<ListItem key={p}>
+						<ListItemAvatar>
+							<Avatar>
+								<InfoRounded />
+							</Avatar>
+						</ListItemAvatar>
+						<ListItemText primary={p} />
+					</ListItem>
 				))}
 			</List>
-			<Button onClick={startProp}>Start Applying on {name}</Button>
-		</div>
+			<Button
+				sx={{ mb: 2 }}
+				onClick={() => {
+					if (user.hasPlan) {
+						localStorage.setItem("site", name);
+						navigator("/filters");
+					} else {
+						navigator("/pricing");
+					}
+				}}
+			>
+				Start Applying on {name}
+			</Button>
+		</Box>
 	);
 };
 
 const linkedinPoints = [
 	"740 million members with over 55 million registered companies.",
 	"The largest social network of professional networking and career development.",
-	"Make sure you have a complete profile along with a resume uploaded before start applying.",
+	"Make sure you have a complete resume along with a resume uploaded before start applying.",
 	"Make sure you are logged in to Linkedin before you start applying.",
 ];
 
 const indeedPoints = [
 	"Over 16 million postings and 8.2 jobs are posted every second.",
 	"Indeed is the most popular job posting site in the world.",
-	"Make sure you have a complete profile along with a resume uploaded, before start applying.",
+	"Make sure you have a complete resume along with a resume uploaded, before start applying.",
 	"Make sure you are logged in to Indeed before you start applying",
 ];
 
 export default () => {
-	const { "bot-status-change": botStatus } = useSelector(
+	const { sessionInProgress, site, sessionJobCount } = useSelector(
+		(s) => s.applier
+	);
+	const { "bot-status-change": botStatus, user } = useSelector(
 		(state) => state.socket
 	);
-	const { isLoggedIn, user } = useSelector((state) => state.auth);
-	const dispatchRedux = useDispatch();
+	const { isLoggedIn } = useSelector((state) => state.auth);
 	const navigator = useNavigate();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (user?.dayTotal >= user?.dailyLimit && botStatus === "start") stop();
@@ -174,6 +230,30 @@ export default () => {
 						</Button>
 					</Box>
 				)}
+				{sessionInProgress && (
+					<DashBox
+						upperLeft="Session in progress"
+						upperRight={site}
+						left={`${
+							sessionJobCount === 0 ? "No" : sessionJobCount
+						} application${sessionJobCount > 1 ? "s" : ""} submitted so far`}
+						right={
+							<Button
+								color="danger"
+								size="md"
+								onClick={() => {
+									dispatch({
+										type: STOP_SESSION,
+									});
+									stop();
+								}}
+							>
+								STOP APPLYING
+							</Button>
+						}
+						bottom={<LinearProgress sx={{ mt: 1 }} color="primary" />}
+					/>
+				)}
 				<Box
 					sx={{
 						justifyContent: "center",
@@ -187,7 +267,7 @@ export default () => {
 							display: "flex",
 							width: "100%",
 							justifyContent: "space-between",
-							backgroundColor: "#f8f9fd",
+							backgroundColor: "background.componentBg",
 							borderRadius: "20px",
 							margin: "10px",
 							padding: "10px",
@@ -200,23 +280,39 @@ export default () => {
 							right={
 								user.hasPlan ? (
 									<>
-										<span style={{ fontWeight: "bold" }}>{user.dayTotal}/</span>
-										{user.dailyLimit}
+										<Typography
+											display="inline-block"
+											sx={{ fontWeight: "bold" }}
+										>
+											{user.dayTotal}/
+										</Typography>
+										<Typography display="inline-block">
+											{user.dailyLimit}
+										</Typography>
 									</>
 								) : (
-									<span>0</span>
+									<Typography display="inline-block">0</Typography>
 								)
 							}
-							bottom={<ProgressBar now={dayPercentage} />}
+							bottom={
+								<LinearProgress
+									sx={{ mt: 1 }}
+									variant="determinate"
+									color="success"
+									value={dayPercentage}
+								/>
+							}
 						/>
 						<DashBox
 							upperLeft="Your Plan Details"
 							upperRight="Plan Ending"
-							left={user.hasPlan ? user.planName : "No plan"}
-							right={user.hasPlan ? user.planEndDate : "--"}
+							left={
+								user.hasPlan ? `${user.planName.toUpperCase()} Plan` : "No plan"
+							}
+							right={user.hasPlan ? "NEVER" : "--"}
 							bottom={
 								user.hasPlan
-									? `You are in ${user.planName} that is valid until ${user.planEndDate}`
+									? `You are in ${user.planName} plan that is valid FOREVER!`
 									: "You don't have a plan, please purchase one"
 							}
 						/>
@@ -227,22 +323,27 @@ export default () => {
 							right={
 								user.hasPlan ? (
 									<>
-										<span style={{ fontWeight: "bold" }}>
+										<Typography
+											display="inline-block"
+											sx={{ fontWeight: "bold" }}
+										>
 											{user.monthTotal}/
-										</span>
-										{user.monthlyLimit}
+										</Typography>
+										<Typography display="inline-block">
+											{user.monthlyLimit}
+										</Typography>
 									</>
 								) : (
-									<span>0</span>
+									<Typography display="inline-block">0</Typography>
 								)
 							}
 							bottom={
 								user.hasPlan ? (
 									<>
 										<ProgressBar now={monthPercentage} />
-										<div>{`${Math.fround(
-											monthPercentage
-										)}% used, Indeed: XX, LinkedIn: YY`}</div>
+										<Box>{`${
+											Math.round(monthPercentage * 100) / 100
+										}% used, Indeed: XX, LinkedIn: YY`}</Box>
 									</>
 								) : (
 									"You don't have a plan, please purchase one"
@@ -260,11 +361,11 @@ export default () => {
 					}}
 				>
 					<Box
-						style={{
+						sx={{
 							display: "flex",
 							width: "100%",
 							justifyContent: "space-between",
-							backgroundColor: "#f8f9fd",
+							backgroundColor: "background.componentBg",
 							borderRadius: "20px",
 							margin: "10px",
 							padding: "10px",
@@ -272,27 +373,21 @@ export default () => {
 					>
 						<PlatformBox
 							logoSrc={LinkedInLogo}
-							name="LinkedIn"
+							name="LINKEDIN"
 							points={linkedinPoints}
-							start={() => {
-								localStorage.site = "LINKEDIN";
-								start();
-							}}
+							user={user}
 						/>
 						<PlatformBox
 							logoSrc={IndeedLogo}
-							name="Indeed"
+							name="INDEED"
 							points={indeedPoints}
-							start={() => {
-								localStorage.site = "INDEED";
-								start();
-							}}
+							user={user}
 						/>
 					</Box>
 				</Box>
-				<Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
+				{/* <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
 					<QA />
-				</Box>
+				</Box> */}
 			</Layout.SidePane>
 		</>
 	);

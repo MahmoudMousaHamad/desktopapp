@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { useDispatch, useSelector } from "react-redux";
 import { CssVarsProvider } from "@mui/joy/styles";
 import { Box, Typography } from "@mui/joy";
@@ -11,15 +12,18 @@ import { joyTheme, muiTheme } from "./theme";
 import Router from "./components/Router";
 import { SERVER_URL } from "./config";
 import { stop } from "./BotHelpers";
+import Login from "./screens/Login";
 
 const App = () => {
 	const { "server-error": serverError } = useSelector((state) => state.socket);
+	const { isLoggedIn } = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
+
 	useEffect(() => {
-		async function getGoogleUserInfo(accessToken) {
+		async function getGoogleUserInfo(access_token) {
 			const userInfo = await axios
 				.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-					headers: { Authorization: `Bearer ${accessToken}` },
+					headers: { Authorization: `Bearer ${access_token}` },
 				})
 				.then((res) => res.data);
 
@@ -31,17 +35,28 @@ const App = () => {
 			});
 			return res.data.user;
 		}
-		if (sessionStorage.tokens) {
-			const t = JSON.parse(sessionStorage.tokens);
-			if (t.accessToken && Date.now() < t.expiry_date)
-				getGoogleUserInfo(t.accessToken);
+		async function getUserAndLogin(access_token) {
+			const userInfo = await getGoogleUserInfo(access_token);
+			const user = await getUser(userInfo);
+			// eslint-disable-next-line no-underscore-dangle
+			user.id = user._id;
+			localStorage.user = JSON.stringify(user);
+			dispatch({
+				type: LOGIN_SUCCESS,
+				payload: { user, ...userInfo },
+			});
+		}
+		if (localStorage.tokens) {
+			const t = JSON.parse(localStorage.tokens);
+			if (Date.now() < t.expiry_date) getUserAndLogin(t.access_token);
 		}
 		window.electron.ipcRenderer.on("google-oauth-tokens", async (tokens) => {
-			sessionStorage.tokens = JSON.stringify(tokens);
+			localStorage.tokens = JSON.stringify(tokens);
 			const userInfo = await getGoogleUserInfo(tokens.access_token);
 			const user = await getUser(userInfo);
 			// eslint-disable-next-line no-underscore-dangle
 			user.id = user._id;
+			localStorage.user = JSON.stringify(user);
 			dispatch({
 				type: LOGIN_SUCCESS,
 				payload: { user, ...userInfo },
@@ -77,8 +92,10 @@ const App = () => {
 						Sorry, something went wrong on our end :(
 					</Typography>
 				</Box>
-			) : (
+			) : isLoggedIn ? (
 				<Router />
+			) : (
+				<Login />
 			)}
 		</CssVarsProvider>
 	);

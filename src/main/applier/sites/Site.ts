@@ -5,6 +5,7 @@
 
 import { By, WebDriver } from "selenium-webdriver";
 
+import { BrowserWindow } from "electron";
 import { QuestionsInfo } from "../jobapplication/Question";
 import { Job } from "../jobapplication";
 import { Helper } from "../driver";
@@ -28,18 +29,12 @@ export interface SiteInterface {
 	locationsAndActions: LocationAction;
 	questionsInfo: QuestionsInfo;
 	driver: WebDriver;
+	jobsURL: string;
 	selectors: any;
 
 	submitApplication(): Promise<void>;
 	answerQuestions(): Promise<void>;
 	goToJobsPage(): Promise<void>;
-}
-
-interface JobSearchParams {
-	[name: string]: {
-		value: string;
-		name: string;
-	};
 }
 
 export abstract class Site implements SiteInterface {
@@ -52,22 +47,32 @@ export abstract class Site implements SiteInterface {
 		[name: string]: { strings: string[]; type: string; action: () => any };
 	};
 
-	jobSearchParams?: JobSearchParams;
-
-	submittedDate?: Date;
-
 	driver: WebDriver;
 
 	selectors: {
 		[name: string]: { selector: string; by: (selector: string) => By };
 	};
 
-	job?: Job;
+	jobs: Job[] = [];
 
-	constructor(driver: WebDriver, selectors: any, questionsInfo: QuestionsInfo) {
+	job?: Job | null;
+
+	count: number = 0;
+
+	jobsURL: string;
+
+	currentJobStartDate: number = Date.now();
+
+	constructor(
+		driver: WebDriver,
+		selectors: any,
+		questionsInfo: QuestionsInfo,
+		jobsURL: string
+	) {
 		this.questionsInfo = questionsInfo;
 		this.locationsAndActions = {};
 		this.selectors = selectors;
+		this.jobsURL = jobsURL;
 		this.driver = driver;
 	}
 
@@ -75,26 +80,20 @@ export abstract class Site implements SiteInterface {
 		return selector.by(selector.selector);
 	}
 
-	async getJobInfo(): Promise<void> {
-		const company = await Helper.getText(
-			Site.getBy(this.selectors.companyName)
-		);
-		const position = await Helper.getText(Site.getBy(this.selectors.position));
+	async getJobInfo(): Promise<Job> {
+		let company = await Helper.getText(Site.getBy(this.selectors.companyName));
+		let position = await Helper.getText(Site.getBy(this.selectors.position));
 
 		console.log("Job info:", position, company);
 
-		this.job = new Job(
-			position,
-			company,
-			"no-description",
-			this.jobSearchParams?.title?.value as string
-		);
+		if (company.length === 0) company = "N/A";
+		if (position.length === 0) position = "N/A";
+
+		return new Job(position, company, "no-description");
 	}
 
 	async resumeSection() {
-		await this.getJobInfo();
 		await Helper.scroll();
-		await this.driver.sleep(1000);
 		await this.continue();
 	}
 
@@ -102,9 +101,25 @@ export abstract class Site implements SiteInterface {
 		await this.continue();
 	}
 
+	async handleSubmitted() {
+		this.count += 1;
+		if (this.job) {
+			this.job.submissionDate = Date.now();
+			this.jobs.push({ ...this.job });
+			this.job = null;
+		}
+		console.log(
+			"Submitted application. Application count:",
+			this.count,
+			this.jobs
+		);
+		BrowserWindow.getAllWindows()[0].webContents.send("application-submitted");
+		await this.goToJobsPage();
+	}
+
 	async exitApplication() {
 		await this.goToJobsPage();
-		await this.driver.sleep(1000);
+		await this.driver.sleep(500);
 		await Helper.acceptAlert();
 	}
 

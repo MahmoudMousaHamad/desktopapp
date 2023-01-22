@@ -5,7 +5,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 import { WebDriver, By } from "selenium-webdriver";
-import { BrowserWindow } from "electron";
 
 import { QnAManager, QuestionInfo } from "../jobapplication";
 import { SingletonPreferences } from "../lib";
@@ -16,16 +15,6 @@ import SiteCreator from "./SiteCreator";
 
 export class LinkedInSite extends Site {
 	locationsAndActions = {
-		resume: {
-			strings: ["Be sure to include an updated resume"],
-			type: Locator.TEXT,
-			action: this.resumeSection.bind(this),
-		},
-		questions: {
-			strings: ["Contact info", "Additional Questions", "Work authorization"],
-			type: Locator.TEXT,
-			action: this.answerQuestions.bind(this),
-		},
 		review: {
 			strings: ["Review your application", "Submit application"],
 			type: Locator.TEXT,
@@ -34,39 +23,32 @@ export class LinkedInSite extends Site {
 		submitted: {
 			strings: ["Your application was sent"],
 			type: Locator.TEXT,
-			action: async () => {
-				BrowserWindow.getAllWindows()[0].webContents.send(
-					"application-submitted"
-				);
-				await this.goToJobsPage();
-				this.submittedDate = new Date();
-			},
+			action: this.handleSubmitted.bind(this),
+		},
+		questions: {
+			strings: ["Contact info", "Additional Questions", "Work authorization"],
+			type: Locator.TEXT,
+			action: this.answerQuestions.bind(this),
+		},
+		resume: {
+			strings: [
+				".ui-attachment__download-button",
+				".jobs-resume-picker__resume",
+			],
+			type: Locator.ELEMENT,
+			action: this.resumeSection.bind(this),
 		},
 	};
 
-	async goToJobsPage(): Promise<void> {
-		const LinkedInSearchParamsMapper: {
-			[name: string]: { [name: string]: string };
-		} = {
-			type: {
-				internship: "I",
-				fulltime: "F",
-				parttime: "P",
-				temporary: "T",
-				contract: "C",
-				volunteer: "V",
-			},
-			experience: {
-				INTERNSHIP: "1",
-				ENTRY_LEVEL: "2",
-				ASSOCIATE: "3",
-				MID_LEVEL: "4",
-				SENIOR_LEVEL: "4",
-				DIRECTOR: "5",
-				EXECUTIVE: "6",
-			},
-		};
+	async resumeSection() {
+		const chooseBtn = await this.driver.findElement(
+			By.css("button[aria-label='Choose Resume']")
+		);
+		if (chooseBtn) await chooseBtn.click();
+		await this.continue();
+	}
 
+	async goToJobsPage(): Promise<void> {
 		const location =
 			SingletonPreferences.locations[
 				Math.floor(Math.random() * SingletonPreferences.locations.length)
@@ -84,14 +66,11 @@ export class LinkedInSite extends Site {
 			},
 			experience: {
 				name: "f_E",
-				value:
-					LinkedInSearchParamsMapper.experience[
-						SingletonPreferences.experienceLevel
-					],
+				value: SingletonPreferences.getValue("LINKEDIN", "experienceLevel"),
 			},
 			type: {
 				name: "f_JT",
-				value: LinkedInSearchParamsMapper.type[SingletonPreferences.jobType],
+				value: SingletonPreferences.getValue("LINKEDIN", "jobType"),
 			},
 			location: {
 				name: "location",
@@ -111,13 +90,15 @@ export class LinkedInSite extends Site {
 			`https://www.linkedin.com/jobs/search/?${stringSearchParams}`
 		);
 
+		this.currentJobStartDate = Date.now();
+
 		await this.enterApplication();
 	}
 
 	async enterApplication() {
 		let applyNowPressed = false;
 
-		await this.driver.sleep(5000);
+		await this.driver.sleep(1000);
 
 		const cards = await this.driver.findElements(
 			Site.getBy(this.selectors.smallJobCard)
@@ -139,6 +120,7 @@ export class LinkedInSite extends Site {
 					.length > 0
 			) {
 				try {
+					this.job = await this.getJobInfo();
 					await this.driver
 						.findElement(Site.getBy(this.selectors.applyButton))
 						.click();
@@ -153,6 +135,8 @@ export class LinkedInSite extends Site {
 		}
 
 		if (!applyNowPressed) await this.goToJobsPage();
+
+		await this.continue();
 	}
 
 	async answerQuestions() {
@@ -167,10 +151,11 @@ export class LinkedInSiteCreator extends SiteCreator {
 			"radio",
 			"input[type=radio]",
 			"legend",
-			".//*[@data-test-fb-radio-display-text='true']"
+			"//label"
 		);
 		const selectors = {
 			errors: {
+				// TODO: change this selector
 				selector: "#todo-change-me",
 				by: By.css,
 			},
@@ -207,11 +192,18 @@ export class LinkedInSiteCreator extends SiteCreator {
 				selector: "textarea",
 				by: By.css,
 			},
-			questionsXpathPrefex: {
-				selector: "//div[@class='jobs-easy-apply-content']",
+			questions: {
+				// was: "//div[@class='jobs-easy-apply-content']//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::*[self::legend or self::label]/..",
+				selector:
+					"//div[@class='jobs-easy-apply-content']//*[(*[input or select or textarea])]",
 				by: By.xpath,
 			},
 		};
-		return new LinkedInSite(driver, selectors, questionsInfo);
+		return new LinkedInSite(
+			driver,
+			selectors,
+			questionsInfo,
+			"https://www.linkedin.com/jobs/"
+		);
 	}
 }

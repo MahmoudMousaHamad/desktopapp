@@ -26,7 +26,7 @@ const ListTextBox = ({ title, name, placeholder }) => {
 
 	return (
 		<Sheet
-			sx={{ p: 5, borderRadius: 15, mb: 5 }}
+			sx={{ p: 5, borderRadius: 15, width: "auto" }}
 			variant="outlined"
 			color="primary"
 		>

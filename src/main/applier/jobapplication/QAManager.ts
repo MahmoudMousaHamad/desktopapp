@@ -13,6 +13,8 @@ import Logger from "../lib/Logger";
 import Question from "./Question";
 import { Site } from "../sites";
 
+const SEND_QUESTIONS = false;
+
 class QAManager {
 	site: Site;
 
@@ -56,14 +58,17 @@ class QAManager {
 			return;
 		}
 
-		await this.attemptToAnswerQuestions();
+		const answeredAll = await this.attemptToAnswerQuestions();
 
-		if (this.questionsToSend.length > 0) {
-			await this.sendQuestions();
-			await this.waitUntilDone();
-		} else {
-			await this.site.handleDoneAnsweringQuestions();
-		}
+		if (SEND_QUESTIONS) {
+			if (this.questionsToSend.length > 0) {
+				await this.sendQuestions();
+				await this.waitUntilDone();
+			} else {
+				await this.site.handleDoneAnsweringQuestions();
+			}
+		} else if (answeredAll) await this.site.handleDoneAnsweringQuestions();
+		else await this.site.exitApplication();
 	}
 
 	removeAllListeners() {
@@ -97,13 +102,12 @@ class QAManager {
 			const questionPrepared = await question.prepare();
 			if (!questionPrepared) continue;
 			const answered = await question.attemptToAnswer();
-			if (answered) {
-				Logger.info("Question answering attempt successful.");
-				await this.site.driver.sleep(500);
-			} else {
-				this.questionsToSend.push(question);
+			if (!answered) {
+				if (SEND_QUESTIONS) this.questionsToSend.push(question);
+				else return false;
 			}
 		}
+		return true;
 	}
 
 	async sendQuestions() {
@@ -115,13 +119,11 @@ class QAManager {
 
 	async gatherQuestions() {
 		const questionsElements = await this.site.driver.findElements(
-			By.xpath(
-				`${this.site.selectors.questionsXpathPrefex.selector}//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::label/..//label[not(./input)]/.. | ${this.site.selectors.questionsXpathPrefex.selector}//legend/..`
-			)
+			Site.getBy(this.site.selectors.questions)
 		);
 
 		for (const qe of questionsElements) {
-			const inputText = await qe.findElement(By.xpath("./label | ./legend"));
+			const inputText = await qe.findElement(By.css("label,legend"));
 			const text = await inputText.getText();
 			if (!text.includes("optional")) {
 				const question = new Question(qe, this.site);
