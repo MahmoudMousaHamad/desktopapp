@@ -17,6 +17,8 @@ const SOURCE = "SOURCE";
 const TITLE = "TITLE";
 
 export class IndeedSite extends Site {
+	name: string = "INDEED";
+
 	locationsAndActions = {
 		jobs: {
 			strings: ["Job Search", "Jobs, Employment", "Flexible"],

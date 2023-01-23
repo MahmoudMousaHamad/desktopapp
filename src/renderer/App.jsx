@@ -7,6 +7,7 @@ import { deepmerge } from "@mui/utils";
 import { useEffect } from "react";
 import axios from "axios";
 
+import { useNavigate } from "react-router-dom";
 import { LOGIN_SUCCESS } from "./actions/types";
 import { joyTheme, muiTheme } from "./theme";
 import Router from "./components/Router";
@@ -15,9 +16,22 @@ import { stop } from "./BotHelpers";
 import Login from "./screens/Login";
 
 const App = () => {
-	const { "server-error": serverError } = useSelector((state) => state.socket);
+	const {
+		"server-error": serverError,
+		"payment-successful": paymentSuccessful,
+	} = useSelector((state) => state.socket);
 	const { isLoggedIn } = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
+	const navigator = useNavigate();
+
+	useEffect(() => {
+		if (paymentSuccessful === true) {
+			setTimeout(() => {
+				window.electron.ipcRenderer.send("focus-window");
+				navigator("/");
+			}, 5000);
+		}
+	}, [paymentSuccessful, navigator]);
 
 	useEffect(() => {
 		async function getGoogleUserInfo(access_token) {

@@ -31,6 +31,7 @@ export interface SiteInterface {
 	driver: WebDriver;
 	jobsURL: string;
 	selectors: any;
+	name: string;
 
 	submitApplication(): Promise<void>;
 	answerQuestions(): Promise<void>;
@@ -63,6 +64,8 @@ export abstract class Site implements SiteInterface {
 
 	currentJobStartDate: number = Date.now();
 
+	name: string = "";
+
 	constructor(
 		driver: WebDriver,
 		selectors: any,
@@ -89,7 +92,7 @@ export abstract class Site implements SiteInterface {
 		if (company.length === 0) company = "N/A";
 		if (position.length === 0) position = "N/A";
 
-		return new Job(position, company, "no-description");
+		return new Job(position, company, "no-description", this.name);
 	}
 
 	async resumeSection() {

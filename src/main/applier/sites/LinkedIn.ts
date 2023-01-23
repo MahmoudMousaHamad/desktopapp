@@ -14,6 +14,8 @@ import { Site } from "./Site";
 import SiteCreator from "./SiteCreator";
 
 export class LinkedInSite extends Site {
+	name: string = "LINKEDIN";
+
 	locationsAndActions = {
 		review: {
 			strings: ["Review your application", "Submit application"],

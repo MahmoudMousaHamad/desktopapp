@@ -7,9 +7,17 @@ export default class Job {
 
 	submissionDate?: number;
 
-	constructor(title: string, company: string, description: string) {
+	site: string;
+
+	constructor(
+		title: string,
+		company: string,
+		description: string,
+		site: string
+	) {
 		this.description = description;
 		this.title = title;
 		this.company = company;
+		this.site = site;
 	}
 }

@@ -1,18 +1,11 @@
 import { WorkOutline } from "@mui/icons-material";
 import { Avatar, Box, List, ListItem, Sheet, Typography } from "@mui/joy";
 import { CircularProgress, ListItemAvatar, ListItemText } from "@mui/material";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { sendData } from "../actions/socket";
+import { useSelector } from "react-redux";
 
 export default () => {
-	const { jobs } = useSelector((s) => s.socket);
-	const dispatch = useDispatch();
-	useEffect(() => {
-		dispatch(sendData("get-jobs"));
-	}, [dispatch]);
-
+	const { user } = useSelector((s) => s.socket);
+	const { jobs } = user;
 	return (
 		<Box
 			sx={{

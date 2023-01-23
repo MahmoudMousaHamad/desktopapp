@@ -216,9 +216,11 @@ export default () => {
 	const monthPercentage = 100 * (user.monthTotal / user.monthlyLimit);
 	const dayPercentage = 100 * (user.dayTotal / user.dailyLimit);
 
+	const linkedinJobs = user?.jobs.filter((job) => job.site === "LINKEDIN");
+	const indeedJobs = user?.jobs.filter((job) => job.site === "INDEED");
+
 	return (
 		<>
-			{localStorage.getItem("onboard-done") !== "true" && <OnboardingModal />}
 			<Layout.SidePane>
 				{!user?.hasPlan && (
 					<Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
@@ -343,7 +345,9 @@ export default () => {
 										<ProgressBar now={monthPercentage} />
 										<Box>{`${
 											Math.round(monthPercentage * 100) / 100
-										}% used, Indeed: XX, LinkedIn: YY`}</Box>
+										}% used, Indeed: ${indeedJobs.length}, LinkedIn: ${
+											linkedinJobs.length
+										}`}</Box>
 									</>
 								) : (
 									"You don't have a plan, please purchase one"

@@ -50,7 +50,13 @@ export default {
 				})
 			);
 
-			["bot-status-change", "answers", "user", "jobs"].forEach((channel) => {
+			[
+				"bot-status-change",
+				"answers",
+				"user",
+				"jobs",
+				"payment-successful",
+			].forEach((channel) => {
 				this.socket.on(channel, (data) => {
 					console.log(
 						`Got data from server on channel: ${channel}, with data:`,

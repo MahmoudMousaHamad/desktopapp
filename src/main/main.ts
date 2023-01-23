@@ -187,31 +187,42 @@ ipcMain.on("open-url", (href) => {
 	}
 });
 
+ipcMain.on("focus-window", () => {
+	mainWindow?.focus();
+});
+
 ipcMain.on("open-stripe", async (_e, { email, userId }) => {
-	await new Promise<void>((resolve) => {
-		const server = new LoopbackRedirectServer(
-			42813,
-			"https://useapplier.com/payment_successful",
-			"/callback"
-		);
-		shell.openExternal(
-			`${
-				isDev
-					? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
-					: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
-			}?prefilled_email=${email}&client_reference_id=${userId}`
-		);
-		server
-			.waitForRedirection()
-			.then((reachedCallbackURL) => {
-				const parsed = parse(reachedCallbackURL, true);
-				if (parsed.query.error)
-					throw new Error(parsed.query.error_description as string);
-				Logger.info("Open stripe done");
-				resolve();
-			})
-			.catch((reason) => console.log(reason));
-	});
+	shell.openExternal(
+		`${
+			isDev
+				? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
+				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
+		}?prefilled_email=${email}&client_reference_id=${userId}`
+	);
+	// await new Promise<void>((resolve) => {
+	// 	const server = new LoopbackRedirectServer(
+	// 		42813,
+	// 		"https://useapplier.com/payment_successful",
+	// 		"/callback"
+	// 	);
+	// 	shell.openExternal(
+	// 		`${
+	// 			isDev
+	// 				? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
+	// 				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
+	// 		}?prefilled_email=${email}&client_reference_id=${userId}`
+	// 	);
+	// 	server
+	// 		.waitForRedirection()
+	// 		.then((reachedCallbackURL) => {
+	// 			const parsed = parse(reachedCallbackURL, true);
+	// 			if (parsed.query.error)
+	// 				throw new Error(parsed.query.error_description as string);
+	// 			Logger.info("Open stripe done");
+	// 			resolve();
+	// 		})
+	// 		.catch((reason) => console.log(reason));
+	// });
 });
 
 autoUpdaterHandlers();
