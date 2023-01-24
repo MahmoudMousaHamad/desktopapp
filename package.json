@@ -203,7 +203,7 @@
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
-      "artifactName": "${productName}-v${version}.${ext}",
+      "artifactName": "${productName}.${ext}",
       "category": "public.app-category.productivity",
       "identity": "B7254919DDD0E844960E44A500C29715D79CBBC9",
       "target": {
@@ -235,7 +235,7 @@
       ]
     },
     "win": {
-      "artifactName": "${productName}-v${version}.${ext}",
+      "artifactName": "${productName}.${ext}",
       "publisherName": "Mahmoud Mousa Hamad",
       "certificatePassword": "",
       "target": [
