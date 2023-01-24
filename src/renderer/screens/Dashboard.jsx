@@ -2,7 +2,15 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable promise/always-return */
 import { useDispatch, useSelector } from "react-redux";
-import { Avatar, Box, Button, List, ListItem, Typography } from "@mui/joy";
+import {
+	Avatar,
+	Box,
+	Button,
+	List,
+	ListItem,
+	Sheet,
+	Typography,
+} from "@mui/joy";
 import {
 	CircularProgress,
 	LinearProgress,
@@ -17,11 +25,8 @@ import { useEffect } from "react";
 import "react-circular-progressbar/dist/styles.css";
 
 import { STOP_SESSION } from "../actions/types";
-import { sendData } from "../actions/socket";
-import OnboardingModal from "../components/OnboardingModal";
 import { stop } from "../BotHelpers";
 import Layout from "../components/Layout";
-import QA from "../components/QA";
 
 import LinkedInLogo from "../../../assets/images/linkedin.png";
 import IndeedLogo from "../../../assets/images/indeed.png";
@@ -155,11 +160,14 @@ const PlatformBox = ({ logoSrc, name, points, user }) => {
 			<Button
 				sx={{ mb: 2 }}
 				onClick={() => {
-					if (user.hasPlan) {
+					if (
+						Date.now() > new Date(user.plan?.endDate).getTime() ||
+						user.dayTotal >= user.plan.dailyLimit
+					) {
+						navigator("/pricing");
+					} else {
 						localStorage.setItem("site", name);
 						navigator("/filters");
-					} else {
-						navigator("/pricing");
 					}
 				}}
 			>
@@ -187,16 +195,11 @@ export default () => {
 	const { sessionInProgress, site, sessionJobCount } = useSelector(
 		(s) => s.applier
 	);
-	const { "bot-status-change": botStatus, user } = useSelector(
-		(state) => state.socket
-	);
+	const { user } = useSelector((state) => state.socket);
 	const { isLoggedIn } = useSelector((state) => state.auth);
 	const navigator = useNavigate();
 	const dispatch = useDispatch();
 
-	useEffect(() => {
-		if (user?.dayTotal >= user?.dailyLimit && botStatus === "start") stop();
-	}, [user, botStatus]);
 	if (!isLoggedIn) return <Navigate to="/login" />;
 	if (!user) {
 		return (
@@ -213,24 +216,64 @@ export default () => {
 		);
 	}
 
-	const monthPercentage = 100 * (user.monthTotal / user.monthlyLimit);
-	const dayPercentage = 100 * (user.dayTotal / user.dailyLimit);
+	const monthPercentage =
+		100 *
+		(Math.min(user.monthTotal, user.plan.monthlyLimit) /
+			user.plan.monthlyLimit);
+	const dayPercentage =
+		100 *
+		(Math.min(user.dayTotal, user.plan.dailyLimit) / user.plan.dailyLimit);
 
 	const linkedinJobs = user?.jobs.filter((job) => job.site === "LINKEDIN");
 	const indeedJobs = user?.jobs.filter((job) => job.site === "INDEED");
 
+	const endDateString = user.plan.endDate
+		? new Date(user.plan?.endDate).toLocaleDateString()
+		: "";
+
 	return (
 		<>
 			<Layout.SidePane>
-				{!user?.hasPlan && (
-					<Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
+				{!user?.plan.purchased && (
+					<Sheet
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
+							padding: 2,
+						}}
+						variant="solid"
+						color="warning"
+					>
+						<Box
+							sx={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+								justifyContent: "space-between",
+							}}
+						>
+							<InfoRounded sx={{ mr: 2 }} />
+							<Typography
+								level="body1"
+								fontWeight={600}
+								textTransform="uppercase"
+								maxWidth="500px"
+							>
+								This is a trial. You are limited to{" "}
+								<u>10 submissions per day for 30 days</u>. Purchase a plan for
+								full access.
+							</Typography>
+						</Box>
 						<Button
 							endIcon={<CreditCard />}
 							onClick={() => navigator("/pricing")}
+							variant="solid"
+							color="danger"
 						>
 							PURCHASE A PLAN NOW!
 						</Button>
-					</Box>
+					</Sheet>
 				)}
 				{sessionInProgress && (
 					<DashBox
@@ -278,23 +321,19 @@ export default () => {
 						<DashBox
 							upperLeft="Daily Limit"
 							upperRight="Daily Limit Left"
-							left={user.hasPlan ? user.dailyLimit : "No plan"}
+							left={user.plan.dailyLimit}
 							right={
-								user.hasPlan ? (
-									<>
-										<Typography
-											display="inline-block"
-											sx={{ fontWeight: "bold" }}
-										>
-											{user.dayTotal}/
-										</Typography>
-										<Typography display="inline-block">
-											{user.dailyLimit}
-										</Typography>
-									</>
-								) : (
-									<Typography display="inline-block">0</Typography>
-								)
+								<>
+									<Typography
+										display="inline-block"
+										sx={{ fontWeight: "bold" }}
+									>
+										{user.dayTotal}/
+									</Typography>
+									<Typography display="inline-block">
+										{user.plan.dailyLimit}
+									</Typography>
+								</>
 							}
 							bottom={
 								<LinearProgress
@@ -307,51 +346,47 @@ export default () => {
 						/>
 						<DashBox
 							upperLeft="Your Plan Details"
-							upperRight="Plan Ending"
+							upperRight="Plan Valid Until"
 							left={
-								user.hasPlan ? `${user.planName.toUpperCase()} Plan` : "No plan"
+								<Typography textTransform="capitalize">
+									{user.plan.name} Plan
+								</Typography>
 							}
-							right={user.hasPlan ? "NEVER" : "--"}
+							right={user.plan.endDate ? endDateString : "NEVER"}
 							bottom={
-								user.hasPlan
-									? `You are in ${user.planName} plan that is valid FOREVER!`
-									: "You don't have a plan, please purchase one"
+								user.plan.endDate && user.plan.name === "trial"
+									? `Your trial ends on ${endDateString}`
+									: `You're in ${user.plan.name.toUpperCase()} plan that is valid ${
+											user.plan.endDate ? `until ${endDateString}` : "FOREVER!"
+									  }`
 							}
 						/>
 						<DashBox
 							upperLeft="Total Jobs Applied"
 							upperRight="Monthly Limit Left"
-							left={user.hasPlan ? user.totalCount : "No plan"}
+							left={user.totalCount}
 							right={
-								user.hasPlan ? (
-									<>
-										<Typography
-											display="inline-block"
-											sx={{ fontWeight: "bold" }}
-										>
-											{user.monthTotal}/
-										</Typography>
-										<Typography display="inline-block">
-											{user.monthlyLimit}
-										</Typography>
-									</>
-								) : (
-									<Typography display="inline-block">0</Typography>
-								)
+								<>
+									<Typography
+										display="inline-block"
+										sx={{ fontWeight: "bold" }}
+									>
+										{user.monthTotal}/
+									</Typography>
+									<Typography display="inline-block">
+										{user.plan.monthlyLimit}
+									</Typography>
+								</>
 							}
 							bottom={
-								user.hasPlan ? (
-									<>
-										<ProgressBar now={monthPercentage} />
-										<Box>{`${
-											Math.round(monthPercentage * 100) / 100
-										}% used, Indeed: ${indeedJobs.length}, LinkedIn: ${
-											linkedinJobs.length
-										}`}</Box>
-									</>
-								) : (
-									"You don't have a plan, please purchase one"
-								)
+								<>
+									<ProgressBar now={monthPercentage} />
+									<Box>{`${
+										Math.round(monthPercentage * 100) / 100
+									}% used, Indeed: ${indeedJobs.length}, LinkedIn: ${
+										linkedinJobs.length
+									}`}</Box>
+								</>
 							}
 						/>
 					</Box>

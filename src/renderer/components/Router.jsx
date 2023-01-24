@@ -8,10 +8,11 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
 import IconButton from "@mui/joy/IconButton";
 import { ArrowBack, Work } from "@mui/icons-material";
+import { Tooltip } from "react-bootstrap";
 import { Box } from "@mui/joy";
 
 // Screens
-import { Tooltip } from "react-bootstrap";
+import { stop } from "../BotHelpers";
 import Jobs from "../screens/Jobs";
 import Filters from "../screens/Filters";
 import {
@@ -43,12 +44,17 @@ import ScrollToTop from "./ScrollToTop";
 const { ApplierStatus } = window.electron;
 
 export default () => {
-	const { questions } = useSelector((state) => state.qa);
+	const { sessionJobCount, sessionInProgress } = useSelector((s) => s.applier);
+	const { user } = useSelector((state) => state.socket);
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const store = useStore();
 	const mainRef = useRef(null);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (sessionJobCount >= user?.plan?.dailyLimit && sessionInProgress) stop();
+	}, [user, sessionJobCount, sessionInProgress]);
 
 	useEffect(() => {
 		if (auth.isLoggedIn) {
@@ -58,7 +64,7 @@ export default () => {
 			});
 			window.electron.ipcRenderer.on("clear-questions", () => {
 				dispatch(clearQuestions());
-				dispatch(sendData("clear-questions")); // TODO: remove questions and/or norification from mobile client
+				dispatch(sendData("clear-questions"));
 			});
 			window.electron.ipcRenderer.on("application-submitted", () => {
 				if (!auth.user.id)
@@ -129,7 +135,7 @@ export default () => {
 							<Work />
 						</IconButton>
 						<Typography level="h4" fontWeight={700}>
-							Work-Shy
+							WORK-SHY
 						</Typography>
 						<Typography level="body5" paddingTop={3}>
 							v1.0.0
@@ -174,9 +180,6 @@ export default () => {
 						<Route path="/jobs" element={<Jobs />} />
 					</Routes>
 				</Layout.Main>
-				{/* <Layout.Controls>
-					{auth.isLoggedIn && auth.user.hasPlan && <BotControls />}
-				</Layout.Controls> */}
 			</Layout.Root>
 		</>
 	);
