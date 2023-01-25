@@ -99,7 +99,7 @@ const Login = () => {
 				<img src={Logo} width="200px" alt="Work-Shy Logo" />
 				<Box>
 					<Typography sx={{ mt: 1 }} level="h2" fontWeight={700}>
-						Work-Shy
+						WORK-SHY
 					</Typography>
 				</Box>
 				<Box sx={{ mt: 10 }}>
