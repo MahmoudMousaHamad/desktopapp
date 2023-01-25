@@ -24,6 +24,8 @@ const {
 } = OS;
 
 const versionIndex = {
+	110: "110.0.5481.30",
+	109: "109.0.5414.74",
 	108: "108.0.5359.71",
 	106: "106.0.5249.21",
 	105: "105.0.5195.52",
@@ -63,16 +65,19 @@ export async function getChromeMajorVersion() {
 export async function downloadChromeDriver() {
 	const chromeMajorVersion = await getChromeMajorVersion();
 
-	if (!chromeMajorVersion)
-		throw Error("Chrome version is not compatibale with this application.");
+	if (!chromeMajorVersion || !versionIndex[chromeMajorVersion])
+		throw Error("Chrome version is not compatible with this application.");
 
-	if (!fs.existsSync(appDatatDirPath)) {
-		fs.mkdirSync(appDatatDirPath);
+	if (!fs.existsSync(appDatatDirPath)) fs.mkdirSync(appDatatDirPath);
+
+	const chromedriverPath = path.resolve(appDatatDirPath, "chromedriver");
+
+	if (fs.existsSync(chromeDriverPath)) {
+		Logger.info("Chrome driver exists, no need to download");
+		return;
 	}
 
-	const fileUrl = `https://chromedriver.storage.googleapis.com/${
-		versionIndex[await getChromeMajorVersion()]
-	}/chromedriver_${targetPlatform}.zip`;
+	const fileUrl = `https://chromedriver.storage.googleapis.com/${versionIndex[chromeMajorVersion]}/chromedriver_${targetPlatform}.zip`;
 
 	Logger.info(`Zip file url ${fileUrl}`);
 

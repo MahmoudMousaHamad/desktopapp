@@ -79,7 +79,7 @@ export default abstract class SiteCreator {
 	async stop() {
 		try {
 			this.status = Status.STOPPED;
-			Categorizer.SingletonCategorizer.save();
+			// Categorizer.SingletonCategorizer.save();
 			await this.driver?.close();
 		} catch (e) {
 			Logger.error(`Something went wrong while stopping ${e}`);

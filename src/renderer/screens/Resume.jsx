@@ -33,34 +33,30 @@ const Resume = () => {
 						<Typography level="body1">
 							Make sure to upload your resume on the respective platforms!
 						</Typography>
-						<Typography level="body2">
-							For LinkedIn,
-							<Button
-								sx={{ ml: 1 }}
-								onClick={() =>
-									window.electron.ipcRenderer.send(
-										"open-url",
-										"https://www.linkedin.com/jobs/application-settings/"
-									)
-								}
-							>
-								Click here
-							</Button>
-							<Box>
-								For Indeed,
-								<Button
-									sx={{ ml: 1 }}
-									onClick={() =>
-										window.electron.ipcRenderer.send(
-											"open-url",
-											"https://profile.indeed.com/"
-										)
-									}
-								>
-									Click here
-								</Button>
-							</Box>
-						</Typography>
+						<Button
+							variant="soft"
+							sx={{ mb: 1 }}
+							onClick={() =>
+								window.electron.ipcRenderer.send(
+									"open-url",
+									"https://www.linkedin.com/jobs/application-settings/"
+								)
+							}
+						>
+							Click here for LinkedIn
+						</Button>
+						<Button
+							variant="soft"
+							sx={{ ml: 1 }}
+							onClick={() =>
+								window.electron.ipcRenderer.send(
+									"open-url",
+									"https://profile.indeed.com/"
+								)
+							}
+						>
+							Click here for Indeed
+						</Button>
 					</>
 				}
 				onDontShowAgain={() => {

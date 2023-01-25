@@ -181,7 +181,7 @@ ipcMain.on("google-oath", async () => {
 	mainWindow?.focus();
 });
 
-ipcMain.on("open-url", (href) => {
+ipcMain.on("open-url", (_e, href) => {
 	if (typeof href === "string") {
 		shell.openExternal(href);
 	}
