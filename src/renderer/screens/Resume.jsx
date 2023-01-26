@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Link, Typography } from "@mui/joy";
+import { Box, Button, Typography } from "@mui/joy";
 import MyDialog from "../components/Dialog";
 import UserInformation from "../components/UserInformation";
 
@@ -14,8 +14,8 @@ const Resume = () => {
 				Common Questions
 			</Typography>
 			<Typography sx={{ mb: 2 }} textColor="text.secondary" level="body1">
-				All of your answers are saved on your computer. We do not collect any of
-				your answers.
+				Your answers are saved on your computer. We do not collect any of your
+				answers.
 			</Typography>
 			<Box
 				sx={{

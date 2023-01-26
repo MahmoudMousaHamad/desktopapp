@@ -25,6 +25,7 @@ export default combineReducers({
 					...state,
 					sessionInProgress: true,
 					site: payload.site,
+					sessionJobCount: 0,
 				};
 			case STOP_SESSION:
 				return {
