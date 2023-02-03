@@ -40,7 +40,6 @@ export interface SiteInterface {
 
 export abstract class Site implements SiteInterface {
 	abstract answerQuestions(): Promise<void>;
-	abstract goToJobsPage(): Promise<void>;
 
 	questionsInfo: QuestionsInfo;
 
@@ -81,6 +80,10 @@ export abstract class Site implements SiteInterface {
 
 	static getBy(selector: any): By {
 		return selector.by(selector.selector);
+	}
+
+	async goToJobsPage(): Promise<void> {
+		await Helper.checkAlert();
 	}
 
 	async getJobInfo(): Promise<Job> {

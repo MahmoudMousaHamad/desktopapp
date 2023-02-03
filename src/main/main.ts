@@ -9,22 +9,14 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import {
-	app,
-	BrowserWindow,
-	dialog,
-	ipcMain,
-	ipcRenderer,
-	shell,
-} from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import path from "path";
 
 import ElectronGoogleOAuth2 from "@getstation/electron-google-oauth2";
-import { parse } from "url";
 import scraperHandlers from "./handlers/scraperHandlers";
-import { LoopbackRedirectServer, resolveHtmlPath } from "./util";
+import { resolveHtmlPath } from "./util";
 import {
 	downloadChromeDriver,
 	killDriverProcess,

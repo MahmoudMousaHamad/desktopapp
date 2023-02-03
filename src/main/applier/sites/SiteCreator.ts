@@ -126,6 +126,7 @@ export default abstract class SiteCreator {
 		let actionStartDate = Date.now();
 
 		while (this.status === Status.RUNNING) {
+			await Helper.checkAlert();
 			let locatorResult;
 			try {
 				locatorResult = await this.locator.getAction();
@@ -150,11 +151,13 @@ export default abstract class SiteCreator {
 					Logger.info(`Running action for ${page}`);
 					await action();
 					await Helper.checkTabs();
+					await Helper.checkAlert();
 				} catch (e) {
 					Logger.error(`Something went wrong while running action for ${page}`);
 					try {
 						await action();
 						await Helper.checkTabs();
+						await Helper.checkAlert();
 					} catch (e2) {
 						Logger.error(
 							`Something went wrong AGAIN while running action for ${page}, falling back`,
@@ -165,7 +168,10 @@ export default abstract class SiteCreator {
 					}
 				}
 			} else if (status === "restart") await this.restart();
-			else {
+			else if (status === "failed") {
+				Logger.error("Failed to get page.");
+				await this.site?.goToJobsPage();
+			} else {
 				Logger.error(`Could not find an action for the page ${status}`);
 				await this.site?.goToJobsPage();
 			}

@@ -35,6 +35,7 @@ export class Locator {
 		for (const [key, value] of Object.entries(this.site.locationsAndActions)) {
 			let string: string | undefined = "";
 			try {
+				console.log(key, value);
 				if (value.type === TITLE) string = await this.getTitle();
 				else if (value.type === SOURCE) string = await this.getPageSource();
 				else if (value.type === TEXT)
@@ -60,7 +61,7 @@ export class Locator {
 				return { action: this.site.goToJobsPage, status: "failed" };
 			}
 
-			if (!string) return { action: this.site.goToJobsPage, status: "failed" };
+			if (!string) continue;
 
 			if (
 				value.strings.some((s: string) =>

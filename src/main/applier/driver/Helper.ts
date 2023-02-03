@@ -37,6 +37,20 @@ class Helper {
 		}
 	}
 
+	async checkAlert() {
+		console.log("Checking for an alert");
+		try {
+			const alert = await this.driver?.switchTo().alert();
+			console.log("Alert exists");
+			await alert.accept();
+		} catch (e) {
+			console.log("Alert doesn't exist", e);
+			await this.driver?.switchTo().defaultContent();
+		} finally {
+			await this.driver?.switchTo().defaultContent();
+		}
+	}
+
 	async getText(by: By): Promise<string> {
 		return (await this.driver.findElement(by)).getText();
 	}

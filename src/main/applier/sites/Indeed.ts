@@ -8,7 +8,7 @@ import { WebDriver, By, Key } from "selenium-webdriver";
 
 import { CoverLetter, Job, QnAManager } from "../jobapplication";
 import { SingletonPreferences, Logger } from "../lib";
-import { Helper } from "../driver";
+import { Helper, Locator } from "../driver";
 
 import SiteCreator from "./SiteCreator";
 import { Site } from "./Site";
@@ -21,8 +21,8 @@ export class IndeedSite extends Site {
 
 	locationsAndActions = {
 		jobs: {
-			strings: ["Job Search", "Jobs, Employment", "Flexible"],
-			type: TITLE,
+			strings: [this.selectors.smallJobCard.selector],
+			type: Locator.ELEMENT,
 			action: this.enterApplication.bind(this),
 		},
 		resume: {
@@ -70,6 +70,8 @@ export class IndeedSite extends Site {
 	};
 
 	async goToJobsPage(): Promise<void> {
+		await super.goToJobsPage();
+
 		const location =
 			SingletonPreferences.locations[
 				Math.floor(Math.random() * (SingletonPreferences.locations.length - 1))

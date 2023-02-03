@@ -51,6 +51,8 @@ export class LinkedInSite extends Site {
 	}
 
 	async goToJobsPage(): Promise<void> {
+		await super.goToJobsPage();
+
 		const location =
 			SingletonPreferences.locations[
 				Math.floor(Math.random() * SingletonPreferences.locations.length)

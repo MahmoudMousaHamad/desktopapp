@@ -2,7 +2,7 @@
   "name": "desktopapp",
   "displayName": "WORK-SHY",
   "description": "Work-Shy desktop app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
