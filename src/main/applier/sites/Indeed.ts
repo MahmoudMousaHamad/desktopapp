@@ -21,7 +21,10 @@ export class IndeedSite extends Site {
 
 	locationsAndActions = {
 		jobs: {
-			strings: [this.selectors.smallJobCard.selector],
+			strings: [
+				this.selectors.bigJobCard.selector,
+				".yosegi-InlineWhatWhere-primaryButton",
+			],
 			type: Locator.ELEMENT,
 			action: this.enterApplication.bind(this),
 		},

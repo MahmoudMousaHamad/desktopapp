@@ -124,14 +124,6 @@ const createWindow = async () => {
 		return { action: "deny" };
 	});
 
-	if (app.isPackaged) {
-		// eslint-disable-next-line
-    new AppUpdater();
-		setInterval(() => {
-			autoUpdater.checkForUpdates();
-		}, 60000);
-	}
-
 	if (process.platform === "win32") {
 		// Keep only command line / deep linked arguments
 		[deeplinkingUrl] = process.argv.slice(1);
@@ -150,6 +142,14 @@ app
 	.then(async () => {
 		createWindow();
 		await downloadChromeDriver();
+
+		if (app.isPackaged) {
+			// eslint-disable-next-line
+      //   new AppUpdater();
+			setInterval(() => {
+				autoUpdater.checkForUpdatesAndNotify();
+			}, 60000);
+		}
 
 		app.on("activate", () => {
 			// On macOS it's common to re-create a window in the app when the

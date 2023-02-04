@@ -138,7 +138,7 @@ export default () => {
 							WORK-SHY
 						</Typography>
 						<Typography level="body5" paddingTop={3}>
-							v1.0.1
+							v1.0.2
 						</Typography>
 					</Box>
 					<Box sx={{ display: "flex", flexDirection: "row", gap: 1.5 }}>

@@ -15,6 +15,7 @@ import { PleaseSignIn } from "./Scripts";
 
 export const ELEMENT = "ELEMENT";
 export const SOURCE = "SOURCE";
+export const XPATH = "XPATH";
 export const TITLE = "TITLE";
 export const TEXT = "TEXT";
 export const URL = "URL";
@@ -35,14 +36,24 @@ export class Locator {
 		for (const [key, value] of Object.entries(this.site.locationsAndActions)) {
 			let string: string | undefined = "";
 			try {
-				console.log(key, value);
 				if (value.type === TITLE) string = await this.getTitle();
 				else if (value.type === SOURCE) string = await this.getPageSource();
 				else if (value.type === TEXT)
 					string = await (
 						await this.driver.findElement(By.css("body"))
 					).getText();
-				else if (value.type === ELEMENT) {
+				else if (value.type === XPATH) {
+					const elements = await this.driver.findElements(
+						By.xpath(value.strings.join("|"))
+					);
+					if (elements.length > 0) {
+						return {
+							action: value.action,
+							status: "success",
+							page: key,
+						};
+					}
+				} else if (value.type === ELEMENT) {
 					const elements = await this.driver.findElements(
 						By.css(value.strings.join(","))
 					);
