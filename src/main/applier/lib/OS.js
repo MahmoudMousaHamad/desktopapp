@@ -4,6 +4,7 @@ import os from "os";
 const platform = os.platform();
 
 let isWindows = false;
+let isMac = false;
 let targetPlatform;
 let appDatatDirPath;
 
@@ -15,9 +16,10 @@ switch (platform) {
 		appDatatDirPath = path.join(
 			process.env.HOME,
 			"Library",
-			"Application Support",
+			"Application\\ Support",
 			"Work-Shy"
 		);
+		isMac = true;
 		break;
 	case "linux":
 		targetPlatform = "linux64";
@@ -52,4 +54,5 @@ export default {
 	appDatatDirPath,
 	targetPlatform,
 	isWindows,
+	isMac,
 };
