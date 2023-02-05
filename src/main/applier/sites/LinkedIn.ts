@@ -18,19 +18,14 @@ export class LinkedInSite extends Site {
 
 	locationsAndActions = {
 		review: {
-			strings: ["Review your application", "Submit application"],
-			type: Locator.TEXT,
+			strings: ["//span[text()='Submit application']"],
+			type: Locator.XPATH,
 			action: this.submitApplication.bind(this),
 		},
 		submitted: {
 			strings: ["Your application was sent"],
 			type: Locator.TEXT,
 			action: this.handleSubmitted.bind(this),
-		},
-		questions: {
-			strings: ["Additional Questions", "Work authorization"],
-			type: Locator.TEXT,
-			action: this.answerQuestions.bind(this),
 		},
 		resume: {
 			strings: [
@@ -39,6 +34,11 @@ export class LinkedInSite extends Site {
 			],
 			type: Locator.ELEMENT,
 			action: this.resumeSection.bind(this),
+		},
+		questions: {
+			strings: [this.selectors.questions.selector],
+			type: Locator.XPATH,
+			action: this.answerQuestions.bind(this),
 		},
 	};
 
@@ -103,7 +103,7 @@ export class LinkedInSite extends Site {
 		console.log("Finding a new job");
 		let applyNowPressed = false;
 
-		await this.driver.sleep(1000);
+		await this.driver.sleep(2000);
 
 		const cards = await this.driver.findElements(
 			Site.getBy(this.selectors.smallJobCard)
@@ -143,7 +143,10 @@ export class LinkedInSite extends Site {
 			}
 		}
 
-		if (!applyNowPressed) await this.goToJobsPage();
+		if (!applyNowPressed) {
+			await this.goToJobsPage();
+			return;
+		}
 
 		// For contact info section
 		await this.continue();
@@ -206,6 +209,15 @@ export class LinkedInSiteCreator extends SiteCreator {
 				// was: "//div[@class='jobs-easy-apply-content']//*[(self::input or self::textarea or self::select)]/ancestor::*/preceding-sibling::*[self::legend or self::label]/..",
 				selector:
 					"//div[@class='jobs-easy-apply-content']//*[(*[input or select or textarea])]",
+				by: By.xpath,
+			},
+			// TODO: change the QA mechanism, such that you:
+			// 1) try to submit
+			// 2) if you get errors, then only answer the questions that have an alert
+			// 3) submit again
+			// ... and so on until there are no alerts :D
+			alert: {
+				selector: "//*[@role='alert']/../..",
 				by: By.xpath,
 			},
 		};

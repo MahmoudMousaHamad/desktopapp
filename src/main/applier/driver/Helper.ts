@@ -38,14 +38,12 @@ class Helper {
 	}
 
 	async checkAlert() {
-		console.log("Checking for an alert");
 		try {
 			const alert = await this.driver?.switchTo().alert();
-			console.log("Alert exists");
 			await alert.accept();
+			console.log("Alert accepted");
 		} catch (e) {
-			console.log("Alert doesn't exist", e);
-			await this.driver?.switchTo().defaultContent();
+			console.log("Alert doesn't exist");
 		} finally {
 			await this.driver?.switchTo().defaultContent();
 		}
