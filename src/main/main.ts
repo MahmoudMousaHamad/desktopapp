@@ -36,13 +36,13 @@ export default class AppUpdater {
 	constructor() {
 		log.transports.file.level = "info";
 		autoUpdater.logger = log;
-		autoUpdater.checkForUpdatesAndNotify();
+		autoUpdater.autoDownload = false;
+		autoUpdater.checkForUpdates();
 	}
 }
 
 let mainWindow: BrowserWindow | null = null;
 let splash: BrowserWindow | null = null;
-let deeplinkingUrl = "";
 
 if (process.env.NODE_ENV === "production") {
 	const sourceMapSupport = require("source-map-support");
@@ -74,6 +74,11 @@ const installExtensions = async () => {
 const createWindow = async () => {
 	if (isDebug) {
 		await installExtensions();
+	}
+
+	if (app.isPackaged) {
+		// eslint-disable-next-line no-new
+		new AppUpdater();
 	}
 
 	mainWindow = new BrowserWindow({
@@ -123,11 +128,6 @@ const createWindow = async () => {
 		shell.openExternal(edata.url);
 		return { action: "deny" };
 	});
-
-	if (process.platform === "win32") {
-		// Keep only command line / deep linked arguments
-		[deeplinkingUrl] = process.argv.slice(1);
-	}
 };
 
 app.on("window-all-closed", async () => {
@@ -142,15 +142,6 @@ app
 	.then(async () => {
 		createWindow();
 		await downloadChromeDriver();
-
-		if (app.isPackaged) {
-			// eslint-disable-next-line
-      //   new AppUpdater();
-			setInterval(() => {
-				autoUpdater.checkForUpdatesAndNotify();
-			}, 60000);
-		}
-
 		app.on("activate", () => {
 			// On macOS it's common to re-create a window in the app when the
 			// dock icon is clicked and there are no other windows open.
@@ -191,30 +182,6 @@ ipcMain.on("open-stripe", async (_e, { email, userId }) => {
 				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
 		}?prefilled_email=${email}&client_reference_id=${userId}`
 	);
-	// await new Promise<void>((resolve) => {
-	// 	const server = new LoopbackRedirectServer(
-	// 		42813,
-	// 		"https://useapplier.com/payment_successful",
-	// 		"/callback"
-	// 	);
-	// 	shell.openExternal(
-	// 		`${
-	// 			isDev
-	// 				? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
-	// 				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
-	// 		}?prefilled_email=${email}&client_reference_id=${userId}`
-	// 	);
-	// 	server
-	// 		.waitForRedirection()
-	// 		.then((reachedCallbackURL) => {
-	// 			const parsed = parse(reachedCallbackURL, true);
-	// 			if (parsed.query.error)
-	// 				throw new Error(parsed.query.error_description as string);
-	// 			Logger.info("Open stripe done");
-	// 			resolve();
-	// 		})
-	// 		.catch((reason) => console.log(reason));
-	// });
 });
 
 autoUpdaterHandlers();

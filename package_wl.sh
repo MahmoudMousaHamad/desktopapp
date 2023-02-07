@@ -1,6 +1,10 @@
 
 #!/bin/bash
 
+npm version patch -git-tag-version false
+
+(cd release/app/; npm version patch -git-tag-version false)
+
 sudo docker run --rm -ti \
     --env CSC_LINK=/project/certificate.pfx \
     --env DO_KEY_ID=OKJRQ3JKZHYSMDJP3PZZ \

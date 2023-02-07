@@ -4,25 +4,23 @@ import { dialog } from "electron";
 import Logger from "../applier/lib/Logger";
 
 const autoUpdaterHandlers = () => {
-	autoUpdater.on("update-downloaded", (_event, releaseNotes, releaseName) => {
+	autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: "info",
-			buttons: ["Restart"],
-			title: "Work-Shy Update",
+			buttons: ["Restart", "Later"],
+			title: "Application Update",
 			message: process.platform === "win32" ? releaseNotes : releaseName,
 			detail:
-				"A new version has been downloaded. Restart Work-Shy to apply the updates.",
+				"A new version has been downloaded. Restart the application to apply the updates.",
 		};
 
 		dialog
 			.showMessageBox(dialogOpts)
-			.then((returnValue: any) => {
-				if (returnValue.response === 0) {
-					autoUpdater.quitAndInstall();
-				}
-				return returnValue;
+			.then((returnValue) => {
+				if (returnValue.response === 0) autoUpdater.quitAndInstall();
+				return returnValue.response;
 			})
-			.catch(Logger.info);
+			.catch(Logger.error);
 	});
 
 	autoUpdater.on("error", (message) => {
@@ -30,5 +28,35 @@ const autoUpdaterHandlers = () => {
 		Logger.error(message);
 	});
 };
+
+autoUpdater.on("update-available", async (info) => {
+	console.log("Update Available");
+	console.log(`Version : ${info.version}`);
+	console.log(`Release Date : ${info.releaseDate}`);
+
+	const d = await dialog.showMessageBox({
+		title: "Updates",
+		type: "info",
+		message: "Update Available",
+		detail: "A new version has been found. Click on Update to Update",
+		buttons: ["Update", "Cancel"],
+	});
+
+	if (d.response === 0) {
+		autoUpdater.downloadUpdate();
+	}
+});
+
+autoUpdater.on("error", (err) => {
+	dialog.showMessageBox({
+		title: "Updates",
+		type: "error",
+		message: "Error",
+		detail: `Error name: ${err.name}
+Error Message: ${err.message}
+Error Stack: ${err.stack}`,
+		buttons: ["Cancel"],
+	});
+});
 
 export default autoUpdaterHandlers;
