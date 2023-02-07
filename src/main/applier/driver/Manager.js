@@ -21,6 +21,7 @@ const {
 	appDatatDirPath,
 	targetPlatform,
 	isWindows,
+	isMac,
 } = OS;
 
 const versionIndex = {
@@ -125,27 +126,27 @@ export async function openChromeSession() {
 		chromeCommand = fs.existsSync(chrome86Path)
 			? `"${chrome86Path}"`
 			: `"${chromePath}"`;
+	} else if (isMac) {
+		chromeCommand =
+			"/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
 	} else {
 		chromeCommand = "google-chrome";
 	}
 
 	// TODO: Use chrome-launcher to launch chrome
 	const userAgent = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${await getChromeMajorVersion()}.0.0.0 Safari/537.36`;
-
-	exec(
-		`${chromeCommand} \
-		--remote-debugging-port=${chromeRemoteDebugPort} \
-		--user-data-dir=${userChromeDataDir} \
-		--remote-debugging-address=0.0.0.0 \
-		--user-agent="${userAgent}" \
-		--start-maximized \
-		`,
-		(error, stdout, stderr) => {
-			if (stdout) Logger.info(`stdout: ${stdout}`);
-			if (stderr) Logger.error(`stderr: ${stderr}`);
-			if (error) Logger.error(`exec error: ${error}`);
-		}
-	);
+	const fullCommand = `${chromeCommand} \
+	--remote-debugging-port=${chromeRemoteDebugPort} \
+	--user-data-dir=${userChromeDataDir} \
+	--remote-debugging-address=0.0.0.0 \
+	--user-agent="${userAgent}" \
+	--start-maximized`;
+	console.log("Chrome command:", fullCommand);
+	exec(fullCommand, (error, stdout, stderr) => {
+		if (stdout) Logger.info(`stdout: ${stdout}`);
+		if (stderr) Logger.error(`stderr: ${stderr}`);
+		if (error) Logger.error(`exec error: ${error}`);
+	});
 }
 
 export async function attachToSession() {
