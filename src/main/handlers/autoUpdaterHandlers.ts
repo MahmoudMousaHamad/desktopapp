@@ -4,24 +4,23 @@ import { dialog } from "electron";
 import Logger from "../applier/lib/Logger";
 
 const autoUpdaterHandlers = () => {
-	autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-		const dialogOpts = {
-			type: "info",
-			buttons: ["Restart", "Later"],
-			title: "Application Update",
-			message: process.platform === "win32" ? releaseNotes : releaseName,
-			detail:
-				"A new version has been downloaded. Restart the application to apply the updates.",
-		};
+	autoUpdater.on(
+		"update-downloaded",
+		async (event, releaseNotes, releaseName) => {
+			const dialogOpts = {
+				type: "info",
+				buttons: ["Restart", "Later"],
+				title: "Application Update",
+				message: process.platform === "win32" ? releaseNotes : releaseName,
+				detail:
+					"A new version has been downloaded. Restart the application to apply the updates.",
+			};
 
-		dialog
-			.showMessageBox(dialogOpts)
-			.then((returnValue) => {
-				if (returnValue.response === 0) autoUpdater.quitAndInstall();
-				return returnValue.response;
-			})
-			.catch(Logger.error);
-	});
+			const d = await dialog.showMessageBox(dialogOpts);
+			if (d.response === 0) autoUpdater.quitAndInstall();
+			else Logger.error(d.response);
+		}
+	);
 
 	autoUpdater.on("error", (message) => {
 		Logger.error("There was a problem updating the application");
@@ -43,8 +42,10 @@ autoUpdater.on("update-available", async (info) => {
 	});
 
 	if (d.response === 0) {
-		autoUpdater.downloadUpdate();
+		await autoUpdater.downloadUpdate();
 	}
+
+	autoUpdater.autoInstallOnAppQuit = true;
 });
 
 autoUpdater.on("error", (err) => {
