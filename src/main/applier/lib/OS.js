@@ -11,7 +11,7 @@ let appDatatDirPath;
 switch (platform) {
 	case "darwin":
 		targetPlatform = os.cpus()[0].model.includes("Apple")
-			? "mac64_m1"
+			? "mac_arm64"
 			: "mac64";
 		appDatatDirPath = path.join(
 			process.env.HOME,
