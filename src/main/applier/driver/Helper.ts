@@ -43,7 +43,7 @@ class Helper {
 			await alert.accept();
 			console.log("Alert accepted");
 		} catch (e) {
-			console.log("Alert doesn't exist");
+			await this.driver?.switchTo().defaultContent();
 		} finally {
 			await this.driver?.switchTo().defaultContent();
 		}
