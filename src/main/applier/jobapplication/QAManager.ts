@@ -129,7 +129,7 @@ class QAManager {
 				const question = new Question(qe, this.site);
 				const coolQuestion = await question.prepare();
 				if (!coolQuestion) {
-					Logger.info(`Question could not be prepared ${await qe.getText()}`);
+					Logger.error(`Question could not be prepared ${await qe.getText()}`);
 					return false;
 				}
 				this.allQuestions.push(question);

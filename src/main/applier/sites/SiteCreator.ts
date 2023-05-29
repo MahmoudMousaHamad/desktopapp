@@ -175,7 +175,7 @@ export default abstract class SiteCreator {
 				Logger.error(`Could not find an action for the page ${status}`);
 				await this.site?.goToJobsPage();
 			}
-			await this.driver?.sleep(2000);
+			await this.driver?.sleep(1000);
 			previousPage = page;
 		}
 	}
