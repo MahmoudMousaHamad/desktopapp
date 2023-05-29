@@ -13,6 +13,8 @@ import https from "https";
 import path from "path";
 import fs from "fs";
 
+import axios from "axios";
+import { load } from "cheerio";
 import { Logger, OS } from "../lib";
 
 const {
@@ -21,18 +23,8 @@ const {
 	appDatatDirPath,
 	targetPlatform,
 	isWindows,
+	isMac,
 } = OS;
-
-const versionIndex = {
-	108: "108.0.5359.71",
-	106: "106.0.5249.21",
-	105: "105.0.5195.52",
-	104: "104.0.5112.29",
-	103: "103.0.5060.53",
-	102: "102.0.5005.61",
-	101: "101.0.4951.41",
-	100: "100.0.4896.60",
-};
 
 const chromeRemoteDebugPort = 9222;
 
@@ -64,15 +56,37 @@ export async function downloadChromeDriver() {
 	const chromeMajorVersion = await getChromeMajorVersion();
 
 	if (!chromeMajorVersion)
-		throw Error("Chrome version is not compatibale with this application.");
+		throw Error("Chrome version is not compatible with this application.");
 
-	if (!fs.existsSync(appDatatDirPath)) {
-		fs.mkdirSync(appDatatDirPath);
+	if (!fs.existsSync(appDatatDirPath)) fs.mkdirSync(appDatatDirPath);
+
+	path.resolve(appDatatDirPath, "chromedriver");
+
+	if (fs.existsSync(chromeDriverPath)) {
+		Logger.info("Chrome driver exists, no need to download");
+		return;
 	}
 
-	const fileUrl = `https://chromedriver.storage.googleapis.com/${
-		versionIndex[await getChromeMajorVersion()]
-	}/chromedriver_${targetPlatform}.zip`;
+	// Get the link to the chromedriver zip file
+	// Parse the hhttps://chromedriver.chromium.org/downloads to get the link to the chromedriver zip file
+	// Find the link element that starts with "ChromeDriver [major version].0."
+	const r = await axios.get("https://chromedriver.chromium.org/downloads");
+	const $ = load(r.data);
+	const anchorElements = $("a");
+	let fileUrl = null;
+	// eslint-disable-next-line consistent-return
+	anchorElements.each((index, element) => {
+		const href = $(element).attr("href");
+		const text = $(element).text();
+
+		if (text.startsWith(`ChromeDriver ${chromeMajorVersion}.0.`)) {
+			// Get the full version of the chromedriver from the link.
+			// Example link: https://chromedriver.storage.googleapis.com/index.html?path=114.0.5735.16/
+			const fullVersion = href.split("=")[1].replace("/", "");
+			fileUrl = `https://chromedriver.storage.googleapis.com/${fullVersion}/chromedriver_${targetPlatform}.zip`;
+			return false; // Exit the loop if a matching anchor element is found
+		}
+	});
 
 	Logger.info(`Zip file url ${fileUrl}`);
 
@@ -120,27 +134,27 @@ export async function openChromeSession() {
 		chromeCommand = fs.existsSync(chrome86Path)
 			? `"${chrome86Path}"`
 			: `"${chromePath}"`;
+	} else if (isMac) {
+		chromeCommand =
+			"/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
 	} else {
 		chromeCommand = "google-chrome";
 	}
 
 	// TODO: Use chrome-launcher to launch chrome
 	const userAgent = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${await getChromeMajorVersion()}.0.0.0 Safari/537.36`;
-
-	exec(
-		`${chromeCommand} \
-		--remote-debugging-port=${chromeRemoteDebugPort} \
-		--user-data-dir=${userChromeDataDir} \
-		--remote-debugging-address=0.0.0.0 \
-		--user-agent="${userAgent}" \
-		--start-maximized \
-		`,
-		(error, stdout, stderr) => {
-			if (stdout) Logger.info(`stdout: ${stdout}`);
-			if (stderr) Logger.error(`stderr: ${stderr}`);
-			if (error) Logger.error(`exec error: ${error}`);
-		}
-	);
+	const fullCommand = `${chromeCommand} \
+	--remote-debugging-port=${chromeRemoteDebugPort} \
+	--user-data-dir=${userChromeDataDir} \
+	--remote-debugging-address=0.0.0.0 \
+	--user-agent="${userAgent}" \
+	--start-maximized`;
+	console.log("Chrome command:", fullCommand);
+	exec(fullCommand, (error, stdout, stderr) => {
+		if (stdout) Logger.info(`stdout: ${stdout}`);
+		if (stderr) Logger.error(`stderr: ${stderr}`);
+		if (error) Logger.error(`exec error: ${error}`);
+	});
 }
 
 export async function attachToSession() {

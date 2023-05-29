@@ -58,7 +58,7 @@ let categoriesQuestions = {
 	experience: {
 		question: {
 			type: "number",
-			text: "On average, how many years of experience do you have in your field?",
+			text: "How many years of experience do you have in your field?",
 		},
 	},
 	relocate: {
@@ -84,14 +84,14 @@ let categoriesQuestions = {
 	},
 	citizen: {
 		question: {
-			text: "Are you a U.S. citizen?",
+			text: "U.S. citizen",
 			options: ["Yes", "No"],
 			type: "radio",
 		},
 	},
 	clearance: {
 		question: {
-			text: "Do you have a security clearance?",
+			text: "Security clearance",
 			options: ["Yes", "No"],
 			defaultAnswer: "No",
 			type: "radio",
@@ -99,7 +99,7 @@ let categoriesQuestions = {
 	},
 	salary: {
 		question: {
-			text: "What is your salary expectation?",
+			text: "Salary expectation",
 			type: "number",
 		},
 	},
@@ -112,7 +112,7 @@ let categoriesQuestions = {
 	degree: {
 		question: {
 			type: "radio",
-			text: "What is the highest level of education you have completed?",
+			text: "Highest level of education",
 			options: [
 				"Other",
 				"High school or equivalent",
@@ -127,7 +127,7 @@ let categoriesQuestions = {
 	phone: {
 		question: {
 			type: "tel",
-			text: "What is your phone number?",
+			text: "Phone number",
 		},
 	},
 	country: {
@@ -141,7 +141,7 @@ let categoriesQuestions = {
 	address: {
 		question: {
 			type: "text",
-			text: "What is your current physical address?",
+			text: "Physical address",
 		},
 	},
 	email: {
@@ -149,7 +149,7 @@ let categoriesQuestions = {
 			defaultAnswer: localStorage.user
 				? JSON.parse(localStorage.user).email
 				: "",
-			text: "What is your email?",
+			text: "Email",
 			type: "text",
 		},
 	},
@@ -157,14 +157,14 @@ let categoriesQuestions = {
 		question: {
 			options: ["Male", "Female", "Prefer not to answer"],
 			defaultAnswer: "Prefer not to answer",
-			text: "What is your gender?",
+			text: "Gender",
 			type: "radio",
 		},
 	},
 	ethnicity: {
 		question: {
 			type: "radio",
-			text: "What is your ethnicity?",
+			text: "Ethnicity",
 			options: [
 				"Native Hawaiian or Other Pacific Islander",
 				"American Indian or Alaska Native",

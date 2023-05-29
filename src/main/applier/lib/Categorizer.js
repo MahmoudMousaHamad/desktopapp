@@ -69,7 +69,9 @@ export class Categorizer {
 				})
 			);
 			for (const category in userAnswers) {
-				this.categorizer[category].answer = userAnswers[category].answer;
+				if (userAnswers[category]?.answer) {
+					this.categorizer[category].answer = userAnswers[category].answer;
+				}
 			}
 		} else {
 			this.categorizer = userAnswers;

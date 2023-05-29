@@ -9,22 +9,14 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import {
-	app,
-	BrowserWindow,
-	dialog,
-	ipcMain,
-	ipcRenderer,
-	shell,
-} from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import path from "path";
 
 import ElectronGoogleOAuth2 from "@getstation/electron-google-oauth2";
-import { parse } from "url";
 import scraperHandlers from "./handlers/scraperHandlers";
-import { LoopbackRedirectServer, resolveHtmlPath } from "./util";
+import { resolveHtmlPath } from "./util";
 import {
 	downloadChromeDriver,
 	killDriverProcess,
@@ -44,13 +36,13 @@ export default class AppUpdater {
 	constructor() {
 		log.transports.file.level = "info";
 		autoUpdater.logger = log;
-		autoUpdater.checkForUpdatesAndNotify();
+		autoUpdater.autoDownload = false;
+		autoUpdater.checkForUpdates();
 	}
 }
 
 let mainWindow: BrowserWindow | null = null;
 let splash: BrowserWindow | null = null;
-let deeplinkingUrl = "";
 
 if (process.env.NODE_ENV === "production") {
 	const sourceMapSupport = require("source-map-support");
@@ -84,11 +76,17 @@ const createWindow = async () => {
 		await installExtensions();
 	}
 
+	if (app.isPackaged) {
+		// eslint-disable-next-line no-new
+		new AppUpdater();
+	}
+
 	mainWindow = new BrowserWindow({
 		webPreferences: {
 			preload: app.isPackaged
 				? path.join(__dirname, "preload.js")
 				: path.join(__dirname, "../../.erb/dll/preload.js"),
+			nodeIntegration: true,
 		},
 		icon: getAssetPath("icon.png"),
 		titleBarStyle: "hidden",
@@ -131,19 +129,6 @@ const createWindow = async () => {
 		shell.openExternal(edata.url);
 		return { action: "deny" };
 	});
-
-	if (app.isPackaged) {
-		// eslint-disable-next-line
-    new AppUpdater();
-		setInterval(() => {
-			autoUpdater.checkForUpdates();
-		}, 60000);
-	}
-
-	if (process.platform === "win32") {
-		// Keep only command line / deep linked arguments
-		[deeplinkingUrl] = process.argv.slice(1);
-	}
 };
 
 app.on("window-all-closed", async () => {
@@ -158,7 +143,6 @@ app
 	.then(async () => {
 		createWindow();
 		await downloadChromeDriver();
-
 		app.on("activate", () => {
 			// On macOS it's common to re-create a window in the app when the
 			// dock icon is clicked and there are no other windows open.
@@ -181,7 +165,7 @@ ipcMain.on("google-oath", async () => {
 	mainWindow?.focus();
 });
 
-ipcMain.on("open-url", (href) => {
+ipcMain.on("open-url", (_e, href) => {
 	if (typeof href === "string") {
 		shell.openExternal(href);
 	}
@@ -199,30 +183,6 @@ ipcMain.on("open-stripe", async (_e, { email, userId }) => {
 				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
 		}?prefilled_email=${email}&client_reference_id=${userId}`
 	);
-	// await new Promise<void>((resolve) => {
-	// 	const server = new LoopbackRedirectServer(
-	// 		42813,
-	// 		"https://useapplier.com/payment_successful",
-	// 		"/callback"
-	// 	);
-	// 	shell.openExternal(
-	// 		`${
-	// 			isDev
-	// 				? "https://buy.stripe.com/test_14kbKU3rZfpR7xC9AA"
-	// 				: "https://buy.stripe.com/bIY00L4YR87U08M5kk"
-	// 		}?prefilled_email=${email}&client_reference_id=${userId}`
-	// 	);
-	// 	server
-	// 		.waitForRedirection()
-	// 		.then((reachedCallbackURL) => {
-	// 			const parsed = parse(reachedCallbackURL, true);
-	// 			if (parsed.query.error)
-	// 				throw new Error(parsed.query.error_description as string);
-	// 			Logger.info("Open stripe done");
-	// 			resolve();
-	// 		})
-	// 		.catch((reason) => console.log(reason));
-	// });
 });
 
 autoUpdaterHandlers();

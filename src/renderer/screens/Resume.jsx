@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Link, Typography } from "@mui/joy";
+import { Box, Button, Typography } from "@mui/joy";
 import MyDialog from "../components/Dialog";
 import UserInformation from "../components/UserInformation";
 
@@ -14,8 +14,8 @@ const Resume = () => {
 				Common Questions
 			</Typography>
 			<Typography sx={{ mb: 2 }} textColor="text.secondary" level="body1">
-				All of your answers are saved on your computer. We do not collect any of
-				your answers.
+				Your answers are saved on your computer. We do not collect any of your
+				answers.
 			</Typography>
 			<Box
 				sx={{
@@ -33,34 +33,30 @@ const Resume = () => {
 						<Typography level="body1">
 							Make sure to upload your resume on the respective platforms!
 						</Typography>
-						<Typography level="body2">
-							For LinkedIn,
-							<Button
-								sx={{ ml: 1 }}
-								onClick={() =>
-									window.electron.ipcRenderer.send(
-										"open-url",
-										"https://www.linkedin.com/jobs/application-settings/"
-									)
-								}
-							>
-								Click here
-							</Button>
-							<Box>
-								For Indeed,
-								<Button
-									sx={{ ml: 1 }}
-									onClick={() =>
-										window.electron.ipcRenderer.send(
-											"open-url",
-											"https://profile.indeed.com/"
-										)
-									}
-								>
-									Click here
-								</Button>
-							</Box>
-						</Typography>
+						<Button
+							variant="soft"
+							sx={{ mb: 1 }}
+							onClick={() =>
+								window.electron.ipcRenderer.send(
+									"open-url",
+									"https://www.linkedin.com/jobs/application-settings/"
+								)
+							}
+						>
+							Click here for LinkedIn
+						</Button>
+						<Button
+							variant="soft"
+							sx={{ ml: 1 }}
+							onClick={() =>
+								window.electron.ipcRenderer.send(
+									"open-url",
+									"https://profile.indeed.com/"
+								)
+							}
+						>
+							Click here for Indeed
+						</Button>
 					</>
 				}
 				onDontShowAgain={() => {
