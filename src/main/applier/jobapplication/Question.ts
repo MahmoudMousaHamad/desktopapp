@@ -205,6 +205,38 @@ class Question {
 	}
 
 	async attemptToAnswer() {
+		if (this.options && this.options?.length > 0) {
+			this.answer(this.options[0]);
+			return true;
+		}
+		if (this.text?.startsWith("How many")) {
+			this.answer("1");
+			return true;
+		}
+		if (this.type === "number") {
+			this.answer("1");
+			return true;
+		}
+		if (this.type === "text") {
+			this.answer("Yes");
+			return true;
+		}
+		if (this.type === "textarea") {
+			this.answer("Yes");
+			return true;
+		}
+		if (this.type === "date") {
+			this.answer("2020-01-01");
+			return true;
+		}
+		if (this.type === "radio") {
+			this.answer("Yes");
+			return true;
+		}
+		if (this.type === "select") {
+			this.answer("Yes");
+			return true;
+		}
 		// If checkbox and only one option, select it
 		if (
 			this.type === "checkbox" &&
