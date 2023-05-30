@@ -68,6 +68,7 @@ export class Categorizer {
 					flag: "r",
 				})
 			);
+			this.categorizer = { ...this.categorizer, ...userAnswers };
 			for (const category in userAnswers) {
 				if (userAnswers[category]?.answer) {
 					this.categorizer[category].answer = userAnswers[category].answer;
