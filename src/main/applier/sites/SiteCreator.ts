@@ -136,14 +136,14 @@ export default abstract class SiteCreator {
 
 			const { action, status, page } = locatorResult;
 
-			// a single submission should not take longer than one minute
-			// a single action should not keep repeated for more than 30 seconds
-			if (
-				Date.now() - this.site.currentJobStartDate > 6e4 ||
-				(Date.now() - actionStartDate > 3e4 && previousPage === page)
-			) {
-				await this.site?.goToJobsPage();
-			}
+			// // a single submission should not take longer than one minute
+			// // a single action should not keep repeated for more than 30 seconds
+			// if (
+			// 	Date.now() - this.site.currentJobStartDate > 6e4 ||
+			// 	(Date.now() - actionStartDate > 3e4 && previousPage === page)
+			// ) {
+			// 	await this.site?.goToJobsPage();
+			// }
 
 			if (status === "success") {
 				actionStartDate = Date.now();
@@ -175,7 +175,7 @@ export default abstract class SiteCreator {
 				Logger.error(`Could not find an action for the page ${status}`);
 				await this.site?.goToJobsPage();
 			}
-			await this.driver?.sleep(1000);
+			await this.driver?.sleep(2000);
 			previousPage = page;
 		}
 	}

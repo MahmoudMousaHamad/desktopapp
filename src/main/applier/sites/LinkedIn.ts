@@ -28,11 +28,8 @@ export class LinkedInSite extends Site {
 			action: this.handleSubmitted.bind(this),
 		},
 		resume: {
-			strings: [
-				".ui-attachment__download-button",
-				".jobs-resume-picker__resume",
-			],
-			type: Locator.ELEMENT,
+			strings: ["Upload resume"],
+			type: Locator.TEXT,
 			action: this.resumeSection.bind(this),
 		},
 		questions: {
@@ -43,10 +40,10 @@ export class LinkedInSite extends Site {
 	};
 
 	async resumeSection() {
-		const chooseBtn = await this.driver.findElement(
+		const chooseBtn = await this.driver.findElements(
 			By.css("button[aria-label='Choose Resume']")
 		);
-		if (chooseBtn) await chooseBtn.click();
+		if (chooseBtn.length > 0) await chooseBtn[0].click();
 		await this.continue();
 	}
 
