@@ -2,11 +2,11 @@ function endpoints(NODE_ENV) {
 	let serverEndpoint;
 	switch (NODE_ENV) {
 		case "production":
-			serverEndpoint = "http://64.227.6.165:3000";
+			serverEndpoint = "http://64.227.6.165:3000/";
 			break;
 
 		case "staging":
-			serverEndpoint = "http://64.227.6.165:3000";
+			serverEndpoint = "http://64.227.6.165:3000/";
 			break;
 
 		default:
