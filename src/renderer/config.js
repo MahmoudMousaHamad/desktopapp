@@ -2,11 +2,11 @@ function endpoints(NODE_ENV) {
 	let serverEndpoint;
 	switch (NODE_ENV) {
 		case "production":
-			serverEndpoint = "https://useapplier.com";
+			serverEndpoint = "http://64.227.6.165:3000";
 			break;
 
 		case "staging":
-			serverEndpoint = "https://useapplier.com";
+			serverEndpoint = "http://64.227.6.165:3000";
 			break;
 
 		default:
@@ -23,7 +23,7 @@ function endpoints(NODE_ENV) {
 
 export const SERVER_URL =
 	window.electron.NODE_ENV === "production"
-		? "https://useapplier.com"
+		? "http://64.227.6.165:3000"
 		: "http://localhost:3000";
 
 export default {
