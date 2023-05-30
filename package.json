@@ -2,7 +2,7 @@
 	"name": "desktopapp",
 	"displayName": "WORK-SHY",
 	"description": "Work-Shy desktop app",
-	"version": "1.0.8",
+	"version": "1.0.19",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/mahmoudmousahamad/desktopapp.git",
@@ -22,6 +22,7 @@
 		"package:all": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build -lwm --publish always",
 		"publish": "electron-builder -p always",
 		"publish:win": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --windows --publish always",
+		"publish:all": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --linux --windows --publish always",
 		"prepare": "husky install",
 		"rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
 		"start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
