@@ -6,6 +6,36 @@ const htmlToElement = `
 		template.innerHTML = html;
 		return template.content.firstChild;
 	}
+	var modal = document.getElementById("jobapplier-modal");
+	modal.style = \`
+		position: fixed;
+		z-index: 1000;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		background-color: rgb(0,0,0);
+		background-color: rgba(0,0,0,0.4);
+	\`
+	document.getElementById("jobapplier-modal-content").style = \`
+		background-color: #fefefe;
+		margin: 15% auto;
+		padding: 20px;
+		border: 1px solid #888;
+		width: 30%;
+	\`
+	var span = document.getElementsByClassName("jobapplier-close")[0];
+	span.style = \`
+		color: #aaa;
+		float: right;
+		font-size: 28px;
+		font-weight: bold;
+		cursor: pointer;
+	\`
+	span.onclick = function() {
+		modal.style.display = "none";
+	}
 `;
 
 export const ScrollDown = "window.scrollTo(0, document.body.scrollHeight);";
@@ -73,34 +103,19 @@ document.body.prepend(htmlToElement(
 	</div>
 	\`
 ));
-var modal = document.getElementById("jobapplier-modal");
-modal.style = \`
-	position: fixed;
-	z-index: 1000;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	background-color: rgb(0,0,0);
-	background-color: rgba(0,0,0,0.4);
-\`
-document.getElementById("jobapplier-modal-content").style = \`
-	background-color: #fefefe;
-	margin: 15% auto;
-	padding: 20px;
-	border: 1px solid #888;
-	width: 30%;
-\`
-var span = document.getElementsByClassName("jobapplier-close")[0];
-span.style = \`
-	color: #aaa;
-	float: right;
-	font-size: 28px;
-	font-weight: bold;
-	cursor: pointer;
-\`
-span.onclick = function() {
-	modal.style.display = "none";
-}
+`;
+
+export const VerifyHuman = `
+${htmlToElement}
+document.body.prepend(htmlToElement(
+	\`
+	<div id="jobapplier-modal" class="jobapplier-modal">
+		<div id="jobapplier-modal-content">
+			<span class="jobapplier-close">&times;</span>
+			<p style="font-size: 20px;">Message from Work-Shy</p>
+			<p style="font-size: 15px;">Please verify that you are human</p>
+		</div>
+	</div>
+	\`
+));
 `;

@@ -32,7 +32,32 @@ export class Locator {
 		this.site = site;
 	}
 
+	async captia(): Promise<void> {
+		// Wait for user to load
+		Logger.info("Waiting for user to load");
+		// Display VerifyHuman script
+		Logger.info("Displaying VerifyHuman script");
+		await this.driver.executeScript(PleaseSignIn);
+		// Wait for user to complete the captcha
+		Logger.info("Waiting for user to complete the captcha");
+		await this.driver.wait(async () => {
+			const title = await this.driver.getTitle();
+			return title !== "Just a moment...";
+		}, 1000 * 60 * 5);
+		// Refresh the page
+		Logger.info("Refreshing the page");
+		await this.driver.navigate().refresh();
+	}
+
 	async getAction() {
+		// Check if the page is the Cloudflare page by chacking if the title is "Just a moment..."
+		if ((await this.driver.getTitle()) === "Just a moment...") {
+			return {
+				action: this.captia.bind(this),
+				status: "success",
+				page: "Cloudflare",
+			};
+		}
 		for (const [key, value] of Object.entries(this.site.locationsAndActions)) {
 			let string: string | undefined = "";
 			try {
@@ -118,6 +143,12 @@ export class Locator {
 
 	async waitUntilSignIn() {
 		await this.driver.get(this.site.jobsURL);
+		await this.driver.sleep(1000);
+		// Check if there is a captcha
+		const title = await this.driver.getTitle();
+		if (title === "Just a moment...") {
+			await this.captia();
+		}
 		const signedin = await this.signedIn();
 		if (signedin) {
 			Logger.info("User is signed in");
